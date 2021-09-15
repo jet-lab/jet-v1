@@ -299,6 +299,7 @@ export const sendTransaction = async (
   }
 
   // Sending phase
+  console.log(`Instructions `, transaction);
   const rawTransaction = transaction.serialize();
   const txid = await provider.connection.sendRawTransaction(
     rawTransaction,

@@ -10,7 +10,7 @@ import WalletAdapter from './walletAdapter';
 import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, Reserves, MathWallet, SolongWallet } from '../models/JetTypes';
 import { MARKET, WALLET, ASSETS, PROGRAM, CURRENT_RESERVE } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
-import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner } from './programUtil';
+import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
 import { Buffer } from 'buffer';
 
@@ -866,8 +866,14 @@ export const airdrop = async (abbrev: string, lamports: BN)
       // Use a specific endpoint. A hack because some devnet endpoints are unable to airdrop
       const endpoint = new anchor.web3.Connection('https://api.devnet.solana.com', (anchor.Provider.defaultOptions()).commitment);
       const txid = await endpoint.requestAirdrop(wallet.publicKey, parseInt(lamports.toString()));
-      console.log('Airdrop Transaction ID: ', txid);
-      return [true, txid];
+      console.log(`Transaction ${explorerUrl(txid)}`);
+      const confirmation = await endpoint.confirmTransaction(txid);
+      if(confirmation.value.err) {
+        console.error(`Airdrop error: ${transactionErrorToString(confirmation.value.err.toString())}`);
+        return [false, txid]; 
+      } else {
+        return [true, txid];
+      }
     } catch (error) {
       console.error(`Airdrop error: ${transactionErrorToString(error)}`);
       rollbar.error(`Airdrop error: ${transactionErrorToString(error)}`);
