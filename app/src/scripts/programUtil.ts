@@ -78,11 +78,11 @@ export const findDepositNoteAddress = async (program: anchor.Program, reserve: P
 /** 
  * Find the obligation for the wallet.
  */
-export const findObligationAddress = async (program: anchor.Program, wallet: PublicKey)
+export const findObligationAddress = async (program: anchor.Program, market: PublicKey, wallet: PublicKey)
   : Promise<[obligationPubkey: PublicKey, obligationBump: number]> => {
   return await findProgramAddress(
     program.programId,
-    ["obligation", wallet]
+    ["obligation", market, wallet]
   );
 };
 

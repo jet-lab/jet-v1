@@ -201,7 +201,7 @@ const getAssetPubkeys = async (): Promise<void> => {
     return;
   }
 
-  let [obligationPubkey, obligationBump] = await findObligationAddress(program, wallet.publicKey);
+  let [obligationPubkey, obligationBump] = await findObligationAddress(program, market.accountPubkey, wallet.publicKey);
 
   let assetStore: AssetStore = {
     sol: new TokenAmount(new BN(0), SOL_DECIMALS),

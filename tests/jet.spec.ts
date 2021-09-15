@@ -204,6 +204,7 @@ describe("jet", async () => {
     const obligationKey = (
       await client.findDerivedAccount([
         "obligation",
+        jetMarket.address,
         user.client.address,
       ])
     ).address;
@@ -245,6 +246,7 @@ describe("jet", async () => {
     const obligationKey = (
       await client.findDerivedAccount([
         "obligation",
+        jetMarket.address,
         user.client.address,
       ])
     ).address;
@@ -316,6 +318,7 @@ describe("jet", async () => {
     const obligationKey = (
       await client.findDerivedAccount([
         "obligation",
+        jetMarket.address,
         user.client.address,
       ])
     ).address;
@@ -371,6 +374,7 @@ describe("jet", async () => {
     const obligationKey = (
       await client.findDerivedAccount([
         "obligation",
+        jetMarket.address,
         user.client.address,
       ])
     ).address;

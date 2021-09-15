@@ -22,6 +22,7 @@ pub struct InitializeObligation<'info> {
     #[account(init,
               seeds = [
                   b"obligation".as_ref(),
+                  market.key().as_ref(),
                   borrower.key.as_ref()
               ],
               bump = bump,
