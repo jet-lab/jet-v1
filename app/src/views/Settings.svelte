@@ -84,7 +84,7 @@
   <div class="socials flex align-center justify-start">
     <a href="https://twitter.com/jetprotocol" target="_blank"><i class="text-gradient fab fa-twitter"></i></a>
     <a href="https://discord.gg/RW2hsqwfej" target="_blank"><i class="text-gradient fab fa-discord"></i></a>
-    <a href="https://github.com/jet-lab/jet-protocol" target="_blank"><i class="text-gradient fab fa-github"></i></a>
+    <a href="https://github.com/jet-lab/jet-v1" target="_blank"><i class="text-gradient fab fa-github"></i></a>
   </div>
 </div>
 {#if connectWallet && !$ASSETS}
