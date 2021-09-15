@@ -43,7 +43,7 @@
     pagination: false,
     scrollY: false,
     blocks: {
-      searchInput: true
+      searchInput: false
     },
     labels: {
         search: dictionary[$PREFERRED_LANGUAGE].cockpit.search,    
