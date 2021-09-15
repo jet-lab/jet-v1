@@ -362,14 +362,15 @@ input[type=number] {
 }
 .datatable {
   box-shadow: var(--neu--datatable-top-shadow) !important;
-  padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-xs) var(--spacing-sm) !important;
+  padding: var(--spacing-xs) var(--spacing-sm) var(--spacing-xs) var(--spacing-sm) !important;
 }
 .dt-table {
-  padding: var(--spacing-sm) !important;
+  padding: var(--spacing-xs), var(--spacing-sm) !important;
   margin: unset !important;
-  border-top: var(--spacing-xs) solid var(--white) !important;
+  /* border-top: var(--spacing-xs) solid var(--white) !important; */
 }
-.dt-search {
+/* uncomment theses once we put the search input back */
+/* .dt-search {
   margin-left: var(--spacing-sm) !important;
   width: calc(100% - (var(--spacing-sm) * 2)) !important;
   overflow: hidden !important;
@@ -386,7 +387,7 @@ input[type=number] {
   color: var(--input-color) !important;
   font-size: 13px !important;
   box-shadow: unset !important;
-}
+} */
 .datatable th {
   min-width: 60px !important;
   font-weight: bold !important;
