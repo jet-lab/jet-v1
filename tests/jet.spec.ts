@@ -177,10 +177,10 @@ describe("jet", async () => {
     }
   });
 
-  it("user A deposits usdc", async () => {
+  it("user A deposits usdc notes", async () => {
     const user = userA;
     const asset = usdc;
-    const amount = Amount.tokens(100000);
+    const amount = Amount.depositNotes(100000);
     const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
 
     await user.client.deposit(asset.reserve, tokenAccountKey, amount);
@@ -350,9 +350,9 @@ describe("jet", async () => {
 
   });
 
-  it("user A withdraws some usdc", async () => {
+  it("user A withdraws some usdc notes", async () => {
     const user = userA;
-    const amount = Amount.tokens(90000);
+    const amount = Amount.depositNotes(90000);
     const tokenAccountKey = user.tokenAccounts[usdc.token.publicKey.toBase58()];
 
     await wsol.reserve.refresh();
@@ -390,7 +390,51 @@ describe("jet", async () => {
 
     assert.equal(tokenBalance.toString(), "990000");
     assert.equal(notesBalance.toString(), "0");
-    assert.equal(collateralBalance.toString(), "10001"); // FIXME derive this
+    assert.equal(collateralBalance.toString(), "10000"); // FIXME derive this
+    assert.equal(vaultBalance.toString(), "0");
+  });
+
+  it("user A withdraws the remaining usdc notes", async () => {
+    const user = userA;
+    const amount = Amount.depositNotes(10000);
+    const tokenAccountKey = user.tokenAccounts[usdc.token.publicKey.toBase58()];
+
+    await wsol.reserve.refresh();
+
+    await user.client.withdrawCollateral(usdc.reserve, amount);
+    await user.client.withdraw(usdc.reserve, tokenAccountKey, amount);
+
+    const vaultKey = usdc.reserve.data.vault;
+    const notesKey = (
+      await client.findDerivedAccount([
+        "deposits",
+        usdc.reserve.address,
+        user.client.address,
+      ])
+    ).address;
+    const obligationKey = (
+      await client.findDerivedAccount([
+        "obligation",
+        user.client.address,
+      ])
+    ).address;
+    const collateralKey = (
+      await client.findDerivedAccount([
+        "collateral",
+        usdc.reserve.address,
+        obligationKey,
+        user.client.address,
+      ])
+    ).address;
+
+    let tokenBalance = await checkBalance(tokenAccountKey);
+    let notesBalance = await checkBalance(notesKey);
+    let collateralBalance = await checkBalance(collateralKey);
+    let vaultBalance = await checkBalance(vaultKey);
+
+    assert.equal(tokenBalance.toString(), "1000000");
+    assert.equal(notesBalance.toString(), "0");
+    assert.equal(collateralBalance.toString(), "0"); // FIXME derive this
     assert.equal(vaultBalance.toString(), "0");
   });
 
