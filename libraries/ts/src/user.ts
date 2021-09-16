@@ -58,6 +58,7 @@ export class JetUser implements User {
   ): Promise<JetUser> {
     const obligationAccount = await client.findDerivedAccount([
       "obligation",
+      market.address,
       address,
     ]);
     const user = new JetUser(client, market, address, obligationAccount);
