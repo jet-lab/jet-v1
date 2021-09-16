@@ -160,6 +160,7 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
         wallet = new WalletAdapter(solWindow.solana) as Wallet;
         break;
       } else {
+        console.log('Phantom not detected');
         window.open(walletUrl, "_blank");
         return;
       }
@@ -169,6 +170,7 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
         wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
         break;
       } else {
+        console.log('Math Wallet not detected');
         window.open(walletUrl, "_blank");
         return;
       }  
@@ -178,13 +180,15 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
         wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
         break;
       } else {
+        console.log('Solong not detected');
         window.open(walletUrl, "_blank");
         return;
       } 
     default:
+      console.log('Default wallet to Sollet');
       wallet = new WalletAdapter(walletUrl) as Wallet;
   }
-}
+};
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
