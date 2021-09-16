@@ -151,45 +151,83 @@ export const getMarketAndIDL = async (): Promise<void> => {
   subscribeToMarket(idlMetadata, connection, coder);
 };
 
-// const connectWalletOrShowUrl = (walletName: string) => {
-//   switch (walletName) {
-//     case 'Phantom': 
-//       provider.solana.isPha
-//   }
-// }
-
+const checkWallet = async (walletName: string, walletUrl: string): Promise<void> => {
+  switch (walletName) {
+    case 'Phantom':
+      if (solWindow.solana?.isPhantom) {
+        console.log('isPhantom');
+        wallet = new WalletAdapter(solWindow.solana) as Wallet;
+        break;
+      } else {
+        window.open(walletUrl, "_blank");
+        return;
+      }
+    case 'Math Wallet':
+      if (solWindow.solana?.isMathWallet) {
+        console.log('is Math');
+        wallet = solWindow?.solana as unknown as MathWallet;
+        wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
+        break;
+      } else {
+        window.open(walletUrl, "_blank");
+        return;
+      }  
+    case 'Solong':
+      if (solWindow?.solong) {
+        console.log('is solong');
+        wallet = solWindow?.solong as unknown as SolongWallet;
+        wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
+        break;
+      } else {
+        window.open(walletUrl, "_blank");
+        return;
+      } 
+    default:
+      wallet = new WalletAdapter(walletUrl) as Wallet;
+      console.log('Sollet Wallet');
+  }
+}
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Wallet adapter or injected wallet setup
   let walletUrl = provider.url;
-  if (provider.name === 'Phantom') {
-    if (solWindow.solana.isPhantom) {
-      wallet = new WalletAdapter(solWindow.solana) as Wallet;
-    } else {
-      window.open(walletUrl, "_blank");
-    }
-  } else if (solWindow && provider.name === 'Math Wallet') {
-    if (solWindow.solana.isMathWallet) {
-      wallet = solWindow?.solana as unknown as MathWallet;
-      wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
-    } else {
-      window.open(walletUrl, "_blank");
-    }    
-  } else if (provider.name === 'Solong') {
-    if (solWindow.solong) {
-      wallet = solWindow?.solong as unknown as SolongWallet;
-      wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
-    } else {
-      window.open(walletUrl, "_blank");
-    }  
-  } else {
-    wallet = new WalletAdapter(walletUrl) as Wallet;
-    console.log('not phantom, not solong, not math')
-  };
+  let walletName = provider.name;
+
+  checkWallet(walletName, walletUrl)
+  // if (provider.name === 'Phantom') {
+  //   if (solWindow.solana?.isPhantom) {
+  //     console.log('isPhantom');
+  //     wallet = new WalletAdapter(solWindow.solana) as Wallet;
+  //   } else {
+  //     window.open(walletUrl, "_blank");
+  //     return;
+  //   }
+  // } else if (solWindow && provider.name === 'Math Wallet') {
+  //   if (solWindow.solana?.isMathWallet) {
+  //     console.log('is Math');
+  //     wallet = solWindow?.solana as unknown as MathWallet;
+  //     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
+  //   } else {
+  //     window.open(walletUrl, "_blank");
+  //     return;
+  //   }    
+  // } else if (provider.name === 'Solong') {
+  //   if (solWindow?.solong) {
+  //     console.log('is solong');
+  //     wallet = solWindow?.solong as unknown as SolongWallet;
+  //     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
+  //   } else {
+  //     window.open(walletUrl, "_blank");
+  //     return;
+  //   }  
+  // } else {
+  //   wallet = new WalletAdapter(walletUrl) as Wallet;
+  //   console.log('Sollet Wallet')
+  // };
 
   // Set wallet
-  wallet.name = provider.name;
+  wallet.name = walletName;
   WALLET.set(wallet);
 
   // Setup anchor program
