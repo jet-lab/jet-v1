@@ -153,7 +153,7 @@ export const dictionary: any = {
       minCRatio: "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
       belowMinRatio: "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
       subjectToLiquidation: "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. Would you still like to borrow?",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}.",
+      rejectTrade: "We cannot allow this trade as it would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%.",
       confirm: "Confirm",
       repay: "Repay",
       amountOwed: "Amount Owed",
@@ -292,7 +292,7 @@ export const dictionary: any = {
       noDepositsForBorrow: "您需要存抵押物才能再借款",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
     },
     settings: {
       title: "设定",
@@ -419,7 +419,7 @@ export const dictionary: any = {
       noDepositsForBorrow: "Вы должны предоставить залог, чтобы вы могли занять.",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
     },
     settings: {
       title: "Настройки",
@@ -546,7 +546,7 @@ export const dictionary: any = {
       noDepositsForBorrow: "Ödünç almak için teminat yatırmanız gerekiyor.",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
     },
     settings: {
       title: "Ayarlar",
