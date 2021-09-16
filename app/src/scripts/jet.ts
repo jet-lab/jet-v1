@@ -183,7 +183,6 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
       } 
     default:
       wallet = new WalletAdapter(walletUrl) as Wallet;
-      console.log('Sollet Wallet');
   }
 }
 
