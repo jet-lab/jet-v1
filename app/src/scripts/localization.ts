@@ -227,7 +227,9 @@ export const dictionary: any = {
         failed: "Mayday!",
         success: "Success!",
         airdropSuccess: "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
-        refresh: "Refresh"
+        refresh: "Refresh",
+        headsup: "Heads up!",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan."
       }
     }
   },
@@ -354,7 +356,9 @@ export const dictionary: any = {
         failed: "失败了!",
         success: "成功了!",
         airdropSuccess: "我们已经寄给您 {{AMOUNT}} {{RESERVE ABBREV}}。请更新您到网页。",
-        refresh: "更新网页"
+        refresh: "更新网页",
+        headsup: "Heads up!",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan."
       }
     }
   },
@@ -481,7 +485,9 @@ export const dictionary: any = {
         failed: "Неудача!",
         success: "Успех!",
         airdropSuccess: "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
-        refresh: "Refresh"
+        refresh: "Refresh",
+        headsup: "Heads up!",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan."
       }
     }
   },
@@ -608,7 +614,9 @@ export const dictionary: any = {
         failed: "İmdat!",
         success: "Başarılı!",
         airdropSuccess: "Size {{UI AMOUNT}} {{RESERVE ABBREV}} değerindeki varlığı Airdrop'la gönderdik. Yeni bakiyenizi görmek için lütfen uygulamayı yenileyin.",
-        refresh: "Yenile"
+        refresh: "Yenile",
+        headsup: "Heads up!",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan."
       }
     }
   }

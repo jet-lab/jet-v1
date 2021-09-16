@@ -87,6 +87,8 @@ export interface Reserve {
   /** The bonus awarded to liquidators when repaying a loan in exchange for a
   collateral asset. */
   liquidationPremium: number,
+  /** Origination fee for every new loan */
+  loanOriginationFee: number,
   /** The price of the asset being stored in the reserve account. */
   price: number,
   decimals: number,

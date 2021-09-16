@@ -63,6 +63,7 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
           reserve.accruedUntil = decoded.accruedUntil;
           reserve.borrowAPR = getBorrowRate(ccRate, decoded.config.manageFeeRate);
           reserve.depositAPY = getDepositRate(ccRate, reserve.utilizationRate);
+          reserve.loanOriginationFee = decoded.config.loanOriginationFee;
 
           return market;
         })

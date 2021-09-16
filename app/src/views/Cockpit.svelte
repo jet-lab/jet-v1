@@ -271,6 +271,20 @@
             }
           }
         });
+      // Inform user that origination fee is attached to every new loan
+      } else if ($TRADE_ACTION === 'borrow') {
+        COPILOT.set({
+          alert: {
+            good: true,
+            header: dictionary[$PREFERRED_LANGUAGE].copilot.alert.headsup,
+            text: dictionary[$PREFERRED_LANGUAGE].copilot.alert.originationFee
+              .replaceAll('{{ORIGINATION FEE}}', reserveDetail?.loanOriginationFee ?? 0 /100), 
+            action: {
+              text: dictionary[$PREFERRED_LANGUAGE].cockpit.confirm,
+              onClick: () => submitTrade()
+            }
+          }
+        });
       } else {
         submitTrade();
       }
@@ -344,7 +358,6 @@
         return;
       }
 
-      inputError = '';
       const borrowLamports = TokenAmount.tokens(tradeAmountString, $CURRENT_RESERVE.decimals);
       const borrowAmount = Amount.tokens(borrowLamports.amount);
       [ok, txid] = await borrow($CURRENT_RESERVE.abbrev, borrowAmount);
