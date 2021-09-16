@@ -48,6 +48,7 @@
       <div class="wallet flex align-center justify-between" 
         class:active={walletChoice === p.name} 
         on:click={() => {
+          console.log('from connectWallet.svelte', p.name);
           walletChoice = p.name;
           getWalletAndAnchor(p);
         }}>
