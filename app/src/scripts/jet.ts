@@ -151,11 +151,12 @@ export const getMarketAndIDL = async (): Promise<void> => {
   subscribeToMarket(idlMetadata, connection, coder);
 };
 
+
+//check if user has wallet installed. if not, lead user to the wallet url
 const checkWallet = async (walletName: string, walletUrl: string): Promise<void> => {
   switch (walletName) {
     case 'Phantom':
       if (solWindow.solana?.isPhantom) {
-        console.log('isPhantom');
         wallet = new WalletAdapter(solWindow.solana) as Wallet;
         break;
       } else {
@@ -164,7 +165,6 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
       }
     case 'Math Wallet':
       if (solWindow.solana?.isMathWallet) {
-        console.log('is Math');
         wallet = solWindow?.solana as unknown as MathWallet;
         wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
         break;
@@ -174,7 +174,6 @@ const checkWallet = async (walletName: string, walletUrl: string): Promise<void>
       }  
     case 'Solong':
       if (solWindow?.solong) {
-        console.log('is solong');
         wallet = solWindow?.solong as unknown as SolongWallet;
         wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
         break;
@@ -194,37 +193,8 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   let walletUrl = provider.url;
   let walletName = provider.name;
 
-  checkWallet(walletName, walletUrl)
-  // if (provider.name === 'Phantom') {
-  //   if (solWindow.solana?.isPhantom) {
-  //     console.log('isPhantom');
-  //     wallet = new WalletAdapter(solWindow.solana) as Wallet;
-  //   } else {
-  //     window.open(walletUrl, "_blank");
-  //     return;
-  //   }
-  // } else if (solWindow && provider.name === 'Math Wallet') {
-  //   if (solWindow.solana?.isMathWallet) {
-  //     console.log('is Math');
-  //     wallet = solWindow?.solana as unknown as MathWallet;
-  //     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
-  //   } else {
-  //     window.open(walletUrl, "_blank");
-  //     return;
-  //   }    
-  // } else if (provider.name === 'Solong') {
-  //   if (solWindow?.solong) {
-  //     console.log('is solong');
-  //     wallet = solWindow?.solong as unknown as SolongWallet;
-  //     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
-  //   } else {
-  //     window.open(walletUrl, "_blank");
-  //     return;
-  //   }  
-  // } else {
-  //   wallet = new WalletAdapter(walletUrl) as Wallet;
-  //   console.log('Sollet Wallet')
-  // };
+  //check if the user has wallet installed
+  checkWallet(walletName, walletUrl);
 
   // Set wallet
   wallet.name = walletName;
