@@ -364,6 +364,7 @@ export const sendAllTransactions = async (
   }
 
   // Sending phase
+  console.log("Transactions", txs);
   let ok = true;
   const txids: string[] = [];
   for (const transaction of signedTransactions) {
@@ -372,7 +373,7 @@ export const sendAllTransactions = async (
       rawTransaction,
       provider.opts
     );
-    console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`, transaction);
+    console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`);
     txids.push(txid);
 
     // Confirming phase
