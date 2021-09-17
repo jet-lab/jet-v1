@@ -118,6 +118,7 @@ export const getMarketAndIDL = async (): Promise<void> => {
       depositNoteExchangeRate: new BN(0),
       loanNoteExchangeRate: new BN(0),
       accruedUntil: new BN(0),
+      loanOriginationFee: 0,
 
       accountPubkey: reserveMeta.accounts.reserve,
       vaultPubkey: reserveMeta.accounts.vault,

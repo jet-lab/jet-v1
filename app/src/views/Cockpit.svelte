@@ -358,6 +358,7 @@
         return;
       }
 
+      inputError = '';
       const borrowLamports = TokenAmount.tokens(tradeAmountString, $CURRENT_RESERVE.decimals);
       const borrowAmount = Amount.tokens(borrowLamports.amount);
       [ok, txid] = await borrow($CURRENT_RESERVE.abbrev, borrowAmount);
