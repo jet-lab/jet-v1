@@ -105,9 +105,9 @@
         disabledMessage = dictionary[$PREFERRED_LANGUAGE].cockpit.assetIsCurrentBorrow
           .replaceAll('{{ASSET}}', $CURRENT_RESERVE.abbrev);
       }
-    } else if ($TRADE_ACTION === 'withdraw' && (noDeposits || belowMinCRatio )) {
+    } else if ($TRADE_ACTION === 'withdraw' && (!collateralBalances[$CURRENT_RESERVE.abbrev] || belowMinCRatio)) {
       disabledInput = true;
-      if (noDeposits) {
+      if (!collateralBalances[$CURRENT_RESERVE.abbrev]) {
         disabledMessage = disabledMessage = dictionary[$PREFERRED_LANGUAGE].cockpit.noDepositsForWithdraw
           .replaceAll('{{ASSET}}', $CURRENT_RESERVE.abbrev);
       } else {
@@ -249,7 +249,7 @@
   const checkSubmit = () => {
     if (!disabledInput) {
       // If trade would result in c-ratio below min ratio, inform user and reject
-      if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio) {
+      if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio < $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
             good: false,
@@ -258,8 +258,8 @@
               .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100)
           }
         });
-      // If trade would result in c-ratio near min ratio, inform user
-      } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
+    // If trade would result in possible undercollateralization, inform user
+    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
             good: false,
@@ -416,6 +416,12 @@
       document.querySelector('.dt-search')?.appendChild(searchIcon);
     }
 
+    // Hardcode min c-ratio to 130% for now
+    MARKET.update(market => {
+      market.minColRatio = 1.3;
+      return market;
+    });
+
     // Init View on first reaction
     init = true;
   }
@@ -490,10 +496,11 @@
     </div>
     <Datatable settings={tableSettings} data={tableData}>
       <thead>
-        <th data-key="abbrev">
+        <th data-key="name">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.asset} 
         </th>
-        <th class="native-toggle">
+        <th data-key="abbrev"
+          class="native-toggle">
           <Toggle onClick={() => NATIVE.set(!$NATIVE)}
             active={!$NATIVE} 
             native 
@@ -518,13 +525,13 @@
               })}>
           </i>
         </th>
-        <th data-key="walletBalance">
+        <th>
           {dictionary[$PREFERRED_LANGUAGE].cockpit.walletBalance}
         </th>
-        <th data-key="amountDeposited">
+        <th>
           {dictionary[$PREFERRED_LANGUAGE].cockpit.amountDeposited}
         </th>
-        <th data-key="amountBorrowed">
+        <th>
           {dictionary[$PREFERRED_LANGUAGE].cockpit.amountBorrowed}
         </th>
         <th>

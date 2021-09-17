@@ -34,7 +34,7 @@ PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 
 // Development environment variable
-export const inDevelopment: boolean = true;
+export const inDevelopment: boolean = true //jetDev;
 
 // Rollbar error logging
 export const rollbar = new Rollbar({

@@ -86,10 +86,10 @@
     <div class="modal-section flex align-center justify-center">
       <div class="modal-detail flex align-center justify-center column">
         <span>
-          {dictionary[$PREFERRED_LANGUAGE].reserveDetail.maximumLTV.toUpperCase()}
+          {dictionary[$PREFERRED_LANGUAGE].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
           <i class="info far fa-question-circle"
             on:click={() => COPILOT.set({
-              definition: definitions[$PREFERRED_LANGUAGE].maximumLtv
+              definition: definitions[$PREFERRED_LANGUAGE].collateralizationRatio
             })}>
           </i>
         </span>
