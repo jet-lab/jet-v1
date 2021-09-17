@@ -606,7 +606,8 @@
               )}
             </td>
             <!--Faucet for testing if in development-->
-            {#if inDevelopment}
+            <!--Need to check inDevelopment once we go mainnet-->
+            {#if true}
               <td class="faucet" on:click={() => doAirdrop($rows[i])}>
                 <i class="text-gradient fas fa-parachute-box"
                   title={`Airdrop ${$rows[i].abbrev}`}
