@@ -4,8 +4,6 @@ import { BN } from '@project-serum/anchor';
 import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, getDoc, doc } from 'firebase/firestore/lite';
 import WalletAdapter from './walletAdapter';
 import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, Reserves, MathWallet, SolongWallet } from '../models/JetTypes';
 import { MARKET, WALLET, ASSETS, PROGRAM, CURRENT_RESERVE } from '../store';
@@ -34,7 +32,7 @@ PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 
 // Development environment variable
-export const inDevelopment: boolean = true //jetDev;
+export const inDevelopment: boolean = jetDev;
 
 // Rollbar error logging
 export const rollbar = new Rollbar({
@@ -46,54 +44,19 @@ export const rollbar = new Rollbar({
   }
 });
 
-// Firebase initialize
-const firebase = initializeApp({
-  apiKey: "AIzaSyBaZt58dCRzNFPNu1uYGqM1BIhngSnY3Tg",
-  authDomain: "jet-protocol.firebaseapp.com",
-  projectId: "jet-protocol",
-  storageBucket: "jet-protocol.appspot.com",
-  messagingSenderId: "676105669233",
-  appId: "1:676105669233:web:46dacd09dc1fab335769d0",
-  measurementId: "G-F88EN9GEQX"
-});
 
 // Cast solana injected window type
 const solWindow = window as unknown as SolWindow;
-
-// Firestore database
-export const firestore = getFirestore(firebase);
 
 // Establish Anchor variables
 let connection: anchor.web3.Connection;
 let coder: anchor.Coder;
 
-// Fetch IDL Locally
-const getIDLLocal = async (): Promise<any> => {
-  console.log("Fetching IDL from /idl")
-  const resp = await fetch('/idl', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' }
-  });
-
-  return await resp.json();
-};
-
-// Fetch IDL from Firebase
-const getIDLFirebase = async (): Promise<any | undefined> => {
-  console.log("Fetching IDL from Firebase");
-  const docRef = doc(firestore, 'anchor/program');
-  const idlDoc = await getDoc(docRef);
-  const idl = idlDoc.data()?.idl;
-  return JSON.parse(idl);
-};
-
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
   // Fetch IDL
-  if (jetDev) {
-    console.log("In development");
-  }
-  idl = jetDev ? await getIDLLocal() : await getIDLFirebase();
+  const resp = await fetch('idl/jet.json');
+  idl = await resp.json();
   const idlMetadata = parseIdlMetadata(idl.metadata);
 
   // Establish web3 connection
@@ -149,12 +112,13 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
   // Subscribe to market 
   subscribeToMarket(idlMetadata, connection, coder);
+  return;
 };
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Wallet adapter or injected wallet setup
-  if (provider.name === 'Phantom' && solWindow.solana) {
+  if (provider.name === 'Phantom' && solWindow.solana.isPhantom) {
     wallet = new WalletAdapter(solWindow.solana) as Wallet;
   } else if (provider.name === 'Math Wallet' && solWindow.solana.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
@@ -162,6 +126,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
+    wallet.on = (action: string, callback: Function) => callback();
   } else {
     wallet = new WalletAdapter(provider.url) as Wallet;
   };
@@ -178,20 +143,14 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   ));
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
-
+  
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
-  if (wallet.name === 'Math Wallet' || wallet.name === 'Solong') {
+  wallet.on('connect', async () => {
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
-  } else {
-    wallet.on('connect', async () => {
-      await getAssetPubkeys();
-      await subscribeToAssets(connection, coder, wallet.publicKey);
-    });
-    wallet.connect();
-  }
-
+  });
+  wallet.connect();
   return;
 };
 

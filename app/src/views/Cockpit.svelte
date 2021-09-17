@@ -582,7 +582,7 @@
                 walletBalances[$rows[i].abbrev]?.uiAmountFloat ?? 0,
                 $rows[i].price,
                 $NATIVE,
-                2
+                $rows[i].decimals
               )}
             </td>
             <td on:click={() => changeReserve($rows[i])}
@@ -591,7 +591,8 @@
               {totalAbbrev(
                 collateralBalances[$rows[i].abbrev],
                 $rows[i].price,
-                $NATIVE
+                $NATIVE,
+                $rows[i].decimals
               )}
             </td>
             <td on:click={() => changeReserve($rows[i])}
@@ -600,7 +601,8 @@
               {totalAbbrev(
                 loanBalances[$rows[i].abbrev],
                 $rows[i].price,
-                $NATIVE
+                $NATIVE,
+                $rows[i].decimals
               )}
             </td>
             <!--Faucet for testing if in development-->
