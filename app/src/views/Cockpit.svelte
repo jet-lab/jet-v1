@@ -278,7 +278,7 @@
             good: true,
             header: dictionary[$PREFERRED_LANGUAGE].copilot.alert.headsup,
             text: dictionary[$PREFERRED_LANGUAGE].copilot.alert.originationFee
-              .replaceAll('{{ORIGINATION FEE}}', reserveDetail?.loanOriginationFee ?? 0 /100), 
+              .replaceAll('{{ORIGINATION FEE}}', $CURRENT_RESERVE?.loanOriginationFee ?? 0 /100), 
             action: {
               text: dictionary[$PREFERRED_LANGUAGE].cockpit.confirm,
               onClick: () => submitTrade()
