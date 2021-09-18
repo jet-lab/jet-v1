@@ -525,16 +525,16 @@
               })}>
           </i>
         </th>
-        <th>
+        <th data-key="">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.walletBalance}
         </th>
-        <th>
+        <th data-key="">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.amountDeposited}
         </th>
-        <th>
+        <th data-key="">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.amountBorrowed}
         </th>
-        <th>
+        <th data-key="">
           <!--Empty column for arrow-->
         </th>
       </thead>
@@ -582,7 +582,7 @@
                 walletBalances[$rows[i].abbrev]?.uiAmountFloat ?? 0,
                 $rows[i].price,
                 $NATIVE,
-                2
+                $rows[i].decimals
               )}
             </td>
             <td on:click={() => changeReserve($rows[i])}
@@ -591,7 +591,8 @@
               {totalAbbrev(
                 collateralBalances[$rows[i].abbrev],
                 $rows[i].price,
-                $NATIVE
+                $NATIVE,
+                $rows[i].decimals
               )}
             </td>
             <td on:click={() => changeReserve($rows[i])}
@@ -600,11 +601,13 @@
               {totalAbbrev(
                 loanBalances[$rows[i].abbrev],
                 $rows[i].price,
-                $NATIVE
+                $NATIVE,
+                $rows[i].decimals
               )}
             </td>
             <!--Faucet for testing if in development-->
-            {#if inDevelopment}
+            <!--Replace with inDevelopment for mainnet-->
+            {#if true}
               <td class="faucet" on:click={() => doAirdrop($rows[i])}>
                 <i class="text-gradient fas fa-parachute-box"
                   title={`Airdrop ${$rows[i].abbrev}`}

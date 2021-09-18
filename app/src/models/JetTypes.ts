@@ -96,7 +96,6 @@ export interface Reserve {
   loanNoteExchangeRate: BN,
   /** The number of seconds since 1970 that the reserve is refreshed to. */
   accruedUntil: BN,
-
   accountPubkey: PublicKey,
   vaultPubkey: PublicKey,
   availableLiquidity: TokenAmount,

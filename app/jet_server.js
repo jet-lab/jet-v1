@@ -14,11 +14,6 @@ app.get('*', (req, res) => {
   res.sendFile(path.resolve(`${__dirname}/public`, 'index.html'));
 });
 
-// Send IDL
-app.post('/idl', (req, res) => {
-  res.send(fs.readFileSync('../target/idl/jet.json', 'utf8'));
-});
-
 // Initiate server if in development
 app.listen(port, err => {
   if (err) {

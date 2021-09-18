@@ -63,7 +63,7 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, 2)}
+              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, reserveDetail.decimals)}
             </p>
           </span>
         </div>

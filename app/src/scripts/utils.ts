@@ -86,7 +86,7 @@ export const totalAbbrev = (total: number, price?: number, native?: boolean, dig
   } else if (t > 1000000) {
     return `${native ? '' : '$'}${(t / 1000000).toFixed(1)}M`;
   } else {
-    return currencyFormatter(t, !native, digits ?? 2);
+    return currencyFormatter(t, !native, native ? digits : 2);
   }
 };
 
