@@ -88,7 +88,7 @@ export const getMarketAndIDL = async (): Promise<void> => {
       feeNoteVaultPubkey: reserveMeta.accounts.feeNoteVault,
       tokenMintPubkey: reserveMeta.accounts.tokenMint,
       tokenMint: TokenAmount.zero(reserveMeta.decimals),
-      faucetPubkey: reserveMeta.accounts.faucet,
+      faucetPubkey: reserveMeta.accounts.faucet ?? null,
       depositNoteMintPubkey: reserveMeta.accounts.depositNoteMint,
       depositNoteMint: TokenAmount.zero(reserveMeta.decimals),
       loanNoteMintPubkey: reserveMeta.accounts.loanNoteMint,

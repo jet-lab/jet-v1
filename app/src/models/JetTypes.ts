@@ -102,7 +102,7 @@ export interface Reserve {
   feeNoteVaultPubkey: PublicKey,
   tokenMintPubkey: PublicKey,
   tokenMint: TokenAmount,
-  faucetPubkey?: PublicKey,
+  faucetPubkey: PublicKey | null,
   depositNoteMintPubkey: PublicKey,
   depositNoteMint: TokenAmount,
   loanNoteMintPubkey: PublicKey,
