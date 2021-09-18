@@ -216,9 +216,13 @@ export const deposit = async (abbrev: string, lamports: BN)
     return [false, undefined];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
-    return [false, txid]
+  try {
+    const [ok, txid] = await refreshOldReserves();
+    if (!ok) {
+      return [false, txid]
+    }
+  } catch (err) {
+    console.log(err);
   }
 
   let reserve = market.reserves[abbrev];
@@ -384,9 +388,13 @@ export const withdraw = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
-    return [false, txid]
+  try {
+    const [ok, txid] = await refreshOldReserves();
+    if (!ok) {
+      return [false, txid]
+    }
+  } catch (err) {
+    console.log(err);
   }
 
   const reserve = market.reserves[abbrev];
@@ -491,9 +499,13 @@ export const borrow = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
-    return [false, txid]
+  try {
+    const [ok, txid] = await refreshOldReserves();
+    if (!ok) {
+      return [false, txid]
+    }
+  } catch (err) {
+    console.log(err);
   }
 
   const reserve = market.reserves[abbrev];
@@ -605,9 +617,13 @@ export const repay = async (abbrev: string, lamports: BN)
     return [false, undefined];
   }
 
-  const [ok, txid] = await refreshOldReserves();
-  if (!ok) {
-    return [false, txid]
+  try {
+    const [ok, txid] = await refreshOldReserves();
+    if (!ok) {
+      return [false, txid]
+    }
+  } catch (err) {
+    console.log(err);
   }
 
   const reserve = market.reserves[abbrev];
