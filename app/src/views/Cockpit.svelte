@@ -367,8 +367,11 @@ import { LAMPORTS_PER_SOL } from '@solana/web3.js';
       }
 
       inputError = '';
-      const repayLamports = TokenAmount.tokens(inputAmount.toString(), $CURRENT_RESERVE.decimals);
-      [ok, txid] = await repay($CURRENT_RESERVE.abbrev, repayLamports.amount);
+      const repayLamports = TokenAmount.tokens(inputAmount.toString(), $CURRENT_RESERVE.decimals).amount;
+      const repayAmount = inputAmount === loanBalances[$CURRENT_RESERVE.abbrev].uiAmountFloat
+        ? Amount.loanNotes($ASSETS.tokens[$CURRENT_RESERVE.abbrev].collateralBalance.amount)
+        : Amount.tokens(repayLamports);
+      [ok, txid] = await repay($CURRENT_RESERVE.abbrev, repayAmount);
     }
     
     
