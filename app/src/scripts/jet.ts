@@ -611,7 +611,7 @@ export const borrow = async (abbrev: string, amount: Amount)
 };
 
 // Repay
-export const repay = async (abbrev: string, lamports: BN)
+export const repay = async (abbrev: string, amount: Amount)
   : Promise<[ok: boolean, txid: string | undefined]> => {
   if (!assets || !program) {
     return [false, undefined];
@@ -646,6 +646,12 @@ export const repay = async (abbrev: string, lamports: BN)
     depositSourceKeypair = Keypair.generate();
     depositSourcePubkey = depositSourceKeypair.publicKey;
 
+    // Do our best to estimate the lamports we need
+    // 1.002 is a bit of room for interest
+    const lamports = amount.units.loanNotes
+      ? reserve.loanNoteExchangeRate.mul(amount.value).div(new BN(Math.pow(10, 15))).muln(1.002)
+      : amount.value;
+
     const rent = await connection.getMinimumBalanceForRentExemption(TokenAccountLayout.span);
     createTokenAccountIx = SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
@@ -675,7 +681,6 @@ export const repay = async (abbrev: string, lamports: BN)
   // Obligatory refresh instruction
   const refreshReserveIx = buildRefreshReserveIx(abbrev);
 
-  const amount = Amount.tokens(lamports);
   const repayIx = program.instruction.repay(amount, {
     accounts: {
       market: market.accountPubkey,
