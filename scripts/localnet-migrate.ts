@@ -18,6 +18,7 @@ const main = async () => {
 
   // add pubkeys to the idl
   const idlPath = path.resolve("target/idl/jet.json");
+  const idlWebPath = path.resolve("app/public/idl/jet.json");
   const idl = JSON.parse(fs.readFileSync(idlPath, "utf-8")) as any;
 
   const program = new anchor.Program(idl, idl.metadata.address);
@@ -154,8 +155,9 @@ const main = async () => {
     assert(i === idl.metadata.reserves[i].reserveIndex, "Reserve index does not match it's position in the array.");
   }
 
-  console.log(`Writing reserve addresses to ${idlPath}...`);
-  fs.writeFileSync(idlPath, JSON.stringify(idl, undefined, 2));
+  console.log(`Writing reserve addresses to ${idlWebPath}...`);
+  fs.mkdirSync(path.dirname(idlWebPath), { recursive: true })
+  fs.writeFileSync(idlWebPath, JSON.stringify(idl, undefined, 2));
 
   console.log("Initializing usdc reserve...");
   await jetUtils.initReserve(usdcReserveAccounts, reserveConfig, market.publicKey, marketOwner, quoteTokenMint);
