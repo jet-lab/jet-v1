@@ -87,7 +87,7 @@ span {
   opacity: 0.75;
   font-size: 13px;
   text-align: center;
-  max-width: 475px;
+  max-width: 400px;
 }
 .info {
   color: var(--black);
@@ -531,10 +531,14 @@ input[type=number] {
     padding: var(--spacing-xs) 0;
   }
   .trade-input input {
-    width: 145px;
-    padding-left: 45px;
+    width: 160px;
+    padding-left: 30px;
     padding-right: 35px;
     font-size: 15px;
+  }
+  .trade-input img {
+    width: 18px;
+    left: var(--spacing-sm);
   }
   .trade-input span {
     font-size: 10px !important;
