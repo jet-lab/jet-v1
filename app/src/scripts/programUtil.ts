@@ -149,7 +149,7 @@ export const getTokenAccountAndSubscribe = function (
   let subscriptionId = getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
       if(account.data.length != 165){
-        console.log(account.data.length);
+        console.log('account data length', account.data.length);
       }
       const decoded = parseTokenAccount(account, publicKey);
       const amount = TokenAmount.tokenAccount(decoded.data, decimals);
