@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::TokenAccount;
 
 use crate::state::*;
 
@@ -37,7 +36,7 @@ pub struct InitializeDepositAccount<'info> {
               token::mint = deposit_note_mint,
               token::authority = market_authority,
               payer = depositor)]
-    pub deposit_account: CpiAccount<'info, TokenAccount>,
+    pub deposit_account: AccountInfo<'info>,
 
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,

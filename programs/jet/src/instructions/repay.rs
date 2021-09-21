@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, Burn, Mint, TokenAccount, Transfer};
+use anchor_spl::token::{self, Burn, Transfer};
 
 use crate::state::*;
 use crate::{Amount, AmountUnits, ErrorCode};
@@ -36,11 +36,11 @@ pub struct Repay<'info> {
 
     /// The reserve's vault where the payment will be transferred to
     #[account(mut)]
-    pub vault: CpiAccount<'info, TokenAccount>,
+    pub vault: AccountInfo<'info>,
 
     /// The mint for the debt/loan notes
     #[account(mut)]
-    pub loan_note_mint: CpiAccount<'info, Mint>,
+    pub loan_note_mint: AccountInfo<'info>,
 
     /// The account that holds the borrower's debt balance
     #[account(mut)]
@@ -63,8 +63,8 @@ pub trait RepayContext<'info> {
     fn market_authority(&self) -> &AccountInfo<'info>;
     fn obligation(&self) -> &Loader<'info, Obligation>;
     fn reserve(&self) -> &Loader<'info, Reserve>;
-    fn vault(&self) -> &CpiAccount<'info, TokenAccount>;
-    fn loan_note_mint(&self) -> &CpiAccount<'info, Mint>;
+    fn vault(&self) -> &AccountInfo<'info>;
+    fn loan_note_mint(&self) -> &AccountInfo<'info>;
     fn payer(&self) -> &AccountInfo<'info>;
     fn loan_account(&self) -> &AccountInfo<'info>;
     fn payer_account(&self) -> &AccountInfo<'info>;
@@ -108,10 +108,10 @@ macro_rules! implement_repay_context {
             fn reserve(&self) -> &Loader<'info, Reserve> {
                 &self.reserve
             }
-            fn vault(&self) -> &CpiAccount<'info, TokenAccount> {
+            fn vault(&self) -> &AccountInfo<'info> {
                 &self.vault
             }
-            fn loan_note_mint(&self) -> &CpiAccount<'info, Mint> {
+            fn loan_note_mint(&self) -> &AccountInfo<'info> {
                 &self.loan_note_mint
             }
             fn payer(&self) -> &AccountInfo<'info> {

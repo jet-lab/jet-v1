@@ -26,7 +26,7 @@ checksum = "6b2d54853319fd101b8dd81de382bcbf3e03410a64d8928bbee85a3e7dcde483"
 [[package]]
 name = "anchor-attribute-access-control"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -39,7 +39,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-account"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -51,7 +51,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-error"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "proc-macro2",
@@ -62,7 +62,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-event"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -74,7 +74,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-interface"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -87,7 +87,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-program"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -99,7 +99,7 @@ dependencies = [
 [[package]]
 name = "anchor-attribute-state"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -111,7 +111,7 @@ dependencies = [
 [[package]]
 name = "anchor-derive-accounts"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -123,7 +123,7 @@ dependencies = [
 [[package]]
 name = "anchor-lang"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-attribute-access-control",
  "anchor-attribute-account",
@@ -143,7 +143,7 @@ dependencies = [
 [[package]]
 name = "anchor-spl"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anchor-lang",
  "lazy_static",
@@ -155,7 +155,7 @@ dependencies = [
 [[package]]
 name = "anchor-syn"
 version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+source = "git+https://github.com/jet-lab/anchor#7cf7ccfdd44849dbc2b1573608fc7ed0a022f007"
 dependencies = [
  "anyhow",
  "bs58",
@@ -1019,7 +1019,7 @@ dependencies = [
 [[package]]
 name = "serum_dex"
 version = "0.4.0"
-source = "git+https://github.com/project-serum/serum-dex#d82f6cd7a0b8d966a79c8e60e6139129b01256da"
+source = "git+https://github.com/project-serum/serum-dex?tag=v0.4.0#1be91f2863d8ecede32daaae7e768034e24bbc79"
 dependencies = [
  "arrayref",
  "bincode",

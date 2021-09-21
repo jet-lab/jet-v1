@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, Mint, TokenAccount, Transfer};
+use anchor_spl::token::{self, Transfer};
 use jet_math::Number;
 
 use crate::errors::ErrorCode;
@@ -46,11 +46,11 @@ pub struct Liquidate<'info> {
 
     /// The reserve's vault where the payment will be transferred to
     #[account(mut)]
-    pub vault: CpiAccount<'info, TokenAccount>,
+    pub vault: AccountInfo<'info>,
 
     /// The mint for the debt/loan notes
     #[account(mut)]
-    pub loan_note_mint: CpiAccount<'info, Mint>,
+    pub loan_note_mint: AccountInfo<'info>,
 
     /// The account that holds the borrower's debt balance
     #[account(mut)]
