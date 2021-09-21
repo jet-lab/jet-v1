@@ -6,7 +6,7 @@ import type { TokenAmount } from '../scripts/utils';
 // Market
 export interface Market {
   minColRatio: number,
-  reserves: Reserves,
+  reserves: Record<string, Reserve>,
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
@@ -29,6 +29,10 @@ export interface MarketAccount {
   marketAuthority: PublicKey,
   /** The account that has authority to make changes to the market */
   owner: PublicKey,
+  /** The mint for the token in terms of which the reserve assets are quoted */
+  quoteTokenMint: PublicKey,
+  /** Reserved space */
+  _reserved: number[],
   /** Tracks the current prices of the tokens in reserve accounts */
   reserves: JetMarketReserveInfo[]
 };
@@ -66,13 +70,9 @@ export interface CacheStruct {
   lastUpdated: BN,
   /** Whether the value has been manually invalidated */
   invalidated: number,
+  /** Unused space */
+  _reserved: number[],
 }
-
-// Reserves
-export interface Reserves extends Record<string, Reserve> {
-  USDC: Reserve;
-  SOL: Reserve;
-};
 
 // Reserve
 export interface Reserve {
@@ -109,7 +109,6 @@ export interface Reserve {
   loanNoteMint: TokenAmount,
   pythPricePubkey: PublicKey,
   pythProductPubkey: PublicKey,
-
 };
 
 // Reserve Account
@@ -118,15 +117,19 @@ export interface ReserveAccount {
   index: number,
   exponent: number,
   market: PublicKey,
-  priceOracle: PublicKey,
+  oraclePrice: PublicKey,
+  oracleProduct: PublicKey,
   tokenMint: PublicKey,
   depositNoteMint: PublicKey,
   loanNoteMint: PublicKey,
   vault: PublicKey,
   feeNoteVault: PublicKey,
+  dexSwapTokens: PublicKey,
+  dexOpenOrders: PublicKey,
+  dexMarket: PublicKey,
+  _reserved0: number[],
   config: ReserveConfigStruct,
-  accruedUntil: BN,
-  _reserved: number[],
+  _reserved1: number[],
   state: ReserveStateStruct,
 };
 
@@ -157,15 +160,24 @@ export interface ReserveConfigStruct {
   manageFeeRate: number,
   /** The fee rate applied as interest owed on new loans */
   loanOriginationFee: number,
+  /** Maximum slippage when selling this asset on DEX during liquidations */
+  liquidationSlippage: number,
   /** Unused space */
-  _reserved: number[]
+  _reserved0: number,
+  /** Maximum number of tokens to sell in a single DEX trade during liquidation */
+  liquidationDexTradeMax: number,
+  /** Unused space */
+  _reserved1: number[],
 };
+
 export type ReserveStateStruct = CacheStruct & {
   accruedUntil: BN,
-  oustandingDebt: BN,
+  outstandingDebt: BN,
   uncollectedFees: BN,
-  lastUpdated: BN,
-  invalidated: number,
+  totalDeposits: BN,
+  totalDepositNotes: BN,
+  totalLoanNotes: BN,
+  _reserved: number[],
 }
 
 // Obligation
@@ -177,18 +189,23 @@ export interface Obligation {
 };
 // Obligation Account
 export interface ObligationAccount {
+  version: number,
+  /** Unused space */
+  _reserved0: number,
   /** The market this obligation is a part of */
   market: PublicKey,
   /** The address that owns the debt/assets as a part of this obligation */
   owner: PublicKey,
-  version: number,
-  /** Unused space before start of collateral info */
-  _reserved: number[],
+  /** Unused space */
+  _reserved1: number[],
+  /** Storage for cached calculations */
+  cached: number[],
   /** The storage for the information on collateral owned by this obligation */
   collateral: ObligationPositionStruct[],
   /** The storage for the information on positions owed by this obligation */
   loans: ObligationPositionStruct[],
 };
+
 export interface ObligationPositionStruct {
   /** The token account holding the bank notes */
   account: PublicKey,
@@ -197,6 +214,7 @@ export interface ObligationPositionStruct {
   side: number,
   /** The index of the reserve that this position's assets are from */
   reserveIndex: number,
+  _reserved: number[],
 }
 
 // Wallet
