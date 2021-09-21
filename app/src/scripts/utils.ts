@@ -143,7 +143,7 @@ export class TokenAmount {
   public decimals: number;
   /** Token amount as string, accounts for decimals */
   public uiAmount: string;
-  /** Token amount as a float, accouts for decimals. Imprecise at large numbers */
+  /** Token amount as a float, accounts for decimals. Imprecise at large numbers */
   public uiAmountFloat: number;
 
   constructor(amount: BN, decimals: number) {

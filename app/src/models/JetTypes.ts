@@ -161,7 +161,7 @@ export interface ReserveConfigStruct {
 };
 export type ReserveStateStruct = CacheStruct & {
   accruedUntil: BN,
-  oustandingDebt: BN,
+  outstandingDebt: BN,
   uncollectedFees: BN,
   lastUpdated: BN,
   invalidated: number,
