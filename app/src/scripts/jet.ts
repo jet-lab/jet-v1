@@ -215,7 +215,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   if (!assets || !program) {
     return [false, undefined];
   }
-
+  
   try {
     const [ok, txid] = await refreshOldReserves();
     if (!ok) {
@@ -759,13 +759,14 @@ const refreshOldReserves = async ()
   if (!program) {
     return [false, undefined];
   }
+
   let result: [ok: boolean, txid: string | undefined] = [true, undefined];
 
   for (const abbrev in market.reserves) {
     let reserve = market.reserves[abbrev];
     let accruedUntil = reserve.accruedUntil;
-
-    while (accruedUntil && accruedUntil.add(MAX_ACCRUAL_SECONDS).ltn(Date.now() / 1000)) {
+   
+    while (accruedUntil.add(MAX_ACCRUAL_SECONDS).lt(new BN(Math.floor(Date.now() / 1000)))) {
       const refreshReserveIx = buildRefreshReserveIx(abbrev);
 
       const ix = [

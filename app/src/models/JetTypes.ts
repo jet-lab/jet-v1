@@ -125,7 +125,6 @@ export interface ReserveAccount {
   vault: PublicKey,
   feeNoteVault: PublicKey,
   config: ReserveConfigStruct,
-  accruedUntil: BN,
   _reserved: number[],
   state: ReserveStateStruct,
 };
