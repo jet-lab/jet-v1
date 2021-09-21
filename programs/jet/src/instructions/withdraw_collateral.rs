@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, TokenAccount, Transfer};
+use anchor_spl::token::{self, Transfer};
 
 use crate::errors::ErrorCode;
 use crate::state::*;
@@ -53,7 +53,7 @@ pub struct WithdrawCollateral<'info> {
                   owner.key.as_ref()
               ],
               bump = bump.deposit_account)]
-    pub deposit_account: CpiAccount<'info, TokenAccount>,
+    pub deposit_account: AccountInfo<'info>,
 
     /// The account that contains the collateral to be withdrawn
     #[account(mut,
@@ -64,7 +64,7 @@ pub struct WithdrawCollateral<'info> {
                   owner.key.as_ref()
               ],
               bump = bump.collateral_account)]
-    pub collateral_account: CpiAccount<'info, TokenAccount>,
+    pub collateral_account: AccountInfo<'info>,
 
     #[account(address = token::ID)]
     pub token_program: AccountInfo<'info>,

@@ -153,8 +153,8 @@ export class TokenAmount {
     }
     this.amount = amount;
     this.decimals = decimals;
-    this.uiAmount = TokenAmount.tokenAmount(amount, decimals);
-    this.uiAmountFloat = parseFloat(this.uiAmount);
+    this.uiAmountFloat = TokenAmount.tokenAmount(amount, decimals);
+    this.uiAmount = this.uiAmountFloat.toString();
   }
 
   public static zero(decimals: number) {
@@ -174,29 +174,15 @@ export class TokenAmount {
   }
 
   private static tokenAmount(lamports: BN, decimals: number) {
-    let stringBN: string = lamports.toString();
-    if (stringBN.length < decimals) {
-      for (let i = 0; i <= decimals - stringBN.length; i++) {
-        stringBN = '0' + stringBN;
-      }
-    }
+    const str = lamports.toString(10, decimals);
+    return parseFloat(str.slice(0,-decimals) + "." + str.slice(-decimals));
+  }
 
-    let num: string = [stringBN.slice(0, stringBN.length - decimals), '.', stringBN.slice(stringBN.length - decimals)].join('');
-    if (!num.length) {
-      num = '0';
-    }
-
-    // Format 100.000 = 100 cases
-    while (num[num.length - 1] === '0') {
-      num = num.slice(0, -1);
-    }
-
-    // Format 100. = 100 cases
-    if (num[num.length - 1] === '.') {
-      num = num.slice(0, -1);
-    }
-
-    return num.length ? num : '0';
+  public static tokenPrice(marketValue: number, price: number, decimals: number) {
+    const tokens = price !== 0
+      ? marketValue / price
+      : 0;
+    return TokenAmount.tokens(tokens.toFixed(decimals), decimals)
   }
 
   // Convert a uiAmount string into lamports BN

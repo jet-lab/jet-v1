@@ -13,7 +13,7 @@ import { sveltePreprocess } from 'svelte-preprocess/dist/autoProcess';
 import replace from '@rollup/plugin-replace';
 
 config();
-const production = process.env.PRODUCTION === 'true';
+const development = process.env.DEVELOPMENT === 'true';
 
 function serve() {
   let server;
@@ -46,16 +46,16 @@ export default {
   },
   plugins: [
     svelte({
-      preprocess: sveltePreprocess({ sourceMap: !production }),
+      preprocess: sveltePreprocess({ sourceMap: development }),
       compilerOptions: {
         // enable run-time checks when not in production
-        dev: !production
+        dev: development
       }
     }),
     replace({
       // The following variables will be available in
       // the svelte app.
-      jetDev: !production,
+      jetDev: development,
       preventAssignment: true,
     }),
     // we'll extract any component CSS out into
@@ -74,21 +74,21 @@ export default {
     commonjs(),
 
     typescript({
-      sourceMap: !production,
-      inlineSources: !production
+      sourceMap: development,
+      inlineSources: development
     }),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
-    !production && serve(),
+    development && serve(),
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production && livereload('public'),
+    development && livereload('public'),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
-    production && terser(),
+    !development && terser(),
     json({
       compact: true
     }),

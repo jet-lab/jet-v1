@@ -25,8 +25,8 @@ checksum = "6b2d54853319fd101b8dd81de382bcbf3e03410a64d8928bbee85a3e7dcde483"
 
 [[package]]
 name = "anchor-attribute-access-control"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -38,20 +38,22 @@ dependencies = [
 
 [[package]]
 name = "anchor-attribute-account"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
+ "bs58 0.4.0",
  "proc-macro2",
  "quote",
+ "rustversion",
  "syn",
 ]
 
 [[package]]
 name = "anchor-attribute-error"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "proc-macro2",
@@ -61,8 +63,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-attribute-event"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -73,8 +75,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-attribute-interface"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -86,8 +88,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-attribute-program"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -98,8 +100,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-attribute-state"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -110,8 +112,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-derive-accounts"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-syn",
  "anyhow",
@@ -122,8 +124,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-lang"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-attribute-access-control",
  "anchor-attribute-account",
@@ -142,8 +144,8 @@ dependencies = [
 
 [[package]]
 name = "anchor-spl"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anchor-lang",
  "lazy_static",
@@ -154,11 +156,11 @@ dependencies = [
 
 [[package]]
 name = "anchor-syn"
-version = "0.14.0"
-source = "git+https://github.com/jet-lab/anchor#fdca8e06c876842c88840c0a22cb5fae53a78a79"
+version = "0.16.1"
+source = "git+https://github.com/jet-lab/anchor#fe355ed15960f554dc5c3d27a447ec0b75c7113d"
 dependencies = [
  "anyhow",
- "bs58",
+ "bs58 0.3.1",
  "heck",
  "proc-macro2",
  "proc-macro2-diagnostics",
@@ -307,6 +309,12 @@ name = "bs58"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "476e9cd489f9e121e02ffa6014a8ef220ecb15c05ed23fc34cca13925dc283fb"
+
+[[package]]
+name = "bs58"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "771fe0050b883fcc3ea2359b1a96bcfbc090b7116eae7c3c512c7a083fdf23d3"
 
 [[package]]
 name = "bv"
@@ -1019,7 +1027,7 @@ dependencies = [
 [[package]]
 name = "serum_dex"
 version = "0.4.0"
-source = "git+https://github.com/project-serum/serum-dex#d82f6cd7a0b8d966a79c8e60e6139129b01256da"
+source = "git+https://github.com/project-serum/serum-dex?rev=1be91f2#1be91f2863d8ecede32daaae7e768034e24bbc79"
 dependencies = [
  "arrayref",
  "bincode",
@@ -1070,7 +1078,7 @@ version = "1.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "21ddfc2b65a555c0e0156c043bce092d473bc4f00daa7ca3c223d97d92d2e807"
 dependencies = [
- "bs58",
+ "bs58 0.3.1",
  "bv",
  "generic-array 0.14.4",
  "log",
@@ -1117,7 +1125,7 @@ dependencies = [
  "blake3",
  "borsh",
  "borsh-derive",
- "bs58",
+ "bs58 0.3.1",
  "bv",
  "curve25519-dalek",
  "hex",
@@ -1148,7 +1156,7 @@ version = "1.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b453dca160617b1676c47e3cfd4361f455dc5bb1c93659ec84b0c5d566b5c039"
 dependencies = [
- "bs58",
+ "bs58 0.3.1",
  "proc-macro2",
  "quote",
  "rustversion",

@@ -363,8 +363,11 @@
       }
 
       inputError = '';
-      const repayLamports = TokenAmount.tokens(inputAmount.toString(), $CURRENT_RESERVE.decimals);
-      [ok, txid] = await repay($CURRENT_RESERVE.abbrev, repayLamports.amount);
+      const repayLamports = TokenAmount.tokens(inputAmount.toString(), $CURRENT_RESERVE.decimals).amount;
+      const repayAmount = inputAmount === loanBalances[$CURRENT_RESERVE.abbrev]
+        ? Amount.loanNotes($ASSETS.tokens[$CURRENT_RESERVE.abbrev].loanNoteBalance.amount)
+        : Amount.tokens(repayLamports);
+      [ok, txid] = await repay($CURRENT_RESERVE.abbrev, repayAmount);
     }
     
     

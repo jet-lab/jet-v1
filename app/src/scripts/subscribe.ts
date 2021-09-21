@@ -252,7 +252,7 @@ const deriveValues = (market: Market, reserve?: Reserve, asset?: Asset) => {
         : 0;
 
     if (asset) {
-      asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate);
+      asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
       asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
       asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
     }
