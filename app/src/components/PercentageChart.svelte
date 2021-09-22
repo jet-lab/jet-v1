@@ -7,7 +7,7 @@
   let percent: number = 0;
   const animatePercent = async () => {
     percent = 0;
-    while(percent < percentage) {
+    while(percent < Math.floor((percentage * 100))) {
       await timeout(15);
       percent++;
     }
@@ -35,8 +35,8 @@
   </svg>
   <div class="inset-chart-shadow"></div>
   <div class="chart-info flex align-center justify-center column">
-    <h2 class="modal-header">
-      {percent}%
+    <h2 class="modal-utilrate">
+      {(percentage * 100).toFixed(2)}%
     </h2>
     {#if text}
       <span>
@@ -67,6 +67,11 @@
     height: 123px;
     box-shadow: var(--neu-shadow-inset);
     border-radius: 100px;
+  }
+  .modal-utilrate {
+    font-size: 26px;
+    line-height: 1.2em;
+    margin-bottom: 10px;
   }
   svg {
     width: 151px;
