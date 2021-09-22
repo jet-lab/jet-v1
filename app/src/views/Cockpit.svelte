@@ -326,7 +326,7 @@
       inputError = '';
       const withdrawLamports = TokenAmount.tokens(inputAmount.toString(), $CURRENT_RESERVE.decimals).amount;
       const withdrawAmount = inputAmount === collateralBalances[$CURRENT_RESERVE.abbrev] ?
-        Amount.depositNotes($ASSETS.tokens[$CURRENT_RESERVE.abbrev].collateralBalance.amount) :
+        Amount.depositNotes($ASSETS.tokens[$CURRENT_RESERVE.abbrev].collateralNoteBalance.amount) :
         Amount.tokens(withdrawLamports);
       [ok, txid] = await withdraw($CURRENT_RESERVE.abbrev, withdrawAmount);
     } else if ($TRADE_ACTION === 'borrow') {
