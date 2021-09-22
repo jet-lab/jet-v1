@@ -243,7 +243,8 @@
 
   // Check scenario and submit trade
   const checkSubmit = () => {
-    if ($CURRENT_RESERVE?.abbrev === 'SOL' && walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat === maxInputValue) {
+      // If depositing all SOL, inform user about insufficient lamports and reject 
+    if ($CURRENT_RESERVE?.abbrev === 'SOL' && walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat === inputAmount) {
         inputAmount = null;
         COPILOT.set({
           suggestion: {
