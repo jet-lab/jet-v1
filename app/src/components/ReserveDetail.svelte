@@ -63,7 +63,7 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, reserveDetail.decimals)}
+              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
             </p>
           </span>
         </div>
@@ -75,7 +75,7 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.availableLiquidity.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.availableLiquidity.uiAmountFloat, false, 2)}
+              {currencyFormatter(reserveDetail.availableLiquidity.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
             </p>
           </span>
         </div>
