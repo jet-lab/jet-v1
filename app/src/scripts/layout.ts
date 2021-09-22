@@ -99,7 +99,10 @@ export const ReserveStateLayout = BL.struct([
   i64Field("accruedUntil"),
   numberField("outstandingDebt"),
   numberField("uncollectedFees"),
-  BL.blob(440, "_UNUSED_0_"),
+  u64Field("totalDeposits"),
+  u64Field("totalDepositNotes"),
+  u64Field("totalLoanNotes"),
+  BL.blob(416, "_UNUSED_0_"),
   u64Field("lastUpdated"),
   BL.u8("invalidated"),
   BL.blob(7, "_UNUSED_1_")

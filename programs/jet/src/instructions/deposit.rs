@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, Mint, MintTo, TokenAccount, Transfer};
+use anchor_spl::token::{self, MintTo, Transfer};
 
 use crate::state::*;
 use crate::Amount;
@@ -24,11 +24,11 @@ pub struct Deposit<'info> {
 
     /// The reserve's vault where the deposited tokens will be transferred to
     #[account(mut)]
-    pub vault: CpiAccount<'info, TokenAccount>,
+    pub vault: AccountInfo<'info>,
 
     /// The mint for the deposit notes
     #[account(mut)]
-    pub deposit_note_mint: CpiAccount<'info, Mint>,
+    pub deposit_note_mint: AccountInfo<'info>,
 
     /// The user/authority that owns the deposit
     #[account(signer)]
@@ -42,11 +42,11 @@ pub struct Deposit<'info> {
                   depositor.key.as_ref()
               ],
               bump = bump)]
-    pub deposit_account: CpiAccount<'info, TokenAccount>,
+    pub deposit_account: AccountInfo<'info>,
 
     /// The token account with the tokens to be deposited
     #[account(mut)]
-    pub deposit_source: CpiAccount<'info, TokenAccount>,
+    pub deposit_source: AccountInfo<'info>,
 
     #[account(address = token::ID)]
     pub token_program: AccountInfo<'info>,

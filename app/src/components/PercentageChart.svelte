@@ -1,13 +1,13 @@
 <script lang="ts">
   import { timeout } from '../scripts/utils';
-  
+
   export let percentage: number;
   export let text: string = '';
 
   let percent: number = 0;
   const animatePercent = async () => {
     percent = 0;
-    while(percent < percentage) {
+    while(percent < (percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage))) {
       await timeout(15);
       percent++;
     }
@@ -36,7 +36,7 @@
   <div class="inset-chart-shadow"></div>
   <div class="chart-info flex align-center justify-center column">
     <h2 class="modal-header">
-      {percent}%
+      {percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage)}%
     </h2>
     {#if text}
       <span>

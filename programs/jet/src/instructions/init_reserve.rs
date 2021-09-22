@@ -47,7 +47,7 @@ pub struct InitializeReserve<'info> {
               token::mint = token_mint,
               token::authority = market_authority,
               payer = owner)]
-    pub vault: CpiAccount<'info, TokenAccount>,
+    pub vault: AccountInfo<'info>,
 
     /// The account to hold the notes created from fees collected by the reserve
     #[account(init,
@@ -71,7 +71,7 @@ pub struct InitializeReserve<'info> {
               token::mint = quote_token_mint,
               token::authority = market_authority,
               payer = owner)]
-    pub dex_swap_tokens: CpiAccount<'info, TokenAccount>,
+    pub dex_swap_tokens: AccountInfo<'info>,
 
     /// The account to use for placing orders on the DEX
     #[account(init,
@@ -90,7 +90,7 @@ pub struct InitializeReserve<'info> {
     pub dex_market: AccountInfo<'info>,
 
     /// The mint for the token being stored in this reserve.
-    pub token_mint: CpiAccount<'info, Mint>,
+    pub token_mint: Account<'info, Mint>,
 
     /// The program for interacting with the token.
     #[account(address = token::ID)]
