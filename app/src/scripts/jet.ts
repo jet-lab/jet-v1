@@ -143,7 +143,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   ));
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
-  
+
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
@@ -216,13 +216,9 @@ export const deposit = async (abbrev: string, lamports: BN)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   let reserve = market.reserves[abbrev];
@@ -388,13 +384,9 @@ export const withdraw = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -499,14 +491,11 @@ export const borrow = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
+  
 
   const reserve = market.reserves[abbrev];
   const asset = assets.tokens[abbrev];
@@ -617,13 +606,9 @@ export const repay = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -759,13 +744,14 @@ const refreshOldReserves = async ()
   if (!program) {
     return [false, undefined];
   }
+
   let result: [ok: boolean, txid: string | undefined] = [true, undefined];
 
   for (const abbrev in market.reserves) {
     let reserve = market.reserves[abbrev];
     let accruedUntil = reserve.accruedUntil;
 
-    while (accruedUntil && accruedUntil.add(MAX_ACCRUAL_SECONDS).ltn(Date.now() / 1000)) {
+    while (accruedUntil.add(MAX_ACCRUAL_SECONDS).lt(new BN(Math.floor(Date.now() / 1000)))) {
       const refreshReserveIx = buildRefreshReserveIx(abbrev);
 
       const ix = [
@@ -848,9 +834,9 @@ export const airdrop = async (abbrev: string, lamports: BN)
       const txid = await endpoint.requestAirdrop(wallet.publicKey, parseInt(lamports.toString()));
       console.log(`Transaction ${explorerUrl(txid)}`);
       const confirmation = await endpoint.confirmTransaction(txid);
-      if(confirmation.value.err) {
+      if (confirmation.value.err) {
         console.error(`Airdrop error: ${transactionErrorToString(confirmation.value.err.toString())}`);
-        return [false, txid]; 
+        return [false, txid];
       } else {
         return [true, txid];
       }
