@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, Mint, MintTo, TokenAccount, Transfer};
+use anchor_spl::token::{self, MintTo, Transfer};
 
 use crate::state::*;
 use crate::{Amount, ErrorCode};
@@ -35,11 +35,11 @@ pub struct Borrow<'info> {
 
     /// The reserve's vault where the borrowed tokens will be transferred from
     #[account(mut)]
-    pub vault: CpiAccount<'info, TokenAccount>,
+    pub vault: AccountInfo<'info>,
 
     /// The mint for the debt/loan notes
     #[account(mut)]
-    pub loan_note_mint: CpiAccount<'info, Mint>,
+    pub loan_note_mint: AccountInfo<'info>,
 
     /// The user/authority that is borrowing
     #[account(signer)]
@@ -54,7 +54,7 @@ pub struct Borrow<'info> {
                   borrower.key.as_ref()
               ],
               bump = bump)]
-    pub loan_account: CpiAccount<'info, TokenAccount>,
+    pub loan_account: AccountInfo<'info>,
 
     /// The token account that the borrowed funds will be transferred to
     #[account(mut, constraint = receiver_account.key() != vault.key())]

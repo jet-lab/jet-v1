@@ -201,7 +201,7 @@ export class TokenAmount {
     if (initialPlace !== -1) {
       fractionalValue = lamports.length - (initialPlace + 1);
       
-      // If fractinoal value is lesser than a lamport, round to nearest lamport
+      // If fractional value is lesser than a lamport, round to nearest lamport
       if (fractionalValue > decimals) {
         lamports = String(parseFloat(lamports).toFixed(decimals));
       }

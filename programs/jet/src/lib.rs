@@ -13,6 +13,8 @@ use errors::ErrorCode;
 use instructions::*;
 use state::*;
 
+declare_id!("JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU");
+
 pub const LIQUIDATE_DEX_INSTR_ID: [u8; 8] = [28, 129, 253, 125, 243, 52, 11, 162];
 
 #[program]

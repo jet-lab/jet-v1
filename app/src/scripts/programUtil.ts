@@ -463,6 +463,7 @@ export const parseObligationAccount = (account: Buffer, coder: anchor.Coder) => 
       amount: new BN(position.amount),
       side: position.side,
       reserveIndex: position.reserveIndex,
+      _reserved: [],
     };
     return pos;
   }
