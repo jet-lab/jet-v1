@@ -59,7 +59,7 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
 
           reserve.maximumLTV = decoded.config.minCollateralRatio;
           reserve.liquidationPremium = decoded.config.liquidationPremium;
-          reserve.outstandingDebt = new TokenAmount(decoded.state.outstandingDebt, reserveMeta.decimals);
+          reserve.outstandingDebt = new TokenAmount(decoded.state.outstandingDebt, reserveMeta.decimals).divb(new BN(Math.pow(10, 15)));
           reserve.accruedUntil = decoded.state.accruedUntil;
           reserve.borrowAPR = getBorrowRate(ccRate, decoded.config.manageFeeRate);
           reserve.depositAPY = getDepositRate(ccRate, reserve.utilizationRate);
