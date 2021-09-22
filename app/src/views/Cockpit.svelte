@@ -140,11 +140,7 @@
     }
 
     if ($TRADE_ACTION === 'deposit') {
-      if ($CURRENT_RESERVE.abbrev === 'SOL' && walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat > 0.02) {
-        maxInputValue = walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat - 0.02;
-      } else {
-        maxInputValue = walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat;
-      }
+      maxInputValue = walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat;
     } else if ($TRADE_ACTION === 'withdraw') {
       maxInputValue = maxWithdrawAmounts[$CURRENT_RESERVE.abbrev];
     } else if ($TRADE_ACTION === 'borrow') {
@@ -247,7 +243,15 @@
 
   // Check scenario and submit trade
   const checkSubmit = () => {
-    if (!disabledInput) {
+    if ($CURRENT_RESERVE?.abbrev === 'SOL' && walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat === maxInputValue) {
+        inputAmount = null;
+        COPILOT.set({
+          suggestion: {
+            good: false,
+            detail: dictionary[$PREFERRED_LANGUAGE].cockpit.insufficientLamports
+          }
+        });
+      } else if (!disabledInput) {
       // If trade would result in c-ratio below min ratio, inform user and reject
       if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio < $MARKET.minColRatio) {
         COPILOT.set({

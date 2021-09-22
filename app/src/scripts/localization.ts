@@ -167,7 +167,8 @@ export const dictionary: any = {
       noDepositsForBorrow: "You must deposit collateral in order to borrow.",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Settings",
@@ -298,7 +299,8 @@ export const dictionary: any = {
       noDepositsForBorrow: "您需要存抵押物才能再借款",
       noDepositsForWithdraw: "您没有存任何 {{ASSET}} 来提款.",
       noDebtForRepay: "您不欠任何 {{ASSET}}.",
-      rejectTrade: "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低."
+      rejectTrade: "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "设定",
@@ -430,6 +432,7 @@ export const dictionary: any = {
       noDepositsForWithdraw: "Вы не внесли на депозит {{ASSET}} чтобы вывести",
       noDebtForRepay: "Вы не дожны {{ASSET}}.",
       rejectTrade: "Сделка понизит ваш коэфициент залог {{NEW-C-RATIO}}%, что будет ниже минимального уровня {{JET MIN C-RATIO}}",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Настройки",
@@ -560,7 +563,8 @@ export const dictionary: any = {
       noDepositsForBorrow: "Ödünç almak için teminat yatırmanız gerekiyor.",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Ayarlar",
