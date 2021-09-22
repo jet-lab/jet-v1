@@ -1,6 +1,6 @@
 <script lang="ts">
   import { timeout } from '../scripts/utils';
-  //this percentage is utilrate * 100
+
   export let percentage: number;
   export let text: string = '';
 
