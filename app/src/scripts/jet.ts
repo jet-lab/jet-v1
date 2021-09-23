@@ -5,8 +5,8 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, Reserves, MathWallet, SolongWallet } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, CURRENT_RESERVE } from '../store';
+import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet } from '../models/JetTypes';
+import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -44,7 +44,6 @@ export const rollbar = new Rollbar({
   }
 });
 
-
 // Cast solana injected window type
 const solWindow = window as unknown as SolWindow;
 
@@ -60,11 +59,21 @@ export const getMarketAndIDL = async (): Promise<void> => {
   const idlMetadata = parseIdlMetadata(idl.metadata);
 
   // Establish web3 connection
-  connection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+  const preferredNode = localStorage.getItem('jetPreferredNode');
+  PREFERRED_NODE.set(preferredNode);
+  try {
+    connection = new anchor.web3.Connection(
+      preferredNode ?? idlMetadata.cluster, 
+      (anchor.Provider.defaultOptions()).commitment
+    );
+  } catch {
+    localStorage.removeItem('jetPreferredNode');
+    connection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+  }
   coder = new anchor.Coder(idl);
 
   // Setup reserve structures
-  const reserves: Reserves = {} as Reserves;
+  const reserves: Record<string, Reserve> = {};
   for (const reserveMeta of idlMetadata.reserves) {
     let reserve: Reserve = {
       name: reserveMeta.name,
@@ -72,8 +81,8 @@ export const getMarketAndIDL = async (): Promise<void> => {
       marketSize: TokenAmount.zero(reserveMeta.decimals),
       outstandingDebt: TokenAmount.zero(reserveMeta.decimals),
       utilizationRate: 0,
-      depositAPY: 0,
-      borrowAPR: 0,
+      depositRate: 0,
+      borrowRate: 0,
       maximumLTV: 0,
       liquidationPremium: 0,
       price: 0,
@@ -107,9 +116,6 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves: reserves,
   });
 
-  // Set initial current asset to SOL
-  CURRENT_RESERVE.set(reserves[0]);
-
   // Subscribe to market 
   subscribeToMarket(idlMetadata, connection, coder);
   return;
@@ -119,14 +125,17 @@ export const getMarketAndIDL = async (): Promise<void> => {
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana.isPhantom) {
-    wallet = new WalletAdapter(solWindow.solana) as Wallet;
+    wallet = solWindow.solana as unknown as Wallet;
   } else if (provider.name === 'Math Wallet' && solWindow.solana.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
+    wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
     wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else {
     wallet = new WalletAdapter(provider.url) as Wallet;
   };
@@ -143,14 +152,14 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   ));
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
-  
+
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
   });
-  wallet.connect();
+  await wallet.connect();
   return;
 };
 
@@ -216,13 +225,9 @@ export const deposit = async (abbrev: string, lamports: BN)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   let reserve = market.reserves[abbrev];
@@ -388,13 +393,9 @@ export const withdraw = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -499,14 +500,11 @@ export const borrow = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
+  
 
   const reserve = market.reserves[abbrev];
   const asset = assets.tokens[abbrev];
@@ -617,13 +615,9 @@ export const repay = async (abbrev: string, amount: Amount)
     return [false, undefined];
   }
 
-  try {
-    const [ok, txid] = await refreshOldReserves();
-    if (!ok) {
-      return [false, txid]
-    }
-  } catch (err) {
-    console.log(err);
+  const [ok, txid] = await refreshOldReserves();
+  if (!ok) {
+    return [false, txid]
   }
 
   const reserve = market.reserves[abbrev];
@@ -759,13 +753,14 @@ const refreshOldReserves = async ()
   if (!program) {
     return [false, undefined];
   }
+
   let result: [ok: boolean, txid: string | undefined] = [true, undefined];
 
   for (const abbrev in market.reserves) {
     let reserve = market.reserves[abbrev];
     let accruedUntil = reserve.accruedUntil;
 
-    while (accruedUntil && accruedUntil.add(MAX_ACCRUAL_SECONDS).ltn(Date.now() / 1000)) {
+    while (accruedUntil.add(MAX_ACCRUAL_SECONDS).lt(new BN(Math.floor(Date.now() / 1000)))) {
       const refreshReserveIx = buildRefreshReserveIx(abbrev);
 
       const ix = [
@@ -848,9 +843,9 @@ export const airdrop = async (abbrev: string, lamports: BN)
       const txid = await endpoint.requestAirdrop(wallet.publicKey, parseInt(lamports.toString()));
       console.log(`Transaction ${explorerUrl(txid)}`);
       const confirmation = await endpoint.confirmTransaction(txid);
-      if(confirmation.value.err) {
+      if (confirmation.value.err) {
         console.error(`Airdrop error: ${transactionErrorToString(confirmation.value.err.toString())}`);
-        return [false, txid]; 
+        return [false, txid];
       } else {
         return [true, txid];
       }

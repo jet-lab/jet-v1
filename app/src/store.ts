@@ -15,3 +15,5 @@ export const GEOBANNED = writable<boolean> (false);
 export const PREFERRED_LANGUAGE = writable<string> ('en');
 export const NATIVE = writable<boolean> (true);
 export const DARK_THEME = writable<boolean> (false);
+export const PREFERRED_NODE = writable<string | null> (null);
+export const PING = writable<number> (0);

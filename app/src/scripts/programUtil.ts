@@ -7,6 +7,11 @@ import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, Ob
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./utils";
 import { inDevelopment } from "./jet";
+import { PING } from "../store";
+
+let ping: number;
+PING.subscribe(data => ping = data);
+
 // Find PDA functions and jet algorithms that are reimplemented here
 
 export const SOL_DECIMALS = 9;
@@ -252,6 +257,7 @@ export const getAccountInfoAndSubscribe = function (
     commitment
   );
 
+  let timeStart = Date.now();
   connection
     .getAccountInfoAndContext(publicKey, commitment)
     .then((response) => {
@@ -262,6 +268,12 @@ export const getAccountInfoAndSubscribe = function (
         } else {
           callback(null, response.context);
         }
+      }
+
+      // Take first call only for ping status
+      if (!ping) {
+        let timeEnd = Date.now();
+        PING.set(timeEnd - timeStart);
       }
     });
 

@@ -1,14 +1,17 @@
 <script lang="ts">
+  import type { CopilotDefinition } from '../models/JetTypes';
+  import { COPILOT } from '../store';
   import { timeout } from '../scripts/utils';
-  
+
   export let percentage: number;
   export let text: string = '';
+  export let percentageDefinition: CopilotDefinition;
 
   let percent: number = 0;
   const animatePercent = async () => {
     percent = 0;
-    while(percent < percentage) {
-      await timeout(15);
+    while(percent < (percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage))) {
+      await timeout(10);
       percent++;
     }
   };
@@ -36,11 +39,18 @@
   <div class="inset-chart-shadow"></div>
   <div class="chart-info flex align-center justify-center column">
     <h2 class="modal-header">
-      {percent}%
+      {percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage)}%
     </h2>
     {#if text}
       <span>
         {text}
+        {#if Object.keys(percentageDefinition)}
+          <i on:click={() => COPILOT.set({
+            definition: percentageDefinition
+          })} 
+            class="info far fa-question-circle">
+          </i>
+      {/if}
       </span>
     {/if}
   </div>
@@ -87,6 +97,9 @@
   span {
     font-size: 10px;
     margin-top: -10px;
+  }
+  i {
+    margin: unset;
   }
 
   @media screen and (max-width: 1100px) {

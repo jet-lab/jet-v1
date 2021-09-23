@@ -114,7 +114,9 @@ export const dictionary: any = {
     nav: {
       cockpit: "Cockpit",
       settings: "Settings",
-      collapse: "Collapse"
+      collapse: "Collapse",
+      getCopilotSuggestion: "Get Copilot Suggestion",
+      disconnectWallet: "Disconnect Wallet"
     },
     cockpit: {
       title: "Cockpit",
@@ -126,8 +128,8 @@ export const dictionary: any = {
       availableLiquidity: "Available Liquidity",
       amountDeposited: "Deposited",
       amountBorrowed: "Borrowed",
-      depositAPY: "Deposit APY",
-      borrowAPR: "Borrow APR",
+      depositRate: "Deposit Rate",
+      borrowRate: "Borrow Rate",
       airdrop: "Airdrop",
       totalDepositedValue: "Your Deposited Value",
       totalBorrowedValue: "Your Borrowed Value",
@@ -144,16 +146,11 @@ export const dictionary: any = {
       lessFunds: "Not enough funds",
       borrow: "Borrow",
       maxBorrowAmount: "Maximum Borrow",
-      noBalanceForDeposit: "You have no {{ASSET}} in your wallet to deposit.",
-      noDepositsForBorrow: "You must deposit collateral in order to borrow.",
-      noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
-      noDebtForRepay: "You don't owe any {{ASSET}}.",
       assetIsCurrentDeposit: "You've deposited {{ASSET}} and therefore can't borrow it.",
       noLiquidity: "Not enough liquidity.",
       minCRatio: "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
       belowMinRatio: "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-      subjectToLiquidation: "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. Would you still like to borrow?",
-      rejectTrade: "We cannot allow this trade as it would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%.",
+      subjectToLiquidation: "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
       confirm: "Confirm",
       repay: "Repay",
       amountOwed: "Amount Owed",
@@ -165,17 +162,28 @@ export const dictionary: any = {
       max: "Max",
       assetIsCurrentBorrow: "You've borrowed {{ASSET}} and therefore can't deposit it.",
       belowMinCRatio: "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-      search: "Search Market.."
+      search: "Search Market..",
+      noBalanceForDeposit: "You have no {{ASSET}} in your wallet to deposit.",
+      noDepositsForBorrow: "You must deposit collateral in order to borrow.",
+      noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
+      noDebtForRepay: "You don't owe any {{ASSET}}.",
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Settings",
       wallet: "Wallet",
+      rpcNode: "RPC Node",
+      current: "Current",
+      defaultNode: "Jet Default",
+      reset: "Reset",
       connect: "Connect",
       worldOfDefi: "Connect your wallet to the world of DeFi.",
       theme: "Theme",
       light: "Light",
       dark: "Dark",
-      language: "Language"
+      language: "Language",
+      noUrl: "Enter a URL"
     },
     reserveDetail: {
       reserveSize: "Reserve Size",
@@ -184,9 +192,9 @@ export const dictionary: any = {
       viewHistory: "View History",
       totalBorrowed: "Total Borrowed",
       maximumLTV: "Maximum LTV",
-      minimumCollateralizationRatio: "Minimum C-Ratio",
       liquidationPremium: "Liquidation Premium",
-      tradeAsset: "Trade {{ASSET}}"
+      tradeAsset: "Trade {{ASSET}}",
+      minimumCollateralizationRatio: "Minimum C-Ratio"
     },
     copilot: {
       name: "Copilot",
@@ -214,8 +222,8 @@ export const dictionary: any = {
           }
         },
         deposit: {
-          overview: "{{BEST DEPOSIT APY NAME}} is lookin' good right now.",
-          detail: "<b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b> has the best deposit <b class='bold'>APY (Annual Percentage Yield)</b> in the market right now at <b class='bold'>{{DEPOSIT APY}}%</b>, and your account is in good standing so we recommend adding some collateral by depositing a portion of your <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT APY ABBREV}}</b>.",
+          overview: "{{BEST DEPOSIT RATE NAME}} is lookin' good right now.",
+          detail: "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> has the best deposit <b class='bold'>rate</b> in the market right now at <b class='bold'>{{DEPOSIT RATE}}%</b>, and your account is in good standing so we recommend adding some collateral by depositing a portion of your <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
           actionText: "Let's Do It"
         },
         healthy: {
@@ -226,8 +234,10 @@ export const dictionary: any = {
       alert: {
         failed: "Mayday!",
         success: "Success!",
-        airdropSuccess: "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
-        refresh: "Refresh"
+        airdropSuccess: "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
+        refresh: "Refresh",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
+        headsup: "Heads up!"
       }
     }
   },
@@ -241,7 +251,9 @@ export const dictionary: any = {
     nav: {
       cockpit: "驾驶舱",
       settings: "设定",
-      collapse: "缩起"
+      collapse: "缩起",
+      getCopilotSuggestion: "获取副驾驶建议",
+      disconnectWallet: "断开钱包"
     },
     cockpit: {
       title: "驾驶舱",
@@ -253,8 +265,8 @@ export const dictionary: any = {
       availableLiquidity: "可用流动性",
       amountDeposited: "存款金额",
       amountBorrowed: "借贷金额",
-      depositAPY: "存款 APY",
-      borrowAPR: "借贷 APR",
+      depositRate: "存款率",
+      borrowRate: "借贷率",
       airdrop: "Airdrop",
       totalDepositedValue: "存款总价值",
       totalBorrowedValue: "借贷总额",
@@ -288,21 +300,27 @@ export const dictionary: any = {
       assetIsCurrentBorrow: "你已经借了{{ASSET}} 所以无法存入此资产。",
       belowMinCRatio: "您已低于最小质押率。请多存一些抵押物或偿还一些债务。",
       search: "搜索市场",
-      noBalanceForDeposit: "You have no {{ASSET}} in your wallet to deposit.",
+      noBalanceForDeposit: "您钱包里没有任何 {{ASSET}} 来存款.",
       noDepositsForBorrow: "您需要存抵押物才能再借款",
-      noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
-      noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
+      noDepositsForWithdraw: "您没有存任何 {{ASSET}} 来提款.",
+      noDebtForRepay: "您不欠任何 {{ASSET}}.",
+      rejectTrade: "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "设定",
       wallet: "钱包",
+      rpcNode: "RPC Node",
+      current: "Current",
+      defaultNode: "Jet Default",
+      reset: "Reset",
       connect: "连结",
       worldOfDefi: "连结到 DeFi 世界",
       theme: "模式",
       light: "明亮",
       dark: "黑暗",
-      language: "语言"
+      language: "语言",
+      noUrl: "Enter a URL"
     },
     reserveDetail: {
       reserveSize: "储备规模",
@@ -311,9 +329,9 @@ export const dictionary: any = {
       viewHistory: "查看历史",
       totalBorrowed: "总借贷金额",
       maximumLTV: "最高LTV",
-      minimumCollateralizationRatio: "Minimum C-Ratio",
       liquidationPremium: "清算溢价",
-      tradeAsset: "交易 {{ASSET}}"
+      tradeAsset: "交易 {{ASSET}}",
+      minimumCollateralizationRatio: "最低质押率限制"
     },
     copilot: {
       name: "副驾驶",
@@ -323,7 +341,7 @@ export const dictionary: any = {
         unhealthy: {
           overview: "您的帐号健康度不良",
           detail: "您的质押率 {{C-RATIO}}% 比 Jet 要求的质押率还低 {{RATIO BELOW AMOUNT}}%。Jet 要求的最低质押率是 {{JET MIN C-RATIO}}%",
-          solution: `为了更正您的仓位，您可以存入更多的抵押品，但我建议您在 "驾驶舱" 中偿还您的债务。`,
+          solution: "为了更正您的仓位，您可以存入更多的抵押品，但我建议您在 '驾驶舱' 中偿还您的债务。",
           actionText: "去驾驶舱"
         },
         warning: {
@@ -341,8 +359,8 @@ export const dictionary: any = {
           }
         },
         deposit: {
-          overview: "{{BEST DEPOSIT APY NAME}} 看起来不错",
-          detail: "<b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b> 现在有市场上最高的 <b class='bold'>APY (Annual Percentage Yield)</b>。您的帐号健康度不错 我建议您多存一点您的 <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT APY ABBREV}}</b>。",
+          overview: "{{BEST DEPOSIT RATE NAME}} 看起来不错",
+          detail: "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> 现在有市场上最高的 <b class='bold'>借贷率</b>。您的帐号健康度不错 我建议您多存一点您的 <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>。",
           actionText: "再存抵押物"
         },
         healthy: {
@@ -354,7 +372,9 @@ export const dictionary: any = {
         failed: "失败了!",
         success: "成功了!",
         airdropSuccess: "我们已经寄给您 {{AMOUNT}} {{RESERVE ABBREV}}。请更新您到网页。",
-        refresh: "更新网页"
+        refresh: "更新网页",
+        originationFee: "这笔贷款会收取 {{ORIGINATION FEE}}% 发起费用.",
+        headsup: "小心!"
       }
     }
   },
@@ -368,7 +388,9 @@ export const dictionary: any = {
     nav: {
       cockpit: "Кабина",
       settings: "Настройки",
-      collapse: "Свернуть"
+      collapse: "Свернуть",
+      getCopilotSuggestion: "Get Copilot Suggestion",
+      disconnectWallet: "Disconnect Wallet"
     },
     cockpit: {
       title: "Кабина",
@@ -380,8 +402,8 @@ export const dictionary: any = {
       availableLiquidity: "Доступная ликвидность",
       amountDeposited: "Депозит",
       amountBorrowed: "Займ",
-      depositAPY: "ГПД депозита",
-      borrowAPR: "ГПС займа",
+      depositRate: "ГПД депозита",
+      borrowRate: "ГПС займа",
       airdrop: "Airdrop",
       totalDepositedValue: "Сумма ваших депозитов",
       totalBorrowedValue: "Сумма ваших займов",
@@ -408,28 +430,34 @@ export const dictionary: any = {
       amountOwed: "Сумма долга",
       oweLess: "Вы должны меньше.",
       geobanned: "Jet протокол не доступен в вашем регионе.",
-      noMarket: "Торговая площадка Jet не смогла запуститься.",
+      noMarket: "площадка Jet не смогла запуститься.",
       txSuccess: "Успез! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
       txFailed: "Транзакция не прошла. Мы не уверены, что пошло не так. Попробуйте еще раз позже или свяжитесь с нами.",
       max: "Max",
-      assetIsCurrentBorrow: "You've borrowed {{ASSET}} and therefore can't deposit it.",
+      assetIsCurrentBorrow: "Вы одолжили {{ASSET}}, поэтому не можете его внести на депозит",
       belowMinCRatio: "У вас недостаточно средств в залоге. Пополните залог или верните долг чтобы избежать ликвидации.",
-      search: "Search Market..",
-      noBalanceForDeposit: "You have no {{ASSET}} in your wallet to deposit.",
+      search: "Поиск валюты",
+      noBalanceForDeposit: "У Вас нету {{ASSET}} в кошельке, чтобы внести на депозит",
       noDepositsForBorrow: "Вы должны предоставить залог, чтобы вы могли занять.",
-      noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
-      noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
+      noDepositsForWithdraw: "Вы не внесли на депозит {{ASSET}} чтобы вывести",
+      noDebtForRepay: "Вы не дожны {{ASSET}}.",
+      rejectTrade: "Сделка понизит ваш коэфициент залог {{NEW-C-RATIO}}%, что будет ниже минимального уровня {{JET MIN C-RATIO}}",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Настройки",
       wallet: "Кошелёк",
+      rpcNode: "RPC Node",
+      current: "Current",
+      defaultNode: "Jet Default",
+      reset: "Reset",
       connect: "Подключиться",
       worldOfDefi: "Подключить ваш кошелек к миру DeFi.",
-      theme: "Вид",
-      light: "Светлый",
-      dark: "Темный",
-      language: "Язык"
+      theme: "Тема",
+      light: "Светлая",
+      dark: "Тёмная",
+      language: "Язык",
+      noUrl: "Enter a URL"
     },
     reserveDetail: {
       reserveSize: "Размер резерва",
@@ -438,9 +466,9 @@ export const dictionary: any = {
       viewHistory: "Показать историю",
       totalBorrowed: "Всего занято",
       maximumLTV: "Максимальный КДЗ",
-      minimumCollateralizationRatio: "Minimum C-Ratio",
       liquidationPremium: "Ликвидационная надбавка",
-      tradeAsset: "Торговать {{ASSET}}"
+      tradeAsset: "Торговать {{ASSET}}",
+      minimumCollateralizationRatio: "Минимальный КО"
     },
     copilot: {
       name: "Второй пилот",
@@ -468,8 +496,8 @@ export const dictionary: any = {
           }
         },
         deposit: {
-          overview: "{{BEST DEPOSIT APY NAME}} в данный момент выглядит неплохо.",
-          detail: "<b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b> сейчас предлагает лучшую <b class='bold'>ГПД (годовую процентную доходность)</b> депозита на рынке в <b class='bold'>{{DEPOSIT APY}}%</b>, и ваш счёт находится в хорошем состоянии, так что мы рекомендуем пополнить ваш залог, используя часть вашего <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT APY ABBREV}}</b>.",
+          overview: "{{BEST DEPOSIT RATE NAME}} в данный момент выглядит неплохо.",
+          detail: "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> сейчас предлагает лучшую <b class='bold'>ГПД (годовую процентную доходность)</b> депозита на рынке в <b class='bold'>{{DEPOSIT RATE}}%</b>, и ваш счёт находится в хорошем состоянии, так что мы рекомендуем пополнить ваш залог, используя часть вашего <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
           actionText: "Полетели"
         },
         healthy: {
@@ -480,8 +508,10 @@ export const dictionary: any = {
       alert: {
         failed: "Неудача!",
         success: "Успех!",
-        airdropSuccess: "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
-        refresh: "Refresh"
+        airdropSuccess: "Вы получили Airdrop {{UI AMOUNT}} {{RESERVE ABBREV}}. Пожалуйста, обновите страницу чтобы увидеть новый баланс.",
+        refresh: "Обновить",
+        originationFee: "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
+        headsup: "Heads up!"
       }
     }
   },
@@ -495,7 +525,9 @@ export const dictionary: any = {
     nav: {
       cockpit: "Kokpit",
       settings: "Ayarlar",
-      collapse: "Kollaps"
+      collapse: "Kollaps",
+      getCopilotSuggestion: "Get Copilot Suggestion",
+      disconnectWallet: "Disconnect Wallet"
     },
     cockpit: {
       title: "Kokpit",
@@ -507,8 +539,8 @@ export const dictionary: any = {
       availableLiquidity: "Uygun Likidite",
       amountDeposited: "Yatırılan",
       amountBorrowed: "Ödünç alınmış",
-      depositAPY: "Yatırma APY'si",
-      borrowAPR: "Borç alma APY'si",
+      depositRate: "Yatırma APY'si",
+      borrowRate: "Borç alma APY'si",
       airdrop: "Airdrop",
       totalDepositedValue: "Yatırılan varlık değeriniz",
       totalBorrowedValue: "Ödünç Aldığınız Varlık",
@@ -546,17 +578,23 @@ export const dictionary: any = {
       noDepositsForBorrow: "Ödünç almak için teminat yatırmanız gerekiyor.",
       noDepositsForWithdraw: "You have not deposited any {{ASSET}} to withdraw.",
       noDebtForRepay: "You don't owe any {{ASSET}}.",
-      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}%."
+      rejectTrade: "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}.",
+      insufficientLamports: "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount."
     },
     settings: {
       title: "Ayarlar",
       wallet: "Cüzdan",
+      rpcNode: "RPC Node",
+      current: "Current",
+      defaultNode: "Jet Default",
+      reset: "Reset",
       connect: "Bağlan",
       worldOfDefi: "Cüzdanınızı DeFi dünyasına bağlayın.",
       theme: "Tema",
       light: "Aydınlık",
       dark: "Karanlık",
-      language: "Dil"
+      language: "Dil",
+      noUrl: "Enter a URL"
     },
     reserveDetail: {
       reserveSize: "Rezerv Büyüklüğü",
@@ -565,9 +603,9 @@ export const dictionary: any = {
       viewHistory: "İşlem geçmişini görüntüle",
       totalBorrowed: "Toplam Borç",
       maximumLTV: "Maksimum Borç-Değer Oranı",
-      minimumCollateralizationRatio: "Minimum C-Ratio",
       liquidationPremium: "Premium Likidasyon",
-      tradeAsset: "{{ASSET}} Ticareti"
+      tradeAsset: "{{ASSET}} Ticareti",
+      minimumCollateralizationRatio: "Minimum C-Ratio"
     },
     copilot: {
       name: "Yardımcı Pilot",
@@ -595,8 +633,8 @@ export const dictionary: any = {
           }
         },
         deposit: {
-          overview: "{{BEST DEPOSIT APY NAME}} şu anda iyi görünüyor.",
-          detail: "<b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b> şu anda piyasadaki en iyi mevduata sahip <b class='bold'>APY (Yıllık Yüzde Getiri)</b> <b class='bold'>%{{DEPOSIT APY}}</b> ve hesabınız iyi durumda olduğundan, <b class='bold'>{{USER BALANCE}}</b> hesabınızdaki varlıkların bir kısmını yatırarak bir miktar teminat eklemenizi öneririz <b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b>.",
+          overview: "{{BEST DEPOSIT RATE NAME}} şu anda iyi görünüyor.",
+          detail: "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> şu anda piyasadaki en iyi mevduata sahip <b class='bold'>APY (Yıllık Yüzde Getiri)</b> <b class='bold'>%{{DEPOSIT RATE}}</b> ve hesabınız iyi durumda olduğundan, <b class='bold'>{{USER BALANCE}}</b> hesabınızdaki varlıkların bir kısmını yatırarak bir miktar teminat eklemenizi öneririz <b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b>.",
           actionText: "Haydi uçalım"
         },
         healthy: {
@@ -608,7 +646,9 @@ export const dictionary: any = {
         failed: "İmdat!",
         success: "Başarılı!",
         airdropSuccess: "Size {{UI AMOUNT}} {{RESERVE ABBREV}} değerindeki varlığı Airdrop'la gönderdik. Yeni bakiyenizi görmek için lütfen uygulamayı yenileyin.",
-        refresh: "Yenile"
+        refresh: "Yenile",
+        originationFee: "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
+        headsup: "Heads up!"
       }
     }
   }
@@ -633,12 +673,12 @@ export const definitions: any = {
       term: "Adjusted Collateralization Ratio",
       definition: "A real-time representation of what your collateralization ratio would potentially be if the current trade is submitted."
     },
-    depositAPY: {
-      term: "Deposit interest rate",
+    depositRate: {
+      term: "Deposit Interest Rate",
       definition: "The instantaneous interest rate being earned by depositors. This rate is expressed in annualized form, does not reflect the effects of compounding, and is inclusive of any protocol fees that may be in place. The rate changes as the utilization ratio of the deposited asset changes."
     },
-    borrowAPR: {
-      term: "Borrow interest rate",
+    borrowRate: {
+      term: "Borrow Interest Rate",
       definition: "The instantaneous interest rate being paid by borrowers. This rate is expressed in annualized form, does not reflect the effects of compounding, and is inclusive of any protocol fees that may be in place. The rate changes as the utilization ratio of the borrowed asset changes."
     },
     maximumLtv: {
@@ -669,27 +709,27 @@ export const definitions: any = {
     },
     collateralizationRatio: {
       term: "质押率",
-      definition: "您的抵押品价值除以您的债务价值。 您必须要过度抵押您的借贷款。 您存在Jet的资产市场价值必须要比您的借贷款还高"
+      definition: "您的抵押品价值除以您的债务价值。 您必须要超额抵押您的借贷款。 您存在Jet的资产市场价值必须要比您的借贷款还高。因为Jet可能会扣押这些抵押品，以便在贷款违约的情况下收回贷款价值。 另请参阅最大 LTV。"
     },
     adjustedCollateralizationRatio: {
       term: "调整后的质押率",
       definition: "如果這筆交易成功後的实时质押率"
     },
-    depositAPY: {
-      term: "存款 APY",
-      definition: "假设您全年不添加或提取资金，您在存款账户中赚取的利息总额年化百分比收益率 (APY) 包括您的利率和复利频率，即您从本金中加上您的收入利息赚取的利息"
+    depositRate: {
+      term: "存款率",
+      definition: "存款人赚取的即时利率。 该费率以年化形式表示，不反映复利的影响，并且包括可能存在的任何协议费用。 费率变化会随着存入资产利用率而变化。"
     },
-    borrowAPR: {
-      term: "借贷 APR",
-      definition: "一年上的贷款收取的年化百分比率 (APR)。 这考虑了贷款期间复利的影响，它反映了先前累积利息也赚取的利息"
+    borrowRate: {
+      term: "借贷率",
+      definition: "借款人支付的即时利率。 该费率以年化形式表示，不反映复利的影响，并且包括可能存在的任何协议费用。 利率变化会随着借入资产利用率而变化。"
     },
     maximumLtv: {
       term: "最高LTV",
-      definition: "贷款价值比（loan to value,简写LTV）是指贷款金额和抵押品价值的比例。 是Jet使用的一种风险度量来决定批准的贷款规模。 您可以去查看质押率"
+      definition: "贷款价值比（loan to value,简写LTV）是指贷款金额和抵押品价值的比例。 是Jet使用的一种风险度量来决定批准的贷款规模。 您的 LTV 代表您贷款的规模与为贷款提供担保的财产价值之间的关系。 您可以去查看质押率。"
     },
     utilisationRate: {
       term: "使用率",
-      definition: "该流动性对在 Jet 计划中实际使用的潜在产出量。这是总借入价值与准备金规模的函数"
+      definition: "已借用储备资产的比例。 例如，如果 USDC 的储备资产价值 100,000 美元，借款人以借用 65,000 美元，则利用率为 65%。 剩下的 35,000 美元可用于进一步借款。"
     },
     availLiquidity: {
       term: "可用流动性",
@@ -697,8 +737,8 @@ export const definitions: any = {
     },
     liquidationPremium: {
       term: "清算溢价",
-      definition: "应用于用户抵押品清算价值的用户抵押品赤字增加的百分比 (%)"
-    },
+      definition: "清算溢价是向清算人提供额外的抵押物，清算人偿还低于最低抵押率的账户债务。此额外抵押物的美元价值等于清算溢价乘以已偿还债务的美元价值。 额外的抵押物从被清算用户的账户中支付。"
+    }
   },
   ru: {
     collateral: {
@@ -717,13 +757,13 @@ export const definitions: any = {
       term: "Скорректированный коэффициент обеспечения",
       definition: "Прогноз в реальном времени того, каким примерно будет ваш коэффициент обеспечения, если будет совершена текущая сделка."
     },
-    depositAPY: {
+    depositRate: {
       term: "ГПД депозита",
       definition: "Общая сумма процентов, которые вы зарабатываете на депозитном счете за один год, при условии, что вы не добавляете и не снимаете средства в течение всего года. Годовая процентная доходность (ГПД) включает вашу процентную ставку и частоту начисления сложных процентов, то есть процент, который вы зарабатываете на свою основную сумму, плюс проценты с вашей прибыли."
     },
-    borrowAPR: {
+    borrowRate: {
       term: "ГПС займа",
-      definition: "Годовая процентная ставка (ГПС), взимаемая по займу сроком на один год. При этом учитывается эффект начисления сложных процентов в течение периода займа, что означает, что он отражает проценты, и также начисления на ранее начисленные проценты."
+      definition: "Годовая процентная ставка (ГПС), взимаемая по займу сроком на один год. При этом учитывается эффект начисления сложных процентов в течение периода займа, что означает, что он отражает проценты, и также начисления на ранее накопленные проценты."
     },
     maximumLtv: {
       term: "Максимальный КДЗ",
@@ -746,43 +786,43 @@ export const definitions: any = {
   tr: {
     collateral: {
       term: "Teminat",
-      definition: "Kredinizi güvence altına almak için bize yatırdığınız varlık. Kredinin temerrüde düşmesi durumunda, Jet kredinin değerini geri alabilmek için bu teminatı alacaktır."
+      definition: "Borcunuzu güvence altına almak için bize yatırdığınız varlık. Borcunuzun temerrüde düşmesi durumunda, Jet kredinin değerini geri alabilmek için bu teminatı alacaktır."
     },
     debt: {
       term: "Borç",
-      definition: "Jet Protokolü'ne borçlu olunan veya ödenmesi gereken kredinin değeri"
+      definition: "Jet Protokolü'ne borçlu olunan veya ödenmesi gereken kredi tutarı"
     },
     collateralizationRatio: {
       term: "Teminatlandırma Oranı veya C-Oranı",
-      definition: "Teminatınızın değeri, borcunuzun değerine bölünür. Kredinizi fazla teminat altına almanız gerekmektedir, yani yatırılan varlıklarınızın adil piyasa değeri, ödünç almanıza izin verilen tutarın değerini aşmalıdır."
+      definition: "Teminatınızın değeri, borcunuzun değerine bölünür. Borcunuzu fazla teminat altına almanız gerekmektedir. Yani yatırılan varlıklarınızın piyasa değeri, ödünç almanıza izin verilen tutarın değerini aşmalıdır."
     },
     adjustedCollateralizationRatio: {
       term: "Düzeltilmiş Teminat Oranı",
-      definition: "Mevcut işlemin sunulması durumunda teminatlandırma oranınızın potansiyel olarak ne olacağının gerçek zamanlı bir temsili."
+      definition: "Mevcut işlemin gerçekleşmesi halinde teminatlandırma oranınızın potansiyel olarak ne olacağının gerçek zamanlı bir temsili."
     },
-    depositAPY: {
-      term: "Depozito APY",
-      definition: "Tüm yıl boyunca para eklemediğinizi veya çekmediğinizi varsayarsak, bir mevduat hesabında bir yıl boyunca kazandığınız toplam faiz tutarı. Yıllıklandırılmış yüzde getirisi (APY), faiz oranınızı ve anaparanızdan kazandığınız faiz artı kazançlarınızın faizi olan bileşik faiz sıklığını içerir."
+    depositRate: {
+      term: "Yatırma APY'si",
+      definition: "Tüm yıl boyunca para eklemediğinizi veya çekmediğinizi varsayarsak, bir mevduat hesabında bir yıl boyunca kazandığınız toplam faiz tutarı. Yıllık yüzde getirisi (APY), faiz oranınızı ve anaparanızdan kazandığınız faiz artı kazançlarınızın faizi olan bileşik faiz sıklığını içerir."
     },
-    borrowAPR: {
-      term: "Borç APR",
+    borrowRate: {
+      term: "Borç APR'si",
       definition: "Bir yıl boyunca bir krediye uygulanan yıllık yüzde oranı (APR). Bu, kredi döneminde bileşik faizin etkisini hesaba katar, yani daha önce birikmiş faizle kazanılan faizi de yansıtır."
     },
     maximumLtv: {
       term: "Maksimum LTV",
-      definition: "Kredi-değer oranı, Jet programı tarafından ne kadar büyük bir kredinin onaylanacağına karar verirken kullanılan bir risk ölçüsü. Kredi-değer oranınız (LTV), aldığınız kredinin büyüklüğü ile krediyi güvence altına alan mülkün değeri arasındaki ilişkiyi temsil eder. Ayrıca bakınız: teminatlandırma oranı."
+      definition: "Kredi-değer oranı, Jet programı tarafından ne kadar büyük bir kredinin onaylanacağına karar verirken kullanılan bir risk ölçüsüdür. Kredi-değer oranınız (LTV), aldığınız kredinin büyüklüğü ile krediyi güvence altına alan varlıkların değeri arasındaki ilişkiyi temsil eder. Ayrıca bakınız: teminatlandırma oranı."
     },
     utilisationRate: {
       term: "Kullanım Oranı",
-      definition: "Bu likidite çiftinin Jet programı içindeki potansiyel çıktısının fiilen kullanılan miktarı. Bu, rezerv büyüklüğüne karşı toplam ödünç alınan değerin bir fonksiyonudur."
+      definition: "Likidite çiftinin Jet programı içindeki potansiyel getirisini fiilen kullanılan miktarı. Bu, rezerv büyüklüğüne karşı toplam ödünç alınan değerin bir fonksiyonudur."
     },
     availLiquidity: {
       term: "Likidite",
       definition: "Bir varlığın piyasa fiyatını etkilemeden hazır nakde dönüştürülebilmesi veya gerçek değerini yansıtan bir fiyattan piyasada hızla alınıp satılabilmesinin etkinliği veya kolaylığı."
     },
     liquidationPremium: {
-      term: "Likidasyon Primi",
-      definition: "Kullanıcının teminat acığında ki (%) artışının, o kullanıcının varlıklarına likadasyon sırasında uygunlanması"
+      term: "Premium Likidasyon",
+      definition: "Kullanıcının varlıklarına likidasyon sırasında uygulanan teminat açığındaki (%) artış"
     }
   }
 }

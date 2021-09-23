@@ -24,15 +24,15 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--black', '#ffffff');
     document.documentElement.style.setProperty('--grey', '#504f4f');
     document.documentElement.style.setProperty('--white', '#444444');
-    document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 1)');
-    document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 1)');
+    document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 0.85)');
+    document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 0.85)');
     document.documentElement.style.setProperty('--input-color', 'rgba(255, 255, 255, 0.7)');
   } else {
     document.documentElement.style.setProperty('--black', '#1a495e');
     document.documentElement.style.setProperty('--grey', '#dee4ec');
-    document.documentElement.style.setProperty('--white', '#e4ebf5');
-    document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 1)');
-    document.documentElement.style.setProperty('--dark-shadow', 'rgba(190, 200, 228, 1)');
+    document.documentElement.style.setProperty('--white', '#e6edf7');
+    document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 0.85)');
+    document.documentElement.style.setProperty('--dark-shadow', 'rgba(175, 186, 214, 0.85)');
     document.documentElement.style.setProperty('--input-color', 'rgba(26, 73, 94, 0.7)');
   }
 
@@ -143,7 +143,7 @@ export class TokenAmount {
   public decimals: number;
   /** Token amount as string, accounts for decimals */
   public uiAmount: string;
-  /** Token amount as a float, accouts for decimals. Imprecise at large numbers */
+  /** Token amount as a float, accounts for decimals. Imprecise at large numbers */
   public uiAmountFloat: number;
 
   constructor(amount: BN, decimals: number) {
@@ -201,7 +201,7 @@ export class TokenAmount {
     if (initialPlace !== -1) {
       fractionalValue = lamports.length - (initialPlace + 1);
       
-      // If fractinoal value is lesser than a lamport, round to nearest lamport
+      // If fractional value is lesser than a lamport, round to nearest lamport
       if (fractionalValue > decimals) {
         lamports = String(parseFloat(lamports).toFixed(decimals));
       }

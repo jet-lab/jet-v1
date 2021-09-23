@@ -51,8 +51,9 @@
     <div class="divider">
     </div>
     <div class="modal-section flex align-center justify-evenly">
-      <PercentageChart percentage={reserveDetail.utilizationRate} 
+      <PercentageChart percentage={reserveDetail.utilizationRate * 100} 
         text={dictionary[$PREFERRED_LANGUAGE].reserveDetail.utilisationRate.toUpperCase()} 
+        percentageDefinition={definitions[$PREFERRED_LANGUAGE].utilisationRate}
       />
       <div class="flex align-start justify-center column">
         <div class="flex align-start justify-center" style="margin: var(--spacing-sm);">
@@ -63,7 +64,7 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, reserveDetail.decimals)}
+              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
             </p>
           </span>
         </div>
@@ -75,7 +76,7 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.availableLiquidity.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.availableLiquidity.uiAmountFloat, false, 2)}
+              {currencyFormatter(reserveDetail.availableLiquidity.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
             </p>
           </span>
         </div>

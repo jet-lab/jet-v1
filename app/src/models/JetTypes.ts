@@ -81,8 +81,8 @@ export interface Reserve {
   marketSize: TokenAmount,
   outstandingDebt: TokenAmount,
   utilizationRate: number,
-  depositAPY: number,
-  borrowAPR: number,
+  depositRate: number,
+  borrowRate: number,
   maximumLTV: number,
   /** The bonus awarded to liquidators when repaying a loan in exchange for a
   collateral asset. */
@@ -302,7 +302,7 @@ export interface Copilot {
   definition?: CopilotDefinition,
   alert?: CopilotAlert,
 };
-interface CopilotSuggestion {
+export interface CopilotSuggestion {
   good: boolean,
   overview?: string,
   detail?: string,
@@ -312,11 +312,11 @@ interface CopilotSuggestion {
     onClick: () => void,
   }
 };
-interface CopilotDefinition {
+export interface CopilotDefinition {
   term: string,
   definition: string
 };
-interface CopilotAlert {
+export interface CopilotAlert {
   good: boolean,
   header: string,
   text: string,

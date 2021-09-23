@@ -65,6 +65,7 @@
       {#if $WALLET && $ASSETS}
         <div class="copilot flex align-center justify-center" 
           class:justify-start={expanded}
+          title={dictionary[$PREFERRED_LANGUAGE].nav.getCopilotSuggestion}
           on:click={() => generateCopilotSuggestion()}>
           <img width="25px" height="auto" 
             src="img/copilot/copilot.png" 
@@ -72,7 +73,7 @@
           />
           {#if expanded}
             <div class="flex align-start justify-start column">
-              <span class="text-gradient">
+              <span class="bicyclette text-gradient">
                 {dictionary[$PREFERRED_LANGUAGE].copilot.name.toUpperCase()}
               </span>
             </div>
@@ -80,6 +81,7 @@
         </div>
         <div class="wallet flex align-center justify-center"
           class:justify-start={expanded} 
+          title={dictionary[$PREFERRED_LANGUAGE].nav.disconnectWallet}
           on:click={() => disconnectWallet()}>
           <img width="25px" height="auto" 
             src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
@@ -87,8 +89,7 @@
           />
           {#if expanded}
             <span class="text-gradient">
-              {$WALLET.publicKey.toString().substring(0, 4)}..
-              {$WALLET.publicKey.toString().substring(
+              {$WALLET.publicKey.toString().substring(0, 4)}...{$WALLET.publicKey.toString().substring(
                 $WALLET.publicKey.toString().length - 4
               )}
             </span>
@@ -127,7 +128,7 @@
   </div>
   <div class="bottom flex align-center justify-evenly">
     {#if $WALLET && $ASSETS}
-      <div class="copilot flex align-center justify-center" 
+      <div class="copilot flex align-center justify-center"
         on:click={() => generateCopilotSuggestion()}>
         <img width="100%" height="auto" 
           src="img/copilot/copilot.png" 
@@ -240,7 +241,7 @@
     cursor: pointer;
   }
   span {
-    font-weight: 500;
+    font-weight: bold;
     font-size: 10px;
   }
 
