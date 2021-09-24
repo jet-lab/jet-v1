@@ -31,6 +31,7 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
               reserve.liquidationPremium = reserveStruct.liquidationBonus;
               reserve.depositNoteExchangeRate = reserveStruct.depositNoteExchangeRate;
               reserve.loanNoteExchangeRate = reserveStruct.loanNoteExchangeRate;
+              reserve.fetched = true;
 
               deriveValues(market, reserve, assetStore?.tokens[abbrev]);
 
@@ -183,6 +184,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (asset) {
           asset.tokens[reserve.abbrev].walletTokenBalance = amount ?? new TokenAmount(new BN(0), reserve.decimals);
           asset.tokens[reserve.abbrev].walletTokenExists = !!amount;
+          asset.tokens[reserve.abbrev].fetched = true;
 
           deriveValues(market, market.reserves[reserve.abbrev], asset.tokens[reserve.abbrev]);
         }

@@ -109,6 +109,7 @@ export interface Reserve {
   loanNoteMint: TokenAmount,
   pythPricePubkey: PublicKey,
   pythProductPubkey: PublicKey,
+  fetched: boolean
 };
 
 // Reserve Account
@@ -258,8 +259,7 @@ export interface AssetStore {
     SOL: Asset,
     USDC: Asset,
     BTC: Asset,
-    ETH: Asset,
-    SRM: Asset
+    ETH: Asset
   }
 };
 export interface Asset {
@@ -286,6 +286,7 @@ export interface Asset {
   collateralNoteExists: boolean,
   collateralNoteBalance: TokenAmount,
   collateralBalance: TokenAmount,
+  fetched: boolean,
 };
 
 // Web3

@@ -18,9 +18,6 @@
     try {
       // Initialize dark theme
       initDarkTheme();
-      
-      // Small timeout to prevent Flash Of Ugly Content
-      await timeout(1000);
 
       // Get user's locale and check for banned region
       await getLocale();

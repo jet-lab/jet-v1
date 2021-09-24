@@ -33,8 +33,9 @@
   let disabledInput: boolean = true;
   let disabledMessage: string = '';
   let reserveDetail: Reserve | null = null;
-  let init: boolean = false;
   let sendingTrade: boolean = false;
+  let reservesFetched: boolean = false;
+  let assetsFetched: boolean = false;
 
   // Datatable settings
   let tableData: Reserve[] = [];
@@ -239,6 +240,14 @@
 
     // Get max input value for current trade scenario
     getMaxInputValue();
+
+    // If we have a market and are done fetching reserves, we can init view
+    reservesFetched = $MARKET.reserves[Object.keys($MARKET.reserves)[Object.keys($MARKET.reserves).length - 1]].fetched;
+
+    // If we have a wallet and are done fetching assets, we can re-init view
+    if ($ASSETS) {
+      assetsFetched = $ASSETS.tokens[Object.keys($ASSETS.tokens)[Object.keys($ASSETS.tokens).length - 1]].fetched;
+    }
   };
 
   // Check scenario and submit trade
@@ -433,13 +442,10 @@
       market.minColRatio = 1.3;
       return market;
     });
-
-    // Init View on first reaction
-    init = true;
   }
 </script>
 
-{#if $MARKET && $CURRENT_RESERVE && init}
+{#if reservesFetched && $CURRENT_RESERVE && (!$ASSETS || assetsFetched)}
   <div class="view-container flex justify-center column">
     <h1 class="view-title text-gradient">
       {dictionary[$PREFERRED_LANGUAGE].cockpit.title}
@@ -805,7 +811,10 @@
       }} />
   {/if}
 {:else}
- <Loader fullview />
+ <Loader fullview 
+  text={!reservesFetched 
+    ? dictionary[$PREFERRED_LANGUAGE].loading.fetchingReserves 
+      : dictionary[$PREFERRED_LANGUAGE].loading.fetchingAccount} />
 {/if}
 
 <style>
