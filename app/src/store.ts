@@ -17,3 +17,4 @@ export const NATIVE = writable<boolean> (true);
 export const DARK_THEME = writable<boolean> (false);
 export const PREFERRED_NODE = writable<string | null> (null);
 export const PING = writable<number> (0);
+export const WALLET_INIT = writable<boolean> (false);

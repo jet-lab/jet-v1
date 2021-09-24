@@ -4,7 +4,7 @@
   import { MARKET, CURRENT_RESERVE, GEOBANNED } from './store';
   import { rollbar, getMarketAndIDL } from './scripts/jet';
   import { getLocale } from './scripts/localization';
-  import { initDarkTheme, timeout } from './scripts/utils';
+  import { initDarkTheme } from './scripts/utils';
   import Nav from './components/Nav.svelte';
   import Cockpit from './views/Cockpit.svelte';
   import Settings from './views/Settings.svelte';

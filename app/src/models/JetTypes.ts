@@ -108,8 +108,7 @@ export interface Reserve {
   loanNoteMintPubkey: PublicKey,
   loanNoteMint: TokenAmount,
   pythPricePubkey: PublicKey,
-  pythProductPubkey: PublicKey,
-  fetched: boolean
+  pythProductPubkey: PublicKey
 };
 
 // Reserve Account
@@ -286,7 +285,6 @@ export interface Asset {
   collateralNoteExists: boolean,
   collateralNoteBalance: TokenAmount,
   collateralBalance: TokenAmount,
-  fetched: boolean,
 };
 
 // Web3

@@ -6,7 +6,7 @@ import type * as anchor from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
 import { parsePriceData } from "@pythnetwork/client";
 import type { Asset, AssetStore, IdlMetadata, Market, Reserve } from "../models/JetTypes";
-import { ASSETS, MARKET } from "../store";
+import { ASSETS, MARKET, PING } from "../store";
 import { getAccountInfoAndSubscribe, getMintInfoAndSubscribe, getTokenAccountAndSubscribe, parseMarketAccount, parseObligationAccount, parseReserveAccount, SOL_DECIMALS, getCcRate, getBorrowRate, getDepositRate } from "./programUtil";
 import { TokenAmount } from "./utils";
 import { MarketReserveInfoList } from "./layout";
@@ -16,9 +16,13 @@ let market: Market;
 ASSETS.subscribe(data => assetStore = data);
 MARKET.subscribe(data => market = data);
 
-export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.Connection, coder: anchor.Coder) => {
+export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor.web3.Connection, coder: anchor.Coder) => {
+  let promise: Promise<number>;
+  const promises: Promise<number>[] = [];
+  
   // Market subscription 
-  getAccountInfoAndSubscribe(connection, idlMeta.market.market, account => {
+  let timeStart = Date.now();
+  promise = getAccountInfoAndSubscribe(connection, idlMeta.market.market, account => {
     if (account != null) {
       MARKET.update(market => {
         console.assert(MarketReserveInfoList.span == 12288);
@@ -31,7 +35,6 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
               reserve.liquidationPremium = reserveStruct.liquidationBonus;
               reserve.depositNoteExchangeRate = reserveStruct.depositNoteExchangeRate;
               reserve.loanNoteExchangeRate = reserveStruct.loanNoteExchangeRate;
-              reserve.fetched = true;
 
               deriveValues(market, reserve, assetStore?.tokens[abbrev]);
 
@@ -43,10 +46,17 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
       })
     }
   });
+  // Set ping of RPC call
+  promise.then(() => {
+    let timeEnd = Date.now();
+    PING.set(timeEnd - timeStart);
+  });
+  promises.push(promise);
+
 
   for (const reserveMeta of idlMeta.reserves) {
     // Reserve
-    getAccountInfoAndSubscribe(connection, reserveMeta.accounts.reserve, account => {
+    promise = getAccountInfoAndSubscribe(connection, reserveMeta.accounts.reserve, account => {
       if (account != null) {
         MARKET.update(market => {
           const decoded = parseReserveAccount(account.data, coder);
@@ -69,9 +79,10 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         })
       }
     });
+    promises.push(promise);
 
     // Deposit Note Mint
-    getMintInfoAndSubscribe(connection, reserveMeta.accounts.depositNoteMint, amount => {
+    promise = getMintInfoAndSubscribe(connection, reserveMeta.accounts.depositNoteMint, amount => {
       if (amount != null) {
         MARKET.update(market => {
           let reserve = market.reserves[reserveMeta.abbrev];
@@ -83,9 +94,10 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         });
       }
     });
+    promises.push(promise);
 
     // Loan Note Mint
-    getMintInfoAndSubscribe(connection, reserveMeta.accounts.loanNoteMint, amount => {
+    promise = getMintInfoAndSubscribe(connection, reserveMeta.accounts.loanNoteMint, amount => {
       if (amount != null) {
         MARKET.update(market => {
           let reserve = market.reserves[reserveMeta.abbrev];
@@ -97,9 +109,10 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         });
       }
     });
+    promises.push(promise);
 
     // Reserve Vault
-    getTokenAccountAndSubscribe(connection, reserveMeta.accounts.vault, reserveMeta.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, reserveMeta.accounts.vault, reserveMeta.decimals, amount => {
       if (amount != null) {
         MARKET.update(market => {
           let reserve = market.reserves[reserveMeta.abbrev];
@@ -111,9 +124,10 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         });
       }
     });
+    promises.push(promise);
 
     // Reserve Token Mint
-    getMintInfoAndSubscribe(connection, reserveMeta.accounts.tokenMint, amount => {
+    promise = getMintInfoAndSubscribe(connection, reserveMeta.accounts.tokenMint, amount => {
       if (amount != null) {
         MARKET.update(market => {
           let reserve = market.reserves[reserveMeta.abbrev];
@@ -125,9 +139,10 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         });
       }
     });
+    promises.push(promise);
 
     // Pyth Price
-    getAccountInfoAndSubscribe(connection, reserveMeta.accounts.pythPrice, account => {
+    promise = getAccountInfoAndSubscribe(connection, reserveMeta.accounts.pythPrice, account => {
       if (account != null) {
         MARKET.update(market => {
           let reserve = market.reserves[reserveMeta.abbrev];
@@ -139,16 +154,21 @@ export const subscribeToMarket = (idlMeta: IdlMetadata, connection: anchor.web3.
         });
       }
     });
+    promises.push(promise);
   }
+
+  return await Promise.all(promises);
 };
 
 export const subscribeToAssets = async (connection: Connection, coder: anchor.Coder, wallet: anchor.web3.PublicKey) => {
+  let promise: Promise<number>;
+  let promises: Promise<number>[] = [];
   if (assetStore == null) {
     return;
   }
 
   // Wallet native SOL balance
-  getAccountInfoAndSubscribe(connection, wallet, account => {
+  promise = getAccountInfoAndSubscribe(connection, wallet, account => {
     ASSETS.update(asset => {
       if (asset) {
         // Need to be careful constructing a BN from a number.
@@ -158,9 +178,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
       return asset;
     });
   });
+  promises.push(promise);
 
   // Obligation
-  getAccountInfoAndSubscribe(connection, assetStore.obligationPubkey, account => {
+  promise = getAccountInfoAndSubscribe(connection, assetStore.obligationPubkey, account => {
     if (account != null) {
       ASSETS.update(asset => {
         if (asset) {
@@ -173,27 +194,28 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
       });
     }
   })
+  promises.push(promise);
 
   for (const abbrev in assetStore.tokens) {
     const asset = assetStore.tokens[abbrev];
     const reserve = market.reserves[abbrev];
 
     // Wallet token account
-    getTokenAccountAndSubscribe(connection, asset.walletTokenPubkey, reserve.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, asset.walletTokenPubkey, reserve.decimals, amount => {
       ASSETS.update(asset => {
         if (asset) {
           asset.tokens[reserve.abbrev].walletTokenBalance = amount ?? new TokenAmount(new BN(0), reserve.decimals);
           asset.tokens[reserve.abbrev].walletTokenExists = !!amount;
-          asset.tokens[reserve.abbrev].fetched = true;
 
           deriveValues(market, market.reserves[reserve.abbrev], asset.tokens[reserve.abbrev]);
         }
         return asset;
       });
     });
+    promises.push(promise);
 
     // Reserve deposit notes
-    getTokenAccountAndSubscribe(connection, asset.depositNoteDestPubkey, reserve.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, asset.depositNoteDestPubkey, reserve.decimals, amount => {
       ASSETS.update(asset => {
         if (asset) {
           asset.tokens[reserve.abbrev].depositNoteDestBalance = amount ?? TokenAmount.zero(reserve.decimals);
@@ -204,9 +226,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         return asset;
       });
     })
+    promises.push(promise);
 
     // Deposit notes account
-    getTokenAccountAndSubscribe(connection, asset.depositNotePubkey, reserve.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, asset.depositNotePubkey, reserve.decimals, amount => {
       ASSETS.update(asset => {
         if (asset) {
           asset.tokens[reserve.abbrev].depositNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
@@ -217,9 +240,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         return asset;
       });
     })
+    promises.push(promise);
 
     // Obligation loan notes
-    getTokenAccountAndSubscribe(connection, asset.loanNotePubkey, reserve.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, asset.loanNotePubkey, reserve.decimals, amount => {
       ASSETS.update(asset => {
         if (asset) {
           asset.tokens[reserve.abbrev].loanNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
@@ -230,9 +254,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         return asset;
       })
     })
+    promises.push(promise);
 
     // Obligation collateral notes
-    getTokenAccountAndSubscribe(connection, asset.collateralNotePubkey, reserve.decimals, amount => {
+    promise = getTokenAccountAndSubscribe(connection, asset.collateralNotePubkey, reserve.decimals, amount => {
       ASSETS.update(asset => {
         if (asset) {
           asset.tokens[reserve.abbrev].collateralNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
@@ -243,7 +268,10 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         return asset;
       });
     });
+    promises.push(promise);
   }
+
+  return await Promise.all(promises);
 };
 
 const deriveValues = (market: Market, reserve?: Reserve, asset?: Asset) => {
