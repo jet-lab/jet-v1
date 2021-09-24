@@ -11,7 +11,7 @@
   const animatePercent = async () => {
     percent = 0;
     while(percent < (percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage))) {
-      await timeout(5);
+      await timeout(7);
       percent++;
     }
   };

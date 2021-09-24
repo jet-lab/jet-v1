@@ -39,7 +39,7 @@
   on:click={() => closeable ? closeModal() : null}>
 </div>
 <div class="modal flex align-center justify-center column"
-  in:fly={{y: closeable ? 50 : 0, duration: closeable ? 300 : 0}}
+  in:fly={{y: closeable ? 50 : 0, duration: closeable ? 500 : 0}}
   out:fade={{duration: closeable ? 50 : 0}}>
   <Logo width={120} />
   <span>

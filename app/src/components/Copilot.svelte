@@ -20,7 +20,7 @@
     transition:fade={{duration: 50}}>
   </div>
   <div class="copilot modal flex align-center justify-center"
-    in:fly={{y: 50, duration: 300}}
+    in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
     {#if $COPILOT.alert || $COPILOT.suggestion}
       <img src="img/copilot/copilot_white.png" 

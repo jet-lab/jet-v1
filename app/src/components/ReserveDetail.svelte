@@ -27,7 +27,7 @@
     on:click={() => closeReserveDetail()}>
   </div>
   <div class="reserve-detail modal flex align-center justify-center column"
-    in:fly={{y: 50, duration: 300}}
+    in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
     <div class="modal-section flex align-center justify-center column">
       <div class="flex align-center-justify-center">
