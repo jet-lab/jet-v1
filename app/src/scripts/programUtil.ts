@@ -8,6 +8,7 @@ import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./l
 import { TokenAmount } from "./utils";
 import { inDevelopment } from "./jet";
 import { PING } from "../store";
+import { getErrorCode, translateAndPrintErrorCode } from './errors';
 
 let ping: number;
 PING.subscribe(data => ping = data);
@@ -419,7 +420,7 @@ export const transactionErrorToString = (error: any) => {
   if (error.code) {
     return `Code ${error.code}: ${error.msg}\n${error.logs}\n${error.stack}`
   } else {
-    return error;
+    return error + ' ' + translateAndPrintErrorCode(getErrorCode(JSON.stringify(error)));
   }
 };
 
