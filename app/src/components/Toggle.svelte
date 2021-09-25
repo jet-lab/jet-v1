@@ -42,7 +42,7 @@
 
 <style>
   .outside {
-    margin: var(--spacing-sm) auto;
+    margin: var(--spacing-sm) 0;
     width: calc(100% - 12px);
     background: var(--grey);
     border-radius: var(--round-radius);
@@ -105,15 +105,14 @@
     opacity: 1;
   }
   i, p {
-    padding-left: 1px;
     font-size: 15px;
     line-height: 11px;
     color: var(--white);
   }
   p {
-    font-size: 10px;
+    font-size: 9px;
     text-transform: uppercase;
-    padding-top: 2px;
+    padding-top: 3px;
     padding-right: 6px;
     opacity: 1;
   }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade, fly } from 'svelte/transition';
   import type { WalletProvider } from '../models/JetTypes';
   import { PREFERRED_LANGUAGE } from '../store';
   import { getWalletAndAnchor } from '../scripts/jet';
@@ -33,10 +34,13 @@
   ];
 </script>
 
-<div class="modal-bg" 
+<div class="modal-bg"
+  transition:fade={{duration: closeable ? 50 : 0}}
   on:click={() => closeable ? closeModal() : null}>
 </div>
-<div class="modal flex align-center justify-center column">
+<div class="modal flex align-center justify-center column"
+  in:fly={{y: closeable ? 50 : 0, duration: closeable ? 500 : 0}}
+  out:fade={{duration: closeable ? 50 : 0}}>
   <Logo width={120} />
   <span>
     {dictionary[$PREFERRED_LANGUAGE].settings.worldOfDefi}

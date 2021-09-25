@@ -1,18 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap');
+@font-face {
+  font-family: 'Bicyclette';
+  src: url("./fonts/Bicyclette-Regular.woff") format('woff');
+}
+@font-face {
+  font-family: 'Bicyclette-Bold';
+  src: url("./fonts/Bicyclette-Bold.woff") format('woff');
+}
+@font-face {
+  font-family: 'Jet-Icons';
+  src: url("./fonts/JetIcons-Regular.woff") format('woff');
+}
+
 /* General styling & root variables */
 :root {
   --black: #444444;
   --grey: #d8dfec;
-	--white: #e4ebf5;
-	--jet-green: #53bd9f;
-	--jet-blue: #32a5d3;
-  --success: #53bd9f;
+	--white: #e6edf7; /* e4ebf5 */
+	--jet-green: #44a88c; /* 53bd9f */
+	--jet-blue: #2a97c2; /* 32a5d3 */
+  --success: #44a88c; /* 53bd9f */
   --failure: #ec6a69;
 
   --input-color: rgba(26, 73, 94, 0.7);
   --gradient: linear-gradient(135deg, var(--jet-green) 25%, var(--jet-blue) 85%);
 
-  --light-shadow: rgba(255, 255, 255, 1);
-  --dark-shadow: rgba(190, 200, 228, 1);
+  --light-shadow: rgba(255, 255, 255, 0.85);
+  --dark-shadow: rgba(175, 186, 214, 0.85);
   --neu-shadow: -2px -2px 4px var(--light-shadow), 2px 2px 4px var(--dark-shadow);
   --neu-shadow-inset: inset -2px -2px 2.5px var(--light-shadow), inset 2px 2px 2.5px var(--dark-shadow);
   --neu-shadow-inset-low: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
@@ -20,8 +34,8 @@
   --neu--datatable-bottom-shadow: -2px 0px 4px var(--light-shadow), 2px 3px 4px var(--dark-shadow);
   --neu-shadow-inset-success: inset -2px -2px 2px #86e6cb, inset 2px 2px 2px #379c80;
   --neu-shadow-inset-failure: inset -2px -2px 2px #f58d8d, inset 2px 2px 2px #c94646;
-  --neu-shadow-inset-gradient: inset -2px -2px 2.5px #67cff8, inset 2px 2px 2.5px #329478;
-  --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #67cff8, inset 1.5px 1.5px 2px #329478;
+  --neu-shadow-inset-gradient: inset -2px -2px 2.5px #75d3f8, inset 2px 2px 2.5px #28866c;
+  --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #75d3f8, inset 1.5px 1.5px 2px #28866c;
 
   --disabled-opacity: 0.75;
 
@@ -37,19 +51,6 @@
   --round-radius: 50px;
   --btn-radius: 7px;
   --btn-padding: 7px 20px 5px 20px;
-}
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
-@font-face {
-  font-family: 'Bicyclette';
-  src: url("./fonts/Bicyclette-Regular.woff") format('woff');
-}
-@font-face {
-  font-family: 'Bicyclette-Bold';
-  src: url("./fonts/Bicyclette-Bold.woff") format('woff');
-}
-@font-face {
-  font-family: 'Jet-Icons';
-  src: url("./fonts/JetIcons-Regular.woff") format('woff');
 }
 body {
 	margin: 0;
@@ -179,20 +180,20 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
-.trade-input {
+.submit-input {
   position: relative;
 }
-.trade-input input {
+.submit-input input {
   width: 250px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
   padding-left: 50px;
   padding-right: 80px;
 }
-.trade-input.disabled input{
+.submit-input.disabled input{
   cursor: not-allowed !important;
 }
-.trade-input img {
+.submit-input img {
   width: 25px;
   height: auto;
   position: absolute;
@@ -201,25 +202,25 @@ input[type=number] {
   left: var(--spacing-md);
   opacity: var(--disabled-opacity);
 }
-.trade-input .asset-abbrev-usd {
+.submit-input .asset-abbrev-usd {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
   right: var(--spacing-md);
   padding: unset;
 }
-.trade-input span {
+.submit-input span {
   font-weight: 400 !important;
   font-size: 15px !important;
   color: var(--black) !important;
 }
-.trade-input .asset-abbrev-usd span:last-of-type {
+.submit-input .asset-abbrev-usd span:last-of-type {
   font-size: 10px !important;
 }
-.trade-input input:focus + img, .trade-input.active img {
+.submit-input input:focus + img, .submit-input.active img {
   opacity: 1;
 }
-.trade-input.active input {
+.submit-input.active input {
   box-shadow: var(--neu-shadow-inset-low);
 }
 .input-error {
@@ -228,7 +229,7 @@ input[type=number] {
 .input-error::placeholder {
   color: var(--failure);
 }
-.trade-input-btn {
+.submit-input-btn {
   height: 43px;
   border: 2px solid var(--white);
   border-left: none;
@@ -237,21 +238,21 @@ input[type=number] {
   padding: 0 var(--spacing-md);
   cursor: pointer;
 }
-.trade-input-btn:active, .trade-input-btn.active {
+.submit-input-btn:active, .submit-input-btn.active {
   background: var(--white);
 }
-.trade-input-btn.disabled:active {
+.submit-input-btn.disabled:active {
   background: unset;
 }
-.trade-input-btn i {
+.submit-input-btn i {
   color: var(--white);
 }
-.trade-input-btn:active i, .trade-input-btn.active i {
+.submit-input-btn:active i, .submit-input-btn.active i {
   background-image: var(--gradient) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
-.trade-input-btn.disabled:active i {
+.submit-input-btn.disabled:active i {
   color: var(--white);
   -webkit-text-fill-color: unset !important;
 }
@@ -266,19 +267,19 @@ input[type=number] {
   margin: var(--spacing-md) var(--spacing-lg);
 }
 .view-title {
-  font-family: 'Bicyclette', 'Roboto'; 
+  font-family: 'Bicyclette', 'Roboto', sans-serif; 
   font-size: 26px;
   letter-spacing: 5px;
   margin: var(--spacing-md) 0 0 0;
 }
 .view-header {
-  font-family: 'Bicyclette-Bold', 'Roboto'; 
+  font-family: 'Bicyclette-Bold', 'Roboto', sans-serif; 
   font-size: 90px;
   line-height: 105px;
   opacity: 1;
 }
 .view-header span {
-  font-family: 'Bicyclette-Bold', 'Roboto'; 
+  font-family: 'Bicyclette-Bold', 'Roboto', sans-serif; 
   font-size: 30px;
   line-height: 35px;
   position: absolute;
@@ -300,7 +301,7 @@ input[type=number] {
   top: 0;
   left: var(--nav-width);
   background: var(--white);
-  opacity: 0.8;
+  opacity: 0.92;
   text-align: center;
 }
 .modal {
@@ -443,7 +444,7 @@ input[type=number] {
 }
 .datatable td.reserve-detail {
   font-size: 12px !important;
-  font-family: 'Bicyclette-Bold', 'Roboto';
+  font-family: 'Bicyclette-Bold', 'Roboto', sans-serif;
   text-transform: uppercase;
   background-image: var(--gradient) !important;
   -webkit-background-clip: text !important;
@@ -488,7 +489,7 @@ input[type=number] {
 }
 .datatable .dt-asset span:last-of-type {
   opacity: var(--disabled-opacity) !important;
-  font-size: 9px !important;
+  font-size: 10px !important;
   top: 32px !important;
 }
 .datatable-spacer td {
@@ -527,23 +528,23 @@ input[type=number] {
     height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
 	  margin-left: 0;
   }
-  .trade-input-container {
+  .submit-input-container {
     padding: var(--spacing-xs) 0;
   }
-  .trade-input input {
+  .submit-input input {
     width: 160px;
     padding-left: 30px;
     padding-right: 35px;
     font-size: 15px;
   }
-  .trade-input img {
+  .submit-input img {
     width: 18px;
     left: var(--spacing-sm);
   }
-  .trade-input span {
+  .submit-input span {
     font-size: 10px !important;
   }
-  .trade-input-btn {
+  .submit-input-btn {
     height: 37px;
   }
   .view-container {

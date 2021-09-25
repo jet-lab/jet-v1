@@ -33,10 +33,11 @@
     font-size: 30px;
   }
   span {
-    max-width: 200px;
+    max-width: 300px;
+    font-size: 16px;
   }
   img {
-    width: 500px;
+    width: 700px;
   }
 
   @media screen and (max-width: 1100px) {

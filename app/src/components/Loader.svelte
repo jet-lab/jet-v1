@@ -1,8 +1,27 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+  import { timeout } from "../scripts/utils";
+
+
   export let text: string = '';
   export let button: boolean = false;
   export let fullview: boolean = false;
   export let fullscreen: boolean = false;
+
+  let dots: string = '.';
+
+  onMount(async () => {
+    if (text) {
+      while (true) {
+        await timeout(250);
+        if (dots.length > 2) {
+          dots = '';
+        } else {
+          dots += '.';
+        }
+      }
+    }
+  });
 </script>
 
 <div class="loader flex align-center justify-center column"
@@ -15,9 +34,9 @@
     </div>
   </div>
   {#if text}
-    <p class="text-gradient">
-      {@html text}
-    </p>
+    <span class="bicyclette">
+      {@html text}{dots}
+    </span>
   {/if}
 </div>
 
@@ -70,7 +89,10 @@
     height: auto;
     animation: rotate 1.25s ease-in-out infinite;
   }
-  p {
+  span {
+    position: absolute;
+    top: calc(50% + 60px);
+    left: calc(50% - 65px);
     font-size: 12px;
   }
   @keyframes rotate {

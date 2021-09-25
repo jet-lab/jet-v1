@@ -39,10 +39,10 @@
     height: 25px;
   }
   p {
+    font-weight: bold;
     text-transform: uppercase;
-    font-size: 12px;
-    padding-right: var(--spacing-sm);
-    margin: 0 0 -2px -2px;
+    font-size: 10px;
+    margin: 0 0 -2px 0;
   }
   a:active {
     box-shadow: var(--neu-shadow-inset);
@@ -61,6 +61,5 @@
   .text {
     padding: 0 var(--spacing-xs);
     width: 100px;
-    justify-content: flex-start;
   }
 </style>

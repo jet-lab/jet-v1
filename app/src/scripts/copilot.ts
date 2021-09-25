@@ -19,14 +19,14 @@ export const generateCopilotSuggestion = (): void => {
     return;
   }
 
-  let bestReserveDepositAPY = market.reserves.SOL;
+  let bestReserveDepositRate = market.reserves.SOL;
   let colRatio = getObligationData()?.colRatio ?? 0;
 
-  // Find best deposit APY
+  // Find best deposit Rate
   if (market.reserves) {
     for (let a in market.reserves) {
-      if (market.reserves[a].depositAPY > bestReserveDepositAPY.depositAPY) {
-        bestReserveDepositAPY = market.reserves[a];
+      if (market.reserves[a].depositRate > bestReserveDepositRate.depositRate) {
+        bestReserveDepositRate = market.reserves[a];
       }
     };
   }
@@ -44,17 +44,17 @@ export const generateCopilotSuggestion = (): void => {
         solution: dictionary[preferredLanguage].copilot.suggestions.unhealthy.solution
       }
     });
-  } else if (bestReserveDepositAPY?.depositAPY && !assets.tokens[bestReserveDepositAPY.abbrev].walletTokenBalance?.amount.isZero()) {
-    CURRENT_RESERVE.set(bestReserveDepositAPY);
+  } else if (bestReserveDepositRate?.depositRate && !assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance?.amount.isZero()) {
+    CURRENT_RESERVE.set(bestReserveDepositRate);
     COPILOT.set({
       suggestion: {
         good: true,
         overview: dictionary[preferredLanguage].copilot.suggestions.deposit.overview
-          .replaceAll('{{BEST DEPOSIT APY NAME}}', bestReserveDepositAPY.name),
+          .replaceAll('{{BEST DEPOSIT RATE NAME}}', bestReserveDepositRate.name),
         detail: dictionary[preferredLanguage].copilot.suggestions.deposit.detail
-          .replaceAll('{{BEST DEPOSIT APY ABBREV}}', bestReserveDepositAPY.abbrev)
-          .replaceAll('{{DEPOSIT APY}}', bestReserveDepositAPY.depositAPY)
-          .replaceAll('{{USER BALANCE}}', currencyFormatter(assets.tokens[bestReserveDepositAPY.abbrev].walletTokenBalance.uiAmountFloat, false, 2))
+          .replaceAll('{{BEST DEPOSIT RATE ABBREV}}', bestReserveDepositRate.abbrev)
+          .replaceAll('{{DEPOSIT RATE}}', bestReserveDepositRate.depositRate)
+          .replaceAll('{{USER BALANCE}}', currencyFormatter(assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance.uiAmountFloat, false, 2))
       }
     });
   } else if (obligation.borrowedValue && (colRatio > market?.minColRatio && colRatio <= market?.minColRatio + 10)) {

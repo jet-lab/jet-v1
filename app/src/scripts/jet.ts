@@ -5,8 +5,8 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, Reserves, MathWallet, SolongWallet } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, CURRENT_RESERVE } from '../store';
+import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet } from '../models/JetTypes';
+import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -44,7 +44,6 @@ export const rollbar = new Rollbar({
   }
 });
 
-
 // Cast solana injected window type
 const solWindow = window as unknown as SolWindow;
 
@@ -60,11 +59,21 @@ export const getMarketAndIDL = async (): Promise<void> => {
   const idlMetadata = parseIdlMetadata(idl.metadata);
 
   // Establish web3 connection
-  connection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+  const preferredNode = localStorage.getItem('jetPreferredNode');
+  PREFERRED_NODE.set(preferredNode);
+  try {
+    connection = new anchor.web3.Connection(
+      preferredNode ?? idlMetadata.cluster, 
+      (anchor.Provider.defaultOptions()).commitment
+    );
+  } catch {
+    localStorage.removeItem('jetPreferredNode');
+    connection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+  }
   coder = new anchor.Coder(idl);
 
   // Setup reserve structures
-  const reserves: Reserves = {} as Reserves;
+  const reserves: Record<string, Reserve> = {};
   for (const reserveMeta of idlMetadata.reserves) {
     let reserve: Reserve = {
       name: reserveMeta.name,
@@ -72,8 +81,8 @@ export const getMarketAndIDL = async (): Promise<void> => {
       marketSize: TokenAmount.zero(reserveMeta.decimals),
       outstandingDebt: TokenAmount.zero(reserveMeta.decimals),
       utilizationRate: 0,
-      depositAPY: 0,
-      borrowAPR: 0,
+      depositRate: 0,
+      borrowRate: 0,
       maximumLTV: 0,
       liquidationPremium: 0,
       price: 0,
@@ -107,26 +116,25 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves: reserves,
   });
 
-  // Set initial current asset to SOL
-  CURRENT_RESERVE.set(reserves[0]);
-
   // Subscribe to market 
-  subscribeToMarket(idlMetadata, connection, coder);
-  return;
+  await subscribeToMarket(idlMetadata, connection, coder);
 };
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana.isPhantom) {
-    wallet = new WalletAdapter(solWindow.solana) as Wallet;
+    wallet = solWindow.solana as unknown as Wallet;
   } else if (provider.name === 'Math Wallet' && solWindow.solana.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
+    wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
     wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else {
     wallet = new WalletAdapter(provider.url) as Wallet;
   };
@@ -149,8 +157,9 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   wallet.on('connect', async () => {
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
+    WALLET_INIT.set(true);
   });
-  wallet.connect();
+  await wallet.connect();
   return;
 };
 
