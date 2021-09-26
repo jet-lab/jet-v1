@@ -167,7 +167,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
     WALLET_INIT.set(true);
-    //const tx = await connection.getConfirmedSignaturesForAddress2(new anchor.web3.PublicKey(wallet.publicKey));
   });
   await wallet.connect();
   return;
