@@ -227,22 +227,26 @@ impl CachedReserveInfo {
         self.loan_note_exchange_rate * self.price
     }
 
-    /// Convert loan notes into the equivalent value of tokens
+    /// Convert loan notes into the equivalent value of tokens,
+    /// truncating any fractional tokens.
     pub fn loan_notes_to_tokens(&self, notes: u64) -> u64 {
         (self.loan_note_exchange_rate * Number::from(notes)).as_u64(0)
     }
 
-    /// Convert a token amount into the equivalent value of loan notes
+    /// Convert a token amount into the equivalent value of loan notes,
+    /// truncating any fractional notes.
     pub fn loan_notes_from_tokens(&self, tokens: u64) -> u64 {
         (Number::from(tokens) / self.loan_note_exchange_rate).as_u64(0)
     }
 
-    /// Convert deposit notes into the equivalent value of tokens
+    /// Convert deposit notes into the equivalent value of tokens,
+    /// truncating any fractional tokens.
     pub fn deposit_notes_to_tokens(&self, notes: u64) -> u64 {
         (self.deposit_note_exchange_rate * Number::from(notes)).as_u64(0)
     }
 
-    /// Convert a token amount into the equivalent value of deposit notes
+    /// Convert a token amount into the equivalent value of deposit notes,
+    /// truncating any fractional notes.
     pub fn deposit_notes_from_tokens(&self, tokens: u64) -> u64 {
         (Number::from(tokens) / self.deposit_note_exchange_rate).as_u64(0)
     }

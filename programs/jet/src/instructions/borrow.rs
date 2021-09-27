@@ -104,8 +104,8 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
 
     // Calculate the number of notes to create to match the value being
     // borrowed, then mint the notes as a way of tracking this borrower's
-    // debt.
-    let new_notes = reserve_info.loan_notes_from_tokens(token_amount);
+    // debt. The notes will be truncated, add one to offset truncation.
+    let new_notes = reserve_info.loan_notes_from_tokens(token_amount) + 1;
 
     // Record the borrow onto the reserve account, and also add any fees
     // to get the total amount borrowed.
