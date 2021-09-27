@@ -1,0 +1,137 @@
+{
+    "language": "Русский",
+    "loading": {
+        "transactions": "Транзакции отправляются...",
+        "connectingWallet": "Кошелёк подключается..."
+    },
+    "nav": {
+        "cockpit": "Кабина",
+        "settings": "Настройки",
+        "collapse": "Свернуть",
+        "getCopilotSuggestion": "Get Copilot Suggestion",
+        "disconnectWallet": "Disconnect Wallet"
+    },
+    "cockpit": {
+        "title": "Кабина",
+        "asset": "Актив",
+        "detail": "Подробнее",
+        "native": "Базовая",
+        "totalValueLocked": "Зарезервированная рыночная стоимость",
+        "totalBorrowed": "Общая сумма займов",
+        "availableLiquidity": "Доступная ликвидность",
+        "amountDeposited": "Депозит",
+        "amountBorrowed": "Займ",
+        "depositRate": "ГПД депозита",
+        "borrowRate": "ГПС займа",
+        "airdrop": "Airdrop",
+        "totalDepositedValue": "Сумма ваших депозитов",
+        "totalBorrowedValue": "Сумма ваших займов",
+        "yourRatio": "Ваш КО",
+        "collateralizationRatio": "Коэффициент обеспечения",
+        "noInputAmount": "Введите сумму.",
+        "adjustedCollateralization": "Скорректированный КО",
+        "deposit": "Пополнить",
+        "walletBalance": "Баланс кошелька",
+        "noDepositAmount": "Введите сумму",
+        "notEnoughAsset": "Недостаточно {{ASSET}}.",
+        "withdraw": "вывести",
+        "availableFunds": "Доступные средства",
+        "lessFunds": "Недостаточно средств",
+        "borrow": "Занять",
+        "maxBorrowAmount": "Максимальный займ",
+        "assetIsCurrentDeposit": "Вы предоставили {{ASSET}} и вы не можете занять его же.",
+        "noLiquidity": "Недостаточно ликвидности.",
+        "minCRatio": "Это действие приведёт к тому, что ваша позиция достигнет минимума коэффициента обеспечения, и ваш счёт может быть подвергнут ликвидации. Вы уверены?",
+        "belowMinRatio": "У вас недостаточно средств в залоге. Пополните залог или верните долг чтобы избежать ликвидации.",
+        "subjectToLiquidation": "Эта сделка понизит ваш коэффициент обеспечения до {{NEW-C-RATIO}}%, после чего ваш счёт может быть подвергнут ликвидации. Вы всё-равно хотите занять?",
+        "confirm": "Подтвердить",
+        "repay": "Вернуть",
+        "amountOwed": "Сумма долга",
+        "oweLess": "Вы должны меньше.",
+        "geobanned": "Jet протокол не доступен в вашем регионе.",
+        "noMarket": "площадка Jet не смогла запуститься.",
+        "txSuccess": "Успез! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
+        "txFailed": "Транзакция не прошла. Мы не уверены, что пошло не так. Попробуйте еще раз позже или свяжитесь с нами.",
+        "max": "Max",
+        "assetIsCurrentBorrow": "Вы одолжили {{ASSET}}, поэтому не можете его внести на депозит",
+        "belowMinCRatio": "У вас недостаточно средств в залоге. Пополните залог или верните долг чтобы избежать ликвидации.",
+        "search": "Поиск валюты",
+        "noBalanceForDeposit": "У Вас нету {{ASSET}} в кошельке, чтобы внести на депозит",
+        "noDepositsForBorrow": "Вы должны предоставить залог, чтобы вы могли занять.",
+        "noDepositsForWithdraw": "Вы не внесли на депозит {{ASSET}} чтобы вывести",
+        "noDebtForRepay": "Вы не дожны {{ASSET}}.",
+        "rejectTrade": "Сделка понизит ваш коэфициент залог {{NEW-C-RATIO}}%, что будет ниже \n минимального уровня {{JET MIN C-RATIO}}.",
+        "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
+        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+    },
+    "settings": {
+        "title": "Настройки",
+        "wallet": "Кошелёк",
+        "connect": "Подключиться",
+        "worldOfDefi": "Подключить ваш кошелек к миру DeFi.",
+        "theme": "Тема",
+        "light": "Светлая",
+        "dark": "Тёмная",
+        "language": "Язык",
+        "rpcNode": "RPC Node",
+        "current": "Current",
+        "defaultNode": "Jet Default",
+        "reset": "Reset",
+        "noUrl": "Enter a URL"
+    },
+    "reserveDetail": {
+        "reserveSize": "Размер резерва",
+        "availableLiquidity": "Доступная ликвидность",
+        "utilisationRate": "Коэффициент использования",
+        "viewHistory": "Показать историю",
+        "totalBorrowed": "Всего занято",
+        "maximumLTV": "Максимальный КДЗ",
+        "liquidationPremium": "Ликвидационная надбавка",
+        "tradeAsset": "Торговать {{ASSET}}",
+        "minimumCollateralizationRatio": "Минимальный КО"
+    },
+    "copilot": {
+        "name": "Второй пилот",
+        "header": "Привет от второго пилота.",
+        "okay": "Хорошо",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "Ваш счёт нездоров.",
+                "detail": "Ваш коэффициент обеспечения (сумма вашего залога поделённая на сумму ваших займов) сейчас {{C-RATIO}}%, что на {{RATIO BELOW AMOUNT}}% меньше, чем минимальный КО {{JET MIN C-RATIO}}% на торговой площадке Jet.",
+                "solution": "Чтобы исправить ваше положение, вы можете внести больше залога, но я вам рекомендую лучше вернуть долг в Кабине.",
+                "actionText": "Перейти в Кабину"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "Вы опасно близки к ликвидации.",
+                    "detail": "Ваш коэффициент обеспечения (сумма вашего залога поделённая на сумму ваших займов) сейчас {{C-RATIO}}%, что в пределах 10% минимального КО {{JET MIN C-RATIO}}% на торговой площадке Jet.",
+                    "solution": "Чтобы избежать ликвидации, вы можете пополнить ваш залог.",
+                    "actionText": "Пополнить"
+                },
+                "twentyPercent": {
+                    "overview": "Уделите внимание вашему коэффициенту обеспечения.",
+                    "detail": "Ваш коэффициент обеспечения (сумма вашего залога поделённая на сумму ваших займов) сейчас {{C-RATIO}}%, что менее чем на 20% выше минимального КО {{JET MIN C-RATIO}}% на торговой площадке Jet.",
+                    "solution": "Повысьте ваш коэффициент обеспечения до здорового уровня 20% или более посредством пополнения вашего залога.",
+                    "actionText": "Пополнить"
+                }
+            },
+            "deposit": {
+                "overview": "{{BEST DEPOSIT RATE NAME}} в данный момент выглядит неплохо.",
+                "detail": "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> сейчас предлагает лучшую <b class='bold'>ГПД (годовую процентную доходность)</b> депозита на рынке в <b class='bold'>{{DEPOSIT RATE}}%</b>, и ваш счёт находится в хорошем состоянии, так что мы рекомендуем пополнить ваш залог, используя часть вашего <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
+                "actionText": "Полетели"
+            },
+            "healthy": {
+                "overview": "Небо чистое.",
+                "detail": "Ваш счёт в хорошем состоянии и имеет здоровый уровень залога, так что я просмотрю рынок и попробую предложить вам какие-то хорошие варианты. Загляните сюда еще раз попозже!"
+            }
+        },
+        "alert": {
+            "failed": "Неудача!",
+            "success": "Успех!",
+            "airdropSuccess": "Вы получили Airdrop {{UI AMOUNT}} {{RESERVE ABBREV}}.\nПожалуйста, обновите страницу чтобы увидеть новый баланс.",
+            "refresh": "Обновить",
+            "originationFee": "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
+            "headsup": "Heads up!"
+        }
+    }
+}
