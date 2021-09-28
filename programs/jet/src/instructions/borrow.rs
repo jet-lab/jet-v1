@@ -94,6 +94,8 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
     let mut reserve = ctx.accounts.reserve.load_mut()?;
     let loan_account = &ctx.accounts.loan_account.key();
 
+    market.verify_ability_borrow()?;
+
     let market_reserves = market.reserves();
     let clock = Clock::get().unwrap();
     let reserve_info = market_reserves.get_cached(reserve.index, clock.slot);

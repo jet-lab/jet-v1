@@ -93,6 +93,8 @@ pub fn handler(ctx: Context<CloseDepositAccount>, _bump: u8) -> ProgramResult {
     let notes_remaining = token::accessor::amount(&ctx.accounts.deposit_account)?;
 
     if notes_remaining > 0 {
+        market.verify_ability_deposit_withdraw()?;
+
         let reserve = ctx.accounts.reserve.load()?;
         let clock = Clock::get()?;
 

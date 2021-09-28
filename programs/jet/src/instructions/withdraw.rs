@@ -83,6 +83,8 @@ pub fn handler(ctx: Context<Withdraw>, _bump: u8, amount: Amount) -> ProgramResu
     let clock = Clock::get().unwrap();
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
+    market.verify_ability_deposit_withdraw()?;
+
     // Calculate the number of tokens that the request amount is worth
     let token_amount = amount.tokens(reserve_info);
     let note_amount = amount.as_deposit_notes(reserve_info)?;

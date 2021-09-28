@@ -5,6 +5,9 @@ pub mod init_market;
 pub mod init_obligation;
 pub mod init_reserve;
 
+pub mod set_market_flags;
+pub mod set_market_owner;
+
 pub mod close_deposit_account;
 
 pub mod borrow;
@@ -31,5 +34,7 @@ pub use liquidate::*;
 pub use liquidate_dex::*;
 pub use refresh_reserve::*;
 pub use repay::*;
+pub use set_market_flags::*;
+pub use set_market_owner::*;
 pub use withdraw::*;
 pub use withdraw_collateral::*;

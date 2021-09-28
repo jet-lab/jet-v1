@@ -90,6 +90,8 @@ pub fn handler(
     let clock = Clock::get()?;
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
+    market.verify_ability_deposit_withdraw()?;
+
     let note_amount = amount.as_deposit_notes(reserve_info)?;
 
     token::transfer(

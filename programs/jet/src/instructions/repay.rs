@@ -150,6 +150,8 @@ pub fn repay<'info, T: RepayContext<'info>>(
     let loan_account = ctx.accounts.loan_account();
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
+    market.verify_ability_repay()?;
+
     // Calculate the number of notes to pay off to match the value being repaid
     let (payoff_tokens, payoff_notes) = match amount.units {
         AmountUnits::Tokens => (

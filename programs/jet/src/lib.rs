@@ -63,6 +63,16 @@ mod jet {
         instructions::init_obligation::handler(ctx, bump)
     }
 
+    /// Change the owner on a market
+    pub fn set_market_owner(ctx: Context<SetMarketOwner>, new_owner: Pubkey) -> ProgramResult {
+        instructions::set_market_owner::handler(ctx, new_owner)
+    }
+
+    /// Change the flags on a market
+    pub fn set_market_flags(ctx: Context<SetMarketFlags>, flags: u64) -> ProgramResult {
+        instructions::set_market_flags::handler(ctx, flags)
+    }
+
     /// Close a deposit account
     pub fn close_deposit_account(ctx: Context<CloseDepositAccount>, bump: u8) -> ProgramResult {
         instructions::close_deposit_account::handler(ctx, bump)

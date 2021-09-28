@@ -83,6 +83,8 @@ pub fn handler(ctx: Context<Deposit>, _bump: u8, amount: Amount) -> ProgramResul
     let clock = Clock::get()?;
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
+    market.verify_ability_deposit_withdraw()?;
+
     // Calculate the number of new notes that need to be minted to represent
     // the current value being deposited
     let token_amount = amount.tokens(reserve_info);

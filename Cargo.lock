@@ -229,6 +229,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bitflags"
+version = "1.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
+
+[[package]]
 name = "blake3"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -610,6 +616,7 @@ version = "0.2.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
+ "bitflags",
  "bytemuck",
  "jet-math",
  "jet-proc-macros",
