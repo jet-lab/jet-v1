@@ -1,0 +1,137 @@
+{
+    "language": "Türkçe\n",
+    "loading": {
+        "transactions": "İşleminiz yapılıyor...",
+        "connectingWallet": "Cüzdan bağlanıyor..."
+    },
+    "nav": {
+        "cockpit": "Kokpit",
+        "settings": "Ayarlar",
+        "collapse": "Kollaps",
+        "getCopilotSuggestion": "Yardımcı pilot önerisi alın.",
+        "disconnectWallet": "Cüzdan bağlantısını sonlandır"
+    },
+    "cockpit": {
+        "title": "Kokpit",
+        "asset": "Varlık",
+        "detail": "Detay",
+        "native": "Özgün",
+        "totalValueLocked": "Kilitli Piyasa Değeri",
+        "totalBorrowed": "Toplam Ödünç Alınan",
+        "availableLiquidity": "Uygun Likidite",
+        "amountDeposited": "Yatırılan",
+        "amountBorrowed": "Ödünç alınmış",
+        "depositRate": "Yatırma Oranı",
+        "borrowRate": "Borç alma Oranı",
+        "airdrop": "Airdrop",
+        "totalDepositedValue": "Yatırılan varlık değeriniz",
+        "totalBorrowedValue": "Ödünç Aldığınız Varlık",
+        "yourRatio": "C-Oranınız",
+        "collateralizationRatio": "Teminat Oranı",
+        "noInputAmount": "Miktar girin",
+        "adjustedCollateralization": "Düzeltilmiş C-Oranı",
+        "deposit": "Yatırma",
+        "walletBalance": "Cüzdan Bakiyesi",
+        "noDepositAmount": "Miktar girin",
+        "notEnoughAsset": "Yeterli {{ASSET}} yok.",
+        "withdraw": "Çekim",
+        "availableFunds": "Kullanılabilir Fonlar",
+        "lessFunds": "Yeterli fon yok",
+        "borrow": "Borç al",
+        "maxBorrowAmount": "Maksimum Borç",
+        "assetIsCurrentDeposit": "{{ASSET}} yatırdığınız için ödünç alamazsınız.",
+        "noLiquidity": "Yeterli likidite yok.",
+        "minCRatio": "Bu işlem, pozisyonunuzu minimum teminat oranına alacaktır. Dolayısıyla hesabınız, likidasyon bölgesine girecektir. Bu işlemi yapmayı istediğinize emin misiniz?",
+        "belowMinRatio": "Yeterli teminata sahip değilsiniz. Likidasyondan kaçınmak için para yatırın veya borcunuzu geri ödeyin.",
+        "subjectToLiquidation": "Bu işlem, likidasyon oranınızı %{{NEW-C-RATIO}} 'ya düşürür ve bu da sizi likidasyona tabi kılar. Yine de ödünç almak ister misin?",
+        "confirm": "Onayla",
+        "repay": "Geri öde",
+        "amountOwed": "Borçlu Tutar",
+        "oweLess": "Daha az borçlusun.",
+        "geobanned": "Jet Protocol bölgenizde kullanılamıyor.",
+        "noMarket": "Jet pazaryerini başlatamadık.",
+        "txSuccess": "Başarılı! {{AMOUNT AND ASSET}} tutarındaki  {{TRADE ACTION}} alındı. <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>'da işleme göz atın.",
+        "txFailed": "İşlem başarısız. Neyin yanlış gittiğinden emin değilim, lütfen daha sonra tekrar deneyin veya bizimle iletişime geçin.",
+        "max": "Maksimum",
+        "assetIsCurrentBorrow": "{{ASSET}} ödünç aldınız ve bu nedenle yatıramazsınız.",
+        "belowMinCRatio": "Teminatınız yetersiz. Likidasyondan kaçınmak için para yatırın veya borcunuzu geri ödeyin.",
+        "search": "Pazar arama..",
+        "noBalanceForDeposit": "Yatırmak istediğiniz {{ASSET}} varlığı cüzdanınızda bulunmuyor. ",
+        "noDepositsForBorrow": "Ödünç almak için teminat yatırmanız gerekiyor.",
+        "noDepositsForWithdraw": "Çekme istediğiniz herhangi bir {{ASSET}} yatırımınız yok. ",
+        "noDebtForRepay": "Hiç {{ASSET}} borcunuz yok.",
+        "rejectTrade": "Bu ticaret, sizin yeni teminat oranınızı {{NEW-C-RATIO}}% minimum oranımız olan {{JET MIN C-RATIO}} altına düşürebilir. Borcun oluşturulması için ayrıca bir komisyon daha bulunmaktadır {{ORIGINATION FEE}}%. Hala borç almak istediğinize emin misiniz?",
+        "insufficientLamports": "İşlem ücretlerini dahi karşılamayacak kadar çok SOL yatırıyorsunuz. Şu ankinden daha az bir miktar kullanarak yeniden deneyin. ",
+        "repayUndercollateralized": "Yeni C-Oranınız {{NEW-C-RATIO}} hala Jet pazarının minimum teminat oranı olan {{JET MIN C-RATIO}}% altındadır. Likidasyondan kaçınmak için lütfen daha fazla geri ödeme yapmayı dikkate alın."
+    },
+    "settings": {
+        "title": "Ayarlar",
+        "wallet": "Cüzdan",
+        "connect": "Bağlan",
+        "worldOfDefi": "Cüzdanınızı DeFi dünyasına bağlayın.",
+        "theme": "Tema",
+        "light": "Aydınlık",
+        "dark": "Karanlık",
+        "language": "Dil",
+        "rpcNode": "RPC Düğümü",
+        "current": "Şu andaki",
+        "defaultNode": "Jet varsayılan",
+        "reset": "Sıfırla",
+        "noUrl": "URL girin"
+    },
+    "reserveDetail": {
+        "reserveSize": "Rezerv Büyüklüğü",
+        "availableLiquidity": "Mevcut Likidite",
+        "utilisationRate": "Kullanım Oranı",
+        "viewHistory": "İşlem geçmişini görüntüle",
+        "totalBorrowed": "Toplam Borç",
+        "maximumLTV": "Maksimum Borç-Değer Oranı",
+        "liquidationPremium": "Premium Likidasyon",
+        "tradeAsset": "{{ASSET}} Ticareti",
+        "minimumCollateralizationRatio": "Minimum C-Oranı"
+    },
+    "copilot": {
+        "name": "Yardımcı Pilot",
+        "header": "Yardımcı pilot burada.",
+        "okay": "Okay",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "Hesabınız sağlıksız.",
+                "detail": "Teminat Oranınız (toplam yatırdığınız değerin toplam ödünç aldığınız değere oranı) %{{C-RATIO}} olup, Jet pazarının minimum teminatlandırma oranı olan %{{JET MIN C-RATIO}} değerinden %{{RATIO BELOW AMOUNT}} daha düşüktür.",
+                "solution": "Pozisyonunuzu doğrultmak için daha fazla teminat yatırabilirsiniz ancak borcunuzu Kokpit'te ödemenizi öneririm.",
+                "actionText": "Kokpite Git"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "Tehlikeli bir şekilde likidasyona yakınsınız.",
+                    "detail": "Teminat Oranınız (toplam yatırdığınız değerin toplam ödünç aldığınız değere bölümü) %{{C-RATIO}} olup, Jet pazarının minimum teminatlandırma oranı olan %{{JET MIN C-RATIO}} %10'luk kısım içindedir.",
+                    "solution": "Likidasyondan kaçınmak için daha fazla teminat yatırabilirsiniz.",
+                    "actionText": "Yatırma"
+                },
+                "twentyPercent": {
+                    "overview": "Teminat oranınıza dikkat edin.",
+                    "detail": "Teminat Oranınız (toplam yatırdığınız değerin toplam ödünç aldığınız değere bölümü) %{{C-RATIO}} 'dur ve bu, Jet pazarının minimum teminatlandırma oranı olan %{{JET MIN C-RATIO}} 'nın %20 üzerindedir.",
+                    "solution": "Daha fazla teminat yatırarak teminatlandırma oranınızı, sağlıklı olarak kabul edilen %20 veya daha yüksek seviyelere çıkartın.",
+                    "actionText": "Yatırma"
+                }
+            },
+            "deposit": {
+                "overview": "{{BEST DEPOSIT APY NAME}} şu anda iyi görünüyor.",
+                "detail": "<b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b> şu anda piyasadaki en iyi mevduata sahip <b class='bold'>APY (Yıllık Yüzde Getiri)</b> <b class='bold'>%{{DEPOSIT APY}}</b> ve hesabınız iyi durumda olduğundan, <b class='bold'>{{USER BALANCE}}</b> hesabınızdaki varlıkların bir kısmını yatırarak bir miktar teminat eklemenizi öneririz <b class='bold'>{{BEST DEPOSIT APY ABBREV}}</b>.",
+                "actionText": "Haydi uçalım"
+            },
+            "healthy": {
+                "overview": "Gökler açık",
+                "detail": "Hesabınız iyi durumda ve sağlıklı bir şekilde fazla teminatlandırılmış durumda, piyasaya bir göz atıp sizin için iyi hamleler önerebilecek miyim bir bakayım. Daha sonra tekrar kontrol edin!"
+            }
+        },
+        "alert": {
+            "failed": "İmdat!",
+            "success": "Başarılı!",
+            "airdropSuccess": "Size {{UI AMOUNT}} {{RESERVE ABBREV}} değerindeki varlığı Airdrop'la gönderdik. Yeni bakiyenizi görmek için lütfen uygulamayı yenileyin.",
+            "refresh": "Yenile",
+            "originationFee": "Bu borca ilişkin {{ORIGINATION FEE}}% kadar oluşturulma komisyonu bulunmaktadır. ",
+            "headsup": "Dikkat buraya!"
+        }
+    }
+}

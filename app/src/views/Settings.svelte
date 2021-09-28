@@ -173,14 +173,11 @@
 
 <style>
   .wallet {
-    margin: var(--spacing-sm);
+    margin: var(--spacing-sm) 0;
     cursor: pointer;
   }
-  .wallet:active {
-    box-shadow: var(--neu-shadow-inset);
-  }
   .wallet img {
-    margin: 0ar(--spacing-sm);
+    margin: 0 mar(--spacing-xs);
   }
   .theme-toggle-container {
     width: 110px;
@@ -203,7 +200,7 @@
   }
   .divider {
     max-width: 400px;
-    margin: var(--spacing-lg) 0;
+    margin: var(--spacing-md) 0;
   }
   .submit-input-btn {
     height: 27px;

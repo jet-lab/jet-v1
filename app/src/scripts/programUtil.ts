@@ -7,11 +7,6 @@ import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, Ob
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./utils";
 import { inDevelopment } from "./jet";
-import { PING } from "../store";
-import { getErrorCode, translateAndPrintErrorCode } from './errors';
-
-let ping: number;
-PING.subscribe(data => ping = data);
 
 // Find PDA functions and jet algorithms that are reimplemented here
 
@@ -145,14 +140,14 @@ export const findProgramAddress = async (
  * @param commitment Specify the commitment level account changes must reach before notification
  * @return subscription id
  */
-export const getTokenAccountAndSubscribe = function (
+export const getTokenAccountAndSubscribe = async function (
   connection: Connection,
   publicKey: anchor.web3.PublicKey,
   decimals: number,
   callback: (amount: TokenAmount | undefined, context: Context) => void,
   commitment?: Commitment
-): number {
-  let subscriptionId = getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
+): Promise<number> {
+  return await getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
       if(account.data.length != 165){
         console.log('account data length', account.data.length);
@@ -164,8 +159,6 @@ export const getTokenAccountAndSubscribe = function (
       callback(undefined, context);
     }
   }, commitment);
-
-  return subscriptionId;
 };
 
 /**
@@ -178,13 +171,13 @@ export const getTokenAccountAndSubscribe = function (
  * @param commitment Specify the commitment level account changes must reach before notification
  * @return subscription id
  */
-export const getMintInfoAndSubscribe = function (
+export const getMintInfoAndSubscribe = async function (
   connection: Connection,
   publicKey: anchor.web3.PublicKey,
   callback: (amount: TokenAmount | undefined, context: Context) => void,
   commitment?: Commitment | undefined
-): number {
-  let subscriptionId = getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
+): Promise<number> {
+  return await getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
       let mintInfo = MintLayout.decode(account.data) as MintInfo;
       let amount = TokenAmount.mint(mintInfo);
@@ -193,8 +186,6 @@ export const getMintInfoAndSubscribe = function (
       callback(undefined, context);
     }
   }, commitment);
-
-  return subscriptionId;
 };
 
 /**
@@ -207,15 +198,15 @@ export const getMintInfoAndSubscribe = function (
  * @param commitment Specify the commitment level account changes must reach before notification
  * @return subscription id
  */
-export const getProgramAccountInfoAndSubscribe = function <T>(
+export const getProgramAccountInfoAndSubscribe = async function <T>(
   connection: anchor.web3.Connection,
   publicKey: anchor.web3.PublicKey,
   coder: anchor.Coder,
   accountType: string,
   callback: (acc: AccountInfo<T> | undefined, context: Context) => void,
   commitment?: Commitment | undefined
-): number {
-  let subscriptionId = getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
+): Promise<number> {
+  return await getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
       const decoded: AccountInfo<T> = {
         ...account,
@@ -226,8 +217,6 @@ export const getProgramAccountInfoAndSubscribe = function <T>(
       callback(undefined, context);
     }
   }, commitment);
-
-  return subscriptionId;
 };
 
 /**
@@ -240,12 +229,12 @@ export const getProgramAccountInfoAndSubscribe = function <T>(
  * @param commitment Specify the commitment level account changes must reach before notification
  * @return subscription id
  */
-export const getAccountInfoAndSubscribe = function (
+export const getAccountInfoAndSubscribe = async function (
   connection: anchor.web3.Connection,
   publicKey: anchor.web3.PublicKey,
   callback: (acc: AccountInfo<Buffer> | null, context: Context) => void,
   commitment?: Commitment | undefined
-): number {
+): Promise<number> {
   let latestSlot: number = -1;
   let subscriptionId = connection.onAccountChange(
     publicKey,
@@ -258,25 +247,15 @@ export const getAccountInfoAndSubscribe = function (
     commitment
   );
 
-  let timeStart = Date.now();
-  connection
-    .getAccountInfoAndContext(publicKey, commitment)
-    .then((response) => {
-      if (response.context.slot >= latestSlot) {
-        latestSlot = response.context.slot;
-        if (response.value != null) {
-          callback(response.value, response.context);
-        } else {
-          callback(null, response.context);
-        }
-      }
-
-      // Take first call only for ping status
-      if (!ping) {
-        let timeEnd = Date.now();
-        PING.set(timeEnd - timeStart);
-      }
-    });
+  const response = await connection.getAccountInfoAndContext(publicKey, commitment);
+  if (response.context.slot >= latestSlot) {
+    latestSlot = response.context.slot;
+    if (response.value != null) {
+      callback(response.value, response.context);
+    } else {
+      callback(null, response.context);
+    }
+  }
 
   return subscriptionId;
 };

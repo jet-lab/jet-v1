@@ -6,7 +6,7 @@ import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } fro
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
 import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE } from '../store';
+import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -117,8 +117,7 @@ export const getMarketAndIDL = async (): Promise<void> => {
   });
 
   // Subscribe to market 
-  subscribeToMarket(idlMetadata, connection, coder);
-  return;
+  await subscribeToMarket(idlMetadata, connection, coder);
 };
 
 // Connect to user's wallet
@@ -158,6 +157,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   wallet.on('connect', async () => {
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
+    WALLET_INIT.set(true);
   });
   await wallet.connect();
   return;

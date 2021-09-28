@@ -1,7 +1,7 @@
 import { BN } from '@project-serum/anchor';
 import type { AccountInfo as TokenAccountInfo, MintInfo, u64 } from '@solana/spl-token';
 import type { Market, AssetStore, Obligation } from '../models/JetTypes';
-import { MARKET, ASSETS, DARK_THEME, WALLET } from '../store';
+import { MARKET, ASSETS, DARK_THEME, WALLET, WALLET_INIT } from '../store';
 
 let wallet: any;
 let market: Market | null;
@@ -51,6 +51,7 @@ export const disconnectWallet = () => {
 
   WALLET.set(null);
   ASSETS.set(null);
+  WALLET_INIT.set(false);
 };
 
 // Format USD or crypto with default or desired decimals

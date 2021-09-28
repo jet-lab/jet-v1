@@ -11,7 +11,7 @@
   const animatePercent = async () => {
     percent = 0;
     while(percent < (percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage))) {
-      await timeout(10);
+      await timeout(7);
       percent++;
     }
   };
@@ -90,9 +90,6 @@
   svg path:last-of-type {
     fill: none;
     stroke-width: 2.5;
-  }
-  h2 {
-    color: var(--failure);
   }
   span {
     font-size: 10px;

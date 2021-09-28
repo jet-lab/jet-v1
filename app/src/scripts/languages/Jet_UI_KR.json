@@ -1,0 +1,137 @@
+{
+    "language": "한국인",
+    "loading": {
+        "transactions": "거래 보내는중...",
+        "connectingWallet": "지갑 연결중..."
+    },
+    "nav": {
+        "cockpit": "조종실",
+        "settings": "설정",
+        "collapse": "붕괴",
+        "getCopilotSuggestion": "부조종사 의견 받기",
+        "disconnectWallet": "지갑 연결 해제"
+    },
+    "cockpit": {
+        "title": "조종실",
+        "asset": "자산",
+        "detail": "자세히",
+        "native": "네이티브",
+        "totalValueLocked": "Locked Market Value",
+        "totalBorrowed": "총 대출량",
+        "availableLiquidity": "사용 가능한 유동성",
+        "amountDeposited": "예치된 수량",
+        "amountBorrowed": "대출된 수량",
+        "depositRate": "예치율",
+        "borrowRate": "대출율",
+        "airdrop": "에어드랍",
+        "totalDepositedValue": "나의 예치 금액",
+        "totalBorrowedValue": "나의 대출 금액",
+        "yourRatio": "나의 C-Ratio",
+        "collateralizationRatio": "담보율",
+        "noInputAmount": "금액 입력.",
+        "adjustedCollateralization": "조절된 C-Ratio",
+        "deposit": "예치",
+        "walletBalance": "지갑 잔액",
+        "noDepositAmount": "금액 입력",
+        "notEnoughAsset": "충분하지 않은 {{ASSET}}.",
+        "withdraw": "출금",
+        "availableFunds": "이용가능한 Funds",
+        "lessFunds": "충분하지 않은 funds",
+        "borrow": "대출",
+        "maxBorrowAmount": "최대 대출",
+        "assetIsCurrentDeposit": "{{ASSET}}을 예치했으므로 대출할 수 없습니다.",
+        "noLiquidity": "유동성이 충분하지 않습니다",
+        "minCRatio": "이것은 귀하의 포지션을 Jet Protocol의 최소 담보 비율로 설정하여, 귀하의 계정을 청산 영역에 놓이게 할 것입니다. 확실하십니까?",
+        "belowMinRatio": "귀하의 담보가 부족합니다. 청산을 피하기 위해 예치하거나 빚을 상환하십시오.",
+        "subjectToLiquidation": "이 거래는 담보 비율을 {{NEW-C-RATIO}}%로 낮추어 청산 대상이 되고, 이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다. 그래도 대출 하시겠습니까?",
+        "confirm": "확인",
+        "repay": "상환",
+        "amountOwed": "빚진 금액",
+        "oweLess": "덜 빚지고 있습니다.",
+        "geobanned": "귀하의 지역에서는 Jet Protocol을 사용할 수 없습니다.",
+        "noMarket": "Jet marketplace를 초기화하지 못했습니다.",
+        "txSuccess": "성공적입니다! {{AMOUNT AND ASSET}} 중 {{TRADE ACTION}}이 접수되었습니다. 거래를 확인해보세요 <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>.",
+        "txFailed": "거래를 실패하였습니다. 무엇이 잘못되었는지 확인이 불가하므로, 나중에 다시 시도하거나 저희에게 문의하세요.",
+        "max": "최대",
+        "assetIsCurrentBorrow": "{{ASSET}}을 대출했으므로 예치할 수 없습니다.",
+        "belowMinCRatio": "귀화의 담보가 부족합니다. 청산을 피하기 위해 예치하거나 빚을 상환하십시오.",
+        "search": "마켓 검색..",
+        "noBalanceForDeposit": "지갑에 예치할 {{ASSET}}이 없습니다.",
+        "noDepositsForBorrow": "대출을 받기 위해서는 담보를 예치해야 합니다.",
+        "noDepositsForWithdraw": "출금할 {{ASSET}}을 예치하지 않았습니다.",
+        "noDebtForRepay": "귀하는 {{ASSET}}의 빚이 없습니다.",
+        "rejectTrade": "이 거래는 담보 비율을 {{NEW-C-RATIO}}%로 낮추어서, 이는 {{JET MIN C-RATIO}}의 최소 비율보다 낮을 것입니다. 이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다. 그래도 대출 하시겠습니까?",
+        "insufficientLamports": "거래 수수료에 대한 부담 없이 모든 SOL을 예치하고 있습니다! 약간 낮은 양으로 다시 시도하십시오.",
+        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+    },
+    "settings": {
+        "title": "설정",
+        "wallet": "지갑",
+        "connect": "연결",
+        "worldOfDefi": "지갑을 연결해서 Defi의 세계로 오세요.",
+        "theme": "테마",
+        "light": "Light",
+        "dark": "Dark",
+        "language": "언어",
+        "rpcNode": "RPC Node",
+        "current": "Current",
+        "defaultNode": "Jet Default",
+        "reset": "Reset",
+        "noUrl": "Enter a URL"
+    },
+    "reserveDetail": {
+        "reserveSize": "비축 규모",
+        "availableLiquidity": "사용가능한 유동성",
+        "utilisationRate": "이용 비율",
+        "viewHistory": "내역 보기",
+        "totalBorrowed": "총 대출한 금액",
+        "maximumLTV": "최대 LTV",
+        "liquidationPremium": "유동성 프리미엄",
+        "tradeAsset": "{{ASSET}} 트레이드",
+        "minimumCollateralizationRatio": "최소 C-Ratio"
+    },
+    "copilot": {
+        "name": "부조종사",
+        "header": "부조종사 왔습니다.",
+        "okay": "알겠습니다",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "귀하의 계정이 정상적이지 않습니다.",
+                "detail": "담보 비율(총 예치 금액을 총 대출 금액으로 나눈 값)은 {{C-RATIO}}%로 Jet 마켓플레이스의 최소 담보 비율인 {{JET MIN C-RATIO}보다 {{RATIO BELOW AMOUNT}}% 낮습니다. }%.",
+                "solution": "귀화의 포지션을 바로잡기 위해 담보를 추가로 예치할 수 있지만, 빚을 조종실에서 상환하는 것이 좋습니다.",
+                "actionText": "조종실로 가세요"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "귀하는 위험할 정도로 청산에 가깝습니다.",
+                    "detail": "담보 비율(총 예치 금액을 총 대출 금액으로 나눈 값)은 {{C-RATIO}}%로 Jet 마켓플레이스의 최소 담보 비율인 {{JET MIN C-RATIO}}%의 10% 이내입니다.",
+                    "solution": "청산을 피하기 위해 더 많은 담보를 예치할 수 있습니다.",
+                    "actionText": "출금"
+                },
+                "twentyPercent": {
+                    "overview": "담보 비율을 주시하십시오.",
+                    "detail": "귀하의 담보 비율(총 예치 금액을 총 대출 금액으로 나눈 값)은 Jet 마켓플레이스의 최소 담보 비율인 {{JET MIN C-RATIO}}%보다 20% 미만인 {{C-RATIO}}%입니다.",
+                    "solution": "더 많은 담보를 예치하여 담보 비율을 20% 이상의 정상적인 수준으로 올리십시오.",
+                    "actionText": "출금"
+                }
+            },
+            "deposit": {
+                "overview": "현재 {{BEST DEPOSIT RATE NAME}}이 좋아 보입니다.",
+                "detail": "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> has the best deposit <b class='bold'>rate</b> in the market right now at <b class='bold'>{{DEPOSIT RATE}}%</b>, and your account is in good standing so we recommend adding some collateral by depositing a portion of your <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
+                "actionText": "Let's Do It"
+            },
+            "healthy": {
+                "overview": "하늘은 맑습니다.",
+                "detail": "귀하의 계정은 양호한 상태이며 정상적인 양의 담보가 확보되어 있습니다. 시장을 살펴보고 귀하를 위한 좋은 움직임을 제안할 수 있는지 확인하겠습니다. 나중에 저희에게 확인해주세요!"
+            }
+        },
+        "alert": {
+            "failed": "메이데이!",
+            "success": "성공적!",
+            "airdropSuccess": "{{UI AMOUNT}} {{RESERVE ABBREV}} 에어드랍했습니다. 최신화된 잔액을 보려면 앱을 새로고침하세요.",
+            "refresh": "새로고침",
+            "originationFee": "이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다.",
+            "headsup": "예의주시하세요!"
+        }
+    }
+}

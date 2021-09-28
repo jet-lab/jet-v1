@@ -301,7 +301,7 @@ input[type=number] {
   top: 0;
   left: var(--nav-width);
   background: var(--white);
-  opacity: 0.8;
+  opacity: 0.92;
   text-align: center;
 }
 .modal {

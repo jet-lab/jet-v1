@@ -108,7 +108,7 @@ export interface Reserve {
   loanNoteMintPubkey: PublicKey,
   loanNoteMint: TokenAmount,
   pythPricePubkey: PublicKey,
-  pythProductPubkey: PublicKey,
+  pythProductPubkey: PublicKey
 };
 
 // Reserve Account
@@ -258,8 +258,7 @@ export interface AssetStore {
     SOL: Asset,
     USDC: Asset,
     BTC: Asset,
-    ETH: Asset,
-    SRM: Asset
+    ETH: Asset
   }
 };
 export interface Asset {

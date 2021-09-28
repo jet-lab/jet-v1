@@ -1,0 +1,42 @@
+{
+    "collateral": {
+        "term": "담보",
+        "definition": "대출을 확보하기 위해 protocol에 예치된 자산."
+    },
+    "debt": {
+        "term": "빚",
+        "definition": "대출의 가치에 대한 빚이 있거나 프로토콜로 인한것 같습니다."
+    },
+    "collateralizationRatio": {
+        "term": "담보 비율",
+        "definition": ""
+    },
+    "adjustedCollateralizationRatio": {
+        "term": "조절된 담보 비율",
+        "definition": "현재 거래가 제출된 경우, 담보 비율이 얼마인지 실시간으로 표시된 수치."
+    },
+    "depositRate": {
+        "term": "예치 이자율",
+        "definition": "예금자가 적립하는 순간 이자율. 이 비율은 연간 형식으로 표시되며 복리의 영향을 반영하지 않으며 적용될 수 있는 모든 프로토콜 수수료를 포함합니다. 예치된 자산의 이용 비율이 변함에 따라 비율이 변경됩니다."
+    },
+    "borrowRate": {
+        "term": "대출 이자율",
+        "definition": "대출인이 지불하는 즉시 이자율. 이 비율은 연간 형식으로 표시되며 복리의 영향을 반영하지 않으며 적용될 수 있는 모든 프로토콜 수수료를 포함합니다. 예치된 자산의 이용 비율이 변함에 따라 비율이 변경됩니다."
+    },
+    "maximumLtv": {
+        "term": "최대 LTV",
+        "definition": ""
+    },
+    "utilisationRate": {
+        "term": "이용 비율",
+        "definition": ""
+    },
+    "availLiquidity": {
+        "term": "유동성",
+        "definition": "자산의 시장 가격에 영향을 미치지 않고 자산을 스테이블 코인으로 전환할 수 있는 효율성 또는 용이성."
+    },
+    "liquidationPremium": {
+        "term": "유동성 프리미엄",
+        "definition": ""
+    }
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
   import { COPILOT, PREFERRED_LANGUAGE } from '../store';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
@@ -15,9 +16,12 @@
 
 {#if $COPILOT}
   <div class="modal-bg flex align-center justify-center"
-    on:click={() => COPILOT.set(null)}>
+    on:click={() => COPILOT.set(null)}
+    transition:fade={{duration: 50}}>
   </div>
-  <div class="copilot modal flex align-center justify-center">
+  <div class="copilot modal flex align-center justify-center"
+    in:fly={{y: 50, duration: 500}}
+    out:fade={{duration: 50}}>
     {#if $COPILOT.alert || $COPILOT.suggestion}
       <img src="img/copilot/copilot_white.png" 
         alt="Copilot Icon" 

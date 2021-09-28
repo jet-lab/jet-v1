@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
   import type { Reserve } from '../models/JetTypes';
   import { COPILOT, CURRENT_RESERVE, PREFERRED_LANGUAGE } from '../store';
   import { currencyFormatter, } from '../scripts/utils';
@@ -22,9 +23,12 @@
 
 {#if reserveDetail}
   <div class="modal-bg flex align-center justify-center"
+    transition:fade={{duration: 50}}
     on:click={() => closeReserveDetail()}>
   </div>
-  <div class="reserve-detail modal flex align-center justify-center column">
+  <div class="reserve-detail modal flex align-center justify-center column"
+    in:fly={{y: 50, duration: 500}}
+    out:fade={{duration: 50}}>
     <div class="modal-section flex align-center justify-center column">
       <div class="flex align-center-justify-center">
         <img src={`img/cryptos/${reserveDetail.abbrev}.png`} 

@@ -1,0 +1,42 @@
+{
+    "collateral": {
+        "term": "\nTeminat",
+        "definition": "Borcunuzu güvence altına almak için bize yatırdığınız varlık. Borcunuzun temerrüde düşmesi durumunda, Jet kredinin değerini geri alabilmek için bu teminatı alacaktır."
+    },
+    "debt": {
+        "term": "\nBorç",
+        "definition": "Jet Protokolü'ne borçlu olunan veya ödenmesi gereken kredi tutarı"
+    },
+    "collateralizationRatio": {
+        "term": "Teminatlandırma Oranı veya C-Oranı",
+        "definition": "\nTeminatınızın değeri, borcunuzun değerine bölünür. Borcunuzu fazla teminat altına almanız gerekmektedir. Yani yatırılan varlıklarınızın piyasa değeri, ödünç almanıza izin verilen tutarın değerini aşmalıdır."
+    },
+    "adjustedCollateralizationRatio": {
+        "term": "\nDüzeltilmiş Teminat Oranı",
+        "definition": "Mevcut işlemin gerçekleşmesi halinde teminatlandırma oranınızın potansiyel olarak ne olacağının gerçek zamanlı bir temsili."
+    },
+    "depositRate": {
+        "term": "Yatırma APY'si",
+        "definition": "\nTüm yıl boyunca para eklemediğinizi veya çekmediğinizi varsayarsak, bir mevduat hesabında bir yıl boyunca kazandığınız toplam faiz tutarı. Yıllık yüzde getirisi (APY), faiz oranınızı ve anaparanızdan kazandığınız faiz artı kazançlarınızın faizi olan bileşik faiz sıklığını içerir."
+    },
+    "borrowRate": {
+        "term": "Borç APR'si",
+        "definition": "Bir yıl boyunca bir krediye uygulanan yıllık yüzde oranı (APR). Bu, kredi döneminde bileşik faizin etkisini hesaba katar, yani daha önce birikmiş faizle kazanılan faizi de yansıtır."
+    },
+    "maximumLtv": {
+        "term": "\nMaksimum LTV",
+        "definition": "Kredi-değer oranı, Jet programı tarafından ne kadar büyük bir kredinin onaylanacağına karar verirken kullanılan bir risk ölçüsüdür. Kredi-değer oranınız (LTV), aldığınız kredinin büyüklüğü ile krediyi güvence altına alan varlıkların değeri arasındaki ilişkiyi temsil eder. Ayrıca bakınız: teminatlandırma oranı."
+    },
+    "utilisationRate": {
+        "term": "Kullanım Oranı",
+        "definition": "Likidite çiftinin Jet programı içindeki potansiyel getirisini fiilen kullanılan miktarı. Bu, rezerv büyüklüğüne karşı toplam ödünç alınan değerin bir fonksiyonudur."
+    },
+    "availLiquidity": {
+        "term": "Likidite",
+        "definition": "Bir varlığın piyasa fiyatını etkilemeden hazır nakde dönüştürülebilmesi veya gerçek değerini yansıtan bir fiyattan piyasada hızla alınıp satılabilmesinin etkinliği veya kolaylığı."
+    },
+    "liquidationPremium": {
+        "term": "Premium Likidasyon",
+        "definition": "Kullanıcının varlıklarına likidasyon sırasında uygulanan teminat açığındaki (%) artış"
+    }
+}

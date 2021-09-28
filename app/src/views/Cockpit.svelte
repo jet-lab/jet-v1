@@ -5,7 +5,7 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token';
   import type { Reserve, Obligation } from '../models/JetTypes';
-  import { TRADE_ACTION, MARKET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE } from '../store';
+  import { TRADE_ACTION, MARKET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE, WALLET_INIT, WALLET } from '../store';
   import { inDevelopment, airdrop, deposit, withdraw, borrow, repay } from '../scripts/jet';
   import { currencyFormatter, totalAbbrev, getObligationData, TokenAmount, Amount } from '../scripts/utils';
   import { dictionary, definitions } from '../scripts/localization'; 
@@ -33,7 +33,6 @@
   let disabledInput: boolean = true;
   let disabledMessage: string = '';
   let reserveDetail: Reserve | null = null;
-  let init: boolean = false;
   let sendingTrade: boolean = false;
 
   // Datatable settings
@@ -243,16 +242,16 @@
 
   // Check scenario and submit trade
   const checkSubmit = () => {
-      // If depositing all SOL, inform user about insufficient lamports and reject 
+    // If depositing all SOL, inform user about insufficient lamports and reject 
     if ($CURRENT_RESERVE?.abbrev === 'SOL' && walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat === inputAmount) {
-        inputAmount = null;
-        COPILOT.set({
-          suggestion: {
-            good: false,
-            detail: dictionary[$PREFERRED_LANGUAGE].cockpit.insufficientLamports
-          }
-        });
-      } else if (!disabledInput) {
+      inputAmount = null;
+      COPILOT.set({
+        suggestion: {
+          good: false,
+          detail: dictionary[$PREFERRED_LANGUAGE].cockpit.insufficientLamports
+        }
+      });
+    } else if (!disabledInput) {
       // If trade would result in c-ratio below min ratio, inform user and reject
       if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio < $MARKET.minColRatio) {
         COPILOT.set({
@@ -263,8 +262,8 @@
               .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100)
           }
         });
-    // If trade would result in possible undercollateralization, inform user
-    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
+      // If trade would result in possible undercollateralization, inform user
+      } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
             good: false,
@@ -404,6 +403,10 @@
     return;
   };
 
+  // Once we've fetched all asset data, update values
+  $: if ($WALLET_INIT) {
+    updateValues();
+  }
 
   // Reactive statement to update data
   // on any reserve, user account or price change
@@ -433,13 +436,10 @@
       market.minColRatio = 1.3;
       return market;
     });
-
-    // Init View on first reaction
-    init = true;
   }
 </script>
 
-{#if $MARKET && $CURRENT_RESERVE && init}
+{#if $MARKET && $CURRENT_RESERVE}
   <div class="view-container flex justify-center column">
     <h1 class="view-title text-gradient">
       {dictionary[$PREFERRED_LANGUAGE].cockpit.title}
@@ -472,12 +472,16 @@
             ${obligation?.borrowedValue && (obligation?.colRatio <= $MARKET.minColRatio) 
               ? 'color: var(--failure);' 
                 : 'color: var(--success);'}`}>
-            {#if obligation?.borrowedValue && obligation?.colRatio > 10}
-              &gt;1000
-            {:else if obligation?.borrowedValue && obligation?.colRatio < 10}
-              {currencyFormatter(obligation?.colRatio * 100, false, 1)}
+            {#if $WALLET_INIT}
+              {#if obligation?.borrowedValue && obligation?.colRatio > 10}
+                &gt;1000
+              {:else if obligation?.borrowedValue && obligation?.colRatio < 10}
+                {currencyFormatter(obligation?.colRatio * 100, false, 1)}
+              {:else}
+                ∞
+              {/if}
             {:else}
-              ∞
+              --
             {/if}
             {#if obligation?.borrowedValue}
               <span style="color: inherit;">
@@ -492,7 +496,7 @@
               {dictionary[$PREFERRED_LANGUAGE].cockpit.totalDepositedValue}
             </h2>
             <p class="text-gradient bicyclette">
-              {totalAbbrev(obligation?.depositedValue ?? 0)}
+              {$WALLET_INIT ? totalAbbrev(obligation?.depositedValue ?? 0) : '--'}
             </p>
           </div>
           <div class="trade-position-value flex align-center justify-center column">
@@ -500,7 +504,7 @@
               {dictionary[$PREFERRED_LANGUAGE].cockpit.totalBorrowedValue}
             </h2>
             <p class="text-gradient bicyclette">
-              {totalAbbrev(obligation?.borrowedValue ?? 0)}
+              {$WALLET_INIT ? totalAbbrev(obligation?.borrowedValue ?? 0) : '--'}
             </p>
           </div>
         </div>
@@ -590,32 +594,44 @@
             </td>
             <td class:dt-balance={walletBalances[$rows[i].abbrev]?.uiAmountFloat} 
               on:click={() => changeReserve($rows[i])}>
-              {totalAbbrev(
-                walletBalances[$rows[i].abbrev]?.uiAmountFloat ?? 0,
-                $rows[i].price,
-                $NATIVE,
-                $rows[i].decimals
-              )}
+              {#if $WALLET_INIT}
+                {totalAbbrev(
+                  walletBalances[$rows[i].abbrev]?.uiAmountFloat ?? 0,
+                  $rows[i].price,
+                  $NATIVE,
+                  $rows[i].decimals
+                )}
+              {:else}
+                  --
+              {/if}
             </td>
             <td on:click={() => changeReserve($rows[i])}
               style={collateralBalances[$rows[i].abbrev] ? 
                 'color: var(--jet-green) !important;' : ''}>
-              {totalAbbrev(
-                collateralBalances[$rows[i].abbrev],
-                $rows[i].price,
-                $NATIVE,
-                $rows[i].decimals
-              )}
+              {#if $WALLET_INIT}
+                {totalAbbrev(
+                  collateralBalances[$rows[i].abbrev],
+                  $rows[i].price,
+                  $NATIVE,
+                  $rows[i].decimals
+                )}
+              {:else}
+                  --
+              {/if}
             </td>
             <td on:click={() => changeReserve($rows[i])}
              style={loanBalances[$rows[i].abbrev] ? 
               'color: var(--jet-blue) !important;' : ''}>
-              {totalAbbrev(
-                loanBalances[$rows[i].abbrev],
-                $rows[i].price,
-                $NATIVE,
-                $rows[i].decimals
-              )}
+              {#if $WALLET_INIT}
+                {totalAbbrev(
+                  loanBalances[$rows[i].abbrev],
+                  $rows[i].price,
+                  $NATIVE,
+                  $rows[i].decimals
+                )}
+              {:else}
+                --
+              {/if}
             </td>
             <!--Faucet for testing if in development-->
             <!--Replace with inDevelopment for mainnet-->
@@ -678,33 +694,39 @@
             {/if}
           </span>
           <div class="flex align-center justify-center">
-            {#if $TRADE_ACTION === 'deposit'}
+            {#if $WALLET_INIT}
+              {#if $TRADE_ACTION === 'deposit'}
+                <p>
+                  {currencyFormatter(
+                    walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat ?? 0,
+                    false,
+                    $CURRENT_RESERVE.decimals
+                  )} 
+                  {$CURRENT_RESERVE.abbrev}
+                </p>
+              {:else if $TRADE_ACTION === 'withdraw'}
+                <p>
+                  {currencyFormatter(maxWithdrawAmounts[$CURRENT_RESERVE.abbrev], false, $CURRENT_RESERVE.decimals)} 
+                  {$CURRENT_RESERVE.abbrev}
+                </p>
+              {:else if $TRADE_ACTION === 'borrow'}
+                <p>
+                  {currencyFormatter(maxBorrowAmounts[$CURRENT_RESERVE.abbrev], false, $CURRENT_RESERVE.decimals)} 
+                  {$CURRENT_RESERVE.abbrev}
+                </p>
+              {:else if $TRADE_ACTION === 'repay'}
+                <p>
+                  {currencyFormatter(
+                    loanBalances[$CURRENT_RESERVE.abbrev],
+                    false, 
+                    $CURRENT_RESERVE.decimals
+                  )} 
+                  {$CURRENT_RESERVE.abbrev}
+                </p>
+              {/if}
+            {:else}
               <p>
-                {currencyFormatter(
-                  walletBalances[$CURRENT_RESERVE.abbrev]?.uiAmountFloat ?? 0,
-                  false,
-                  $CURRENT_RESERVE.decimals
-                )} 
-                {$CURRENT_RESERVE.abbrev}
-              </p>
-            {:else if $TRADE_ACTION === 'withdraw'}
-              <p>
-                {currencyFormatter(maxWithdrawAmounts[$CURRENT_RESERVE.abbrev], false, $CURRENT_RESERVE.decimals)} 
-                {$CURRENT_RESERVE.abbrev}
-              </p>
-            {:else if $TRADE_ACTION === 'borrow'}
-              <p>
-                {currencyFormatter(maxBorrowAmounts[$CURRENT_RESERVE.abbrev], false, $CURRENT_RESERVE.decimals)} 
-                {$CURRENT_RESERVE.abbrev}
-              </p>
-            {:else if $TRADE_ACTION === 'repay'}
-              <p>
-                {currencyFormatter(
-                  loanBalances[$CURRENT_RESERVE.abbrev],
-                  false, 
-                  $CURRENT_RESERVE.decimals
-                )} 
-                {$CURRENT_RESERVE.abbrev}
+                --
               </p>
             {/if}
           </div>
@@ -715,12 +737,16 @@
             {dictionary[$PREFERRED_LANGUAGE].cockpit.adjustedCollateralization.toUpperCase()}
           </span>
           <p class="bicyclette">
-            {#if (obligation?.borrowedValue || ($TRADE_ACTION === 'borrow' && inputAmount)) && adjustedRatio > 10}
-              &gt; 1000%
-            {:else if (obligation?.borrowedValue || ($TRADE_ACTION === 'borrow' && inputAmount)) && adjustedRatio < 10}
-              {currencyFormatter(adjustedRatio * 100, false, 1) + '%'}
+            {#if $WALLET_INIT}
+              {#if (obligation?.borrowedValue || ($TRADE_ACTION === 'borrow' && inputAmount)) && adjustedRatio > 10}
+                &gt; 1000%
+              {:else if (obligation?.borrowedValue || ($TRADE_ACTION === 'borrow' && inputAmount)) && adjustedRatio < 10}
+                {currencyFormatter(adjustedRatio * 100, false, 1) + '%'}
+              {:else}
+                ∞
+              {/if}
             {:else}
-              ∞
+              --
             {/if}
             <i class="info far fa-question-circle"
               style="position: absolute; color: var(--white); top: 5px; margin-left: 5px;" 
@@ -805,7 +831,7 @@
       }} />
   {/if}
 {:else}
- <Loader fullview />
+ <Loader fullview text={dictionary[$PREFERRED_LANGUAGE].loading.fetchingAccount} />
 {/if}
 
 <style>
