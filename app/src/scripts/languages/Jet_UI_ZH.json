@@ -2,7 +2,10 @@
     "language": "中文",
     "loading": {
         "transactions": "交易发送中。。。",
-        "connectingWallet": "钱包连结中。。。"
+        "connectingWallet": "钱包连结中。。。",
+        "initializing": "Starting Jet Engines",
+        "fetchingReserves": "Fetching Reserve Data",
+        "fetchingAccount": "Fetching Account Data"
     },
     "nav": {
         "cockpit": "驾驶舱",
@@ -62,7 +65,7 @@
         "noDebtForRepay": "您不欠任何 {{ASSET}}.",
         "rejectTrade": "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低.",
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
-        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
     },
     "settings": {
         "title": "设定",

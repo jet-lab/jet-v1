@@ -2,7 +2,10 @@
     "language": "한국인",
     "loading": {
         "transactions": "거래 보내는중...",
-        "connectingWallet": "지갑 연결중..."
+        "connectingWallet": "지갑 연결중...",
+        "initializing": "Starting Jet Engines",
+        "fetchingReserves": "Fetching Reserve Data",
+        "fetchingAccount": "Fetching Account Data"
     },
     "nav": {
         "cockpit": "조종실",
@@ -62,7 +65,7 @@
         "noDebtForRepay": "귀하는 {{ASSET}}의 빚이 없습니다.",
         "rejectTrade": "이 거래는 담보 비율을 {{NEW-C-RATIO}}%로 낮추어서, 이는 {{JET MIN C-RATIO}}의 최소 비율보다 낮을 것입니다. 이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다. 그래도 대출 하시겠습니까?",
         "insufficientLamports": "거래 수수료에 대한 부담 없이 모든 SOL을 예치하고 있습니다! 약간 낮은 양으로 다시 시도하십시오.",
-        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
     },
     "settings": {
         "title": "설정",

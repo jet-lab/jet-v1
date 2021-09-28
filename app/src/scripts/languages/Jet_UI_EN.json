@@ -2,7 +2,10 @@
     "language": "English",
     "loading": {
         "transactions": "Sending Transactions...",
-        "connectingWallet": "Connecting Wallet..."
+        "connectingWallet": "Connecting Wallet...",
+        "initializing": "Starting Jet Engines",
+        "fetchingReserves": "Fetching Reserve Data",
+        "fetchingAccount": "Fetching Account Data"
     },
     "nav": {
         "cockpit": "Cockpit",
@@ -43,7 +46,7 @@
         "noLiquidity": "Not enough liquidity.",
         "minCRatio": "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
         "belowMinRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. Would you still like to borrow?",
         "confirm": "Confirm",
         "repay": "Repay",
         "amountOwed": "Amount Owed",
@@ -60,9 +63,9 @@
         "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
         "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
         "noDebtForRepay": "You don't owe any {{ASSET}}.",
-        "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. Would you still like to borrow?",
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
-        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
     },
     "settings": {
         "title": "Settings",

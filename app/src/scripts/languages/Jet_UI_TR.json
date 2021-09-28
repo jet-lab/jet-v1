@@ -2,7 +2,10 @@
     "language": "Türkçe\n",
     "loading": {
         "transactions": "İşleminiz yapılıyor...",
-        "connectingWallet": "Cüzdan bağlanıyor..."
+        "connectingWallet": "Cüzdan bağlanıyor...",
+        "initializing": "Starting Jet Engines",
+        "fetchingReserves": "Fetching Reserve Data",
+        "fetchingAccount": "Fetching Account Data"
     },
     "nav": {
         "cockpit": "Kokpit",
@@ -62,7 +65,7 @@
         "noDebtForRepay": "Hiç {{ASSET}} borcunuz yok.",
         "rejectTrade": "Bu ticaret, sizin yeni teminat oranınızı {{NEW-C-RATIO}}% minimum oranımız olan {{JET MIN C-RATIO}} altına düşürebilir. Borcun oluşturulması için ayrıca bir komisyon daha bulunmaktadır {{ORIGINATION FEE}}%. Hala borç almak istediğinize emin misiniz?",
         "insufficientLamports": "İşlem ücretlerini dahi karşılamayacak kadar çok SOL yatırıyorsunuz. Şu ankinden daha az bir miktar kullanarak yeniden deneyin. ",
-        "repayUndercollateralized": "Yeni C-Oranınız {{NEW-C-RATIO}} hala Jet pazarının minimum teminat oranı olan {{JET MIN C-RATIO}}% altındadır. Likidasyondan kaçınmak için lütfen daha fazla geri ödeme yapmayı dikkate alın."
+        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
     },
     "settings": {
         "title": "Ayarlar",
