@@ -11,7 +11,6 @@ import builtins from 'rollup-plugin-node-builtins';
 import typescript from '@rollup/plugin-typescript';
 import { sveltePreprocess } from 'svelte-preprocess/dist/autoProcess';
 import replace from '@rollup/plugin-replace';
-import json from "@rollup/plugin-json";
 
 config();
 const development = process.env.DEVELOPMENT === 'true';
