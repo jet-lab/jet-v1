@@ -910,7 +910,7 @@ export const getErrNameAndMsg = (errCode: string): string => {
   const code = Number(errCode);
 
   if (code >=100 && code <= 300) {
-    return `This is an Anchor program error code ${code}. Please check here: https://github.com/project-serum/anchor/blob/master/lang/src/error.rs `;
+    return `This is an Anchor program error code ${code}. Please check here: https://github.com/project-serum/anchor/blob/master/lang/src/error.rs`;
   }
 
   for (let i = 0; i < customProgramErrors.length; i++) {
