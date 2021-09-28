@@ -53,7 +53,7 @@
   const doAirdrop = async (reserve: Reserve): Promise<void> => {
     let amount = TokenAmount.tokens("100", reserve.decimals);
     if(reserve.tokenMintPubkey.equals(NATIVE_MINT)) {
-      amount = TokenAmount.tokens("10", reserve.decimals);
+      amount = TokenAmount.tokens("1", reserve.decimals);
     }
 
     const [ok, txid] = await airdrop(reserve.abbrev, amount.amount);
