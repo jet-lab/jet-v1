@@ -1,0 +1,137 @@
+{
+    "language": "English",
+    "loading": {
+        "transactions": "Sending Transactions...",
+        "connectingWallet": "Connecting Wallet..."
+    },
+    "nav": {
+        "cockpit": "Cockpit",
+        "settings": "Settings",
+        "collapse": "Collapse",
+        "getCopilotSuggestion": "Get Copilot Suggestion",
+        "disconnectWallet": "Disconnect Wallet"
+    },
+    "cockpit": {
+        "title": "Cockpit",
+        "asset": "Asset",
+        "detail": "Detail",
+        "native": "Native",
+        "totalValueLocked": "Locked Market Value",
+        "totalBorrowed": "Total Borrowed",
+        "availableLiquidity": "Available Liquidity",
+        "amountDeposited": "Deposited",
+        "amountBorrowed": "Borrowed",
+        "depositRate": "Deposit Rate",
+        "borrowRate": "Borrow Rate",
+        "airdrop": "Airdrop",
+        "totalDepositedValue": "Your Deposited Value",
+        "totalBorrowedValue": "Your Borrowed Value",
+        "yourRatio": "Your C-Ratio",
+        "collateralizationRatio": "Collateralization Ratio",
+        "noInputAmount": "Enter amount.",
+        "adjustedCollateralization": "Adjusted C-Ratio",
+        "deposit": "Deposit",
+        "walletBalance": "Wallet Balance",
+        "noDepositAmount": "Enter amount",
+        "notEnoughAsset": "Not enough {{ASSET}}.",
+        "withdraw": "Withdraw",
+        "availableFunds": "Available Funds",
+        "lessFunds": "Not enough funds",
+        "borrow": "Borrow",
+        "maxBorrowAmount": "Maximum Borrow",
+        "assetIsCurrentDeposit": "You've deposited {{ASSET}} and therefore can't borrow it.",
+        "noLiquidity": "Not enough liquidity.",
+        "minCRatio": "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
+        "belowMinRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
+        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "confirm": "Confirm",
+        "repay": "Repay",
+        "amountOwed": "Amount Owed",
+        "oweLess": "You owe less.",
+        "geobanned": "Jet Protocol is not available in your region.",
+        "noMarket": "We were unable to initialize the Jet marketplace.",
+        "txSuccess": "Success! Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received. Check out the transaction on the <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>.",
+        "txFailed": "Transaction failed. Not sure what went wrong, please try again later or contact us.",
+        "max": "Max",
+        "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
+        "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
+        "search": "Search Market..",
+        "noBalanceForDeposit": "You have no {{ASSET}} in your wallet to deposit.",
+        "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
+        "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
+        "noDebtForRepay": "You don't owe any {{ASSET}}.",
+        "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
+        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+    },
+    "settings": {
+        "title": "Settings",
+        "wallet": "Wallet",
+        "connect": "Connect",
+        "worldOfDefi": "Connect your wallet to the world of DeFi.",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "language": "Language",
+        "rpcNode": "RPC Node",
+        "current": "Current",
+        "defaultNode": "Jet Default",
+        "reset": "Reset",
+        "noUrl": "Enter a URL"
+    },
+    "reserveDetail": {
+        "reserveSize": "Reserve Size",
+        "availableLiquidity": "Available Liquidity",
+        "utilisationRate": "Utilisation Rate",
+        "viewHistory": "View History",
+        "totalBorrowed": "Total Borrowed",
+        "maximumLTV": "Maximum LTV",
+        "liquidationPremium": "Liquidation Premium",
+        "tradeAsset": "Trade {{ASSET}}",
+        "minimumCollateralizationRatio": "Minimum C-Ratio"
+    },
+    "copilot": {
+        "name": "Copilot",
+        "header": "Hey, Copilot here.",
+        "okay": "Okay",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "Your account is unhealthy.",
+                "detail": "Your Collateralization Ratio (your total deposited value divided by your total borrowed value) is {{C-RATIO}}% which is {{RATIO BELOW AMOUNT}}% less than Jet marketplace's minimum collateralization ratio of {{JET MIN C-RATIO}}%.",
+                "solution": "In order to correct your position, you can deposit more collateral, but I suggest you repay your debt in the Cockpit.",
+                "actionText": "Go To Cockpit"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "You are dangerously close to liquidation.",
+                    "detail": "Your Collateralization Ratio (your total deposited value divided by your total borrowed value) is {{C-RATIO}}% which is within 10% of Jet marketplace's minimum collateralization ratio of {{JET MIN C-RATIO}}%.",
+                    "solution": "In order to avoid liquidation, you can deposit more collateral.",
+                    "actionText": "Deposit"
+                },
+                "twentyPercent": {
+                    "overview": "Keep an eye on your collateralization ratio.",
+                    "detail": "Your Collateralization Ratio (your total deposited value divided by your total borrowed value) is {{C-RATIO}}% which is less than 20% above Jet marketplace's minimum collateralization ratio of {{JET MIN C-RATIO}}%.",
+                    "solution": "Raise your collateralization ratio to healthy levels of 20% or more by depositing more collateral.",
+                    "actionText": "Deposit"
+                }
+            },
+            "deposit": {
+                "overview": "{{BEST DEPOSIT RATE NAME}} is lookin' good right now.",
+                "detail": "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> has the best deposit <b class='bold'>rate</b> in the market right now at <b class='bold'>{{DEPOSIT RATE}}%</b>, and your account is in good standing so we recommend adding some collateral by depositing a portion of your <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
+                "actionText": "Let's Do It"
+            },
+            "healthy": {
+                "overview": "Skies are clear.",
+                "detail": "Your account is in good standing and is healthily over-collateralized, let me take a look at the market and see if I can suggest some good moves for you. Check back with me later!"
+            }
+        },
+        "alert": {
+            "failed": "Mayday!",
+            "success": "Success!",
+            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
+            "refresh": "Refresh",
+            "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
+            "headsup": "Heads up!"
+        }
+    }
+}
