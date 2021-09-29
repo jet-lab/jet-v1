@@ -11,6 +11,14 @@ import * as Jet_Definitions_RU from './languages/Jet_Definitions_RU.json';
 import * as Jet_UI_TR from './languages/Jet_UI_TR.json';
 import * as Jet_Definitions_TR from './languages/Jet_Definitions_TR.json';
 
+const isCrimea = (locale: Locale): boolean => {
+  const postalCode: string = locale?.postal.toString().substring(0, 2);
+  if (postalCode === "95" || postalCode === "96" || postalCode === "97" || postalCode === "98") {
+    return true;
+  } else {
+    return false
+  }
+}
 
 // Get user's preferred language from browser
 // Use fallback if not
@@ -37,8 +45,9 @@ export const getLocale = async (): Promise<void> => {
         // If country is Ukraine, checks if first two digits
         // of the postal code further match Crimean postal codes.
         if (locale?.country === "UA") {
-          const ifCrimea: string = locale?.postal.toString().substring(0, 2);
-          ifCrimea === ("95" || "96" || "97" || "98") ? INIT_FAILED.set({ geobanned: true }) : null
+          if(isCrimea(locale)) {
+            INIT_FAILED.set({ geobanned: true })
+          }
         } else {
           INIT_FAILED.set({ geobanned: true });
         }
