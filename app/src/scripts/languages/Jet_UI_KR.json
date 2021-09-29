@@ -12,7 +12,8 @@
         "settings": "설정",
         "collapse": "붕괴",
         "getCopilotSuggestion": "부조종사 의견 받기",
-        "disconnectWallet": "지갑 연결 해제"
+        "disconnectWallet": "지갑 연결 해제",
+        "transactions": "Flight Logs"
     },
     "cockpit": {
         "title": "조종실",
@@ -136,5 +137,12 @@
             "originationFee": "이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다.",
             "headsup": "예의주시하세요!"
         }
+    },
+    "transactions": {
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount"
     }
 }

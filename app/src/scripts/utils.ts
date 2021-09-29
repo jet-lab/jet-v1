@@ -21,6 +21,8 @@ export const initDarkTheme = () => {
 // Toggle dark theme root CSS attributes
 export const setDark = (darkTheme: boolean): void => {
   if (darkTheme) {
+    document.documentElement.style.setProperty('--jet-green', '#53bd9f');
+    document.documentElement.style.setProperty('--jet-blue', '#32a5d3');
     document.documentElement.style.setProperty('--black', '#ffffff');
     document.documentElement.style.setProperty('--grey', '#504f4f');
     document.documentElement.style.setProperty('--white', '#444444');
@@ -89,6 +91,12 @@ export const totalAbbrev = (total: number, price?: number, native?: boolean, dig
   } else {
     return currencyFormatter(t, !native, native ? digits : 2);
   }
+};
+
+// Shorten a pubkey with ellipses
+export const shortenPubkey = (pubkey: string, halfLength: number): string => {
+  return `${pubkey.substring(0, halfLength)}...
+  ${pubkey.substring(pubkey.length - halfLength)}`;
 };
 
 // Manual timeout promise to pause program execution

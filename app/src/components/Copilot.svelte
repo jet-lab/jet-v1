@@ -55,7 +55,7 @@
           </span>
         {/if}
         {#if $COPILOT.suggestion.action}
-          <Button text={$COPILOT.suggestion.action.text} 
+          <Button text={$COPILOT.suggestion.action.text ?? dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
             onClick={() => {
               $COPILOT?.suggestion?.action?.onClick();
               COPILOT.set(null);
