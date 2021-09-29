@@ -401,13 +401,41 @@ export const withdraw = async (abbrev: string, amount: Amount)
   const reserve = market.reserves[abbrev];
   const asset = assets.tokens[abbrev];
 
-  // Close wrapped sol ixs
-  let createTokenAccountIx: TransactionInstruction | undefined;
-  let closeTokenAccountIx: TransactionInstruction | undefined;
+  let withdrawAccount = asset.walletTokenPubkey;
 
-  // Create the wallet token account if it doesn't exist
-  if (!asset.walletTokenExists) {
-    createTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
+  // Create token account ix
+  let createAssociatedTokenAccountIx: TransactionInstruction | undefined;
+  
+  // Wrapped sol ixs
+  let wsolKeypair: Keypair | undefined;
+  let createWsolIx: TransactionInstruction | undefined;
+  let initWsolIx: TransactionInstruction | undefined;
+  let closeIx: TransactionInstruction | undefined;
+  
+  if (asset.tokenMintPubkey.equals(NATIVE_MINT)) {
+    // Create a token account to receive wrapped sol.
+    // There isn't an easy way to unwrap sol without
+    // closing the account, so we avoid closing the 
+    // associated token account.
+    const rent = await Token.getMinBalanceRentForExemptAccount(connection);
+    
+    wsolKeypair = Keypair.generate();
+    withdrawAccount = wsolKeypair.publicKey;
+    createWsolIx = SystemProgram.createAccount({
+      fromPubkey: wallet.publicKey,
+      newAccountPubkey: wsolKeypair.publicKey,
+      programId: TOKEN_PROGRAM_ID,
+      space: TokenAccountLayout.span,
+      lamports: rent,
+    })
+    initWsolIx = Token.createInitAccountInstruction(
+      TOKEN_PROGRAM_ID, 
+      reserve.tokenMintPubkey, 
+      wsolKeypair.publicKey, 
+      wallet.publicKey);
+  } else if (!asset.walletTokenExists) {
+    // Create the wallet token account if it doesn't exist
+    createAssociatedTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
@@ -450,17 +478,17 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
       depositor: wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
-      withdrawAccount: asset.walletTokenPubkey,
+      withdrawAccount,
 
       tokenProgram: TOKEN_PROGRAM_ID,
     },
   });
 
-  // If withdrawing SOL, unwrap it first
-  if (asset.tokenMintPubkey.equals(NATIVE_MINT)) {
-    closeTokenAccountIx = Token.createCloseAccountInstruction(
+  // Unwrap sol
+  if (asset.tokenMintPubkey.equals(NATIVE_MINT) && wsolKeypair) {
+    closeIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
-      asset.walletTokenPubkey,
+      wsolKeypair.publicKey,
       wallet.publicKey,
       wallet.publicKey,
       []);
@@ -469,16 +497,18 @@ export const withdraw = async (abbrev: string, amount: Amount)
   const ixs: InstructionAndSigner[] = [
     {
       ix: [
-        createTokenAccountIx,
+        createAssociatedTokenAccountIx,
+        createWsolIx,
+        initWsolIx,
       ].filter(ix => ix) as TransactionInstruction[],
+      signers: [wsolKeypair].filter(signer => signer) as Signer[],
     },
     {
       ix: [
         ...refreshReserveIxs,
         withdrawCollateralIx,
         withdrawIx,
-        closeTokenAccountIx,
-        closeTokenAccountIx
+        closeIx,
       ].filter(ix => ix) as TransactionInstruction[],
     }
   ];
