@@ -45,7 +45,9 @@ export const getLocale = async (): Promise<void> => {
         // If country is Ukraine, checks if first two digits
         // of the postal code further match Crimean postal codes.
         if (locale?.country === "UA") {
-          crimeaCheck(locale) ? INIT_FAILED.set({ geobanned: true }) : null
+          if(crimeaCheck(locale)) {
+            INIT_FAILED.set({ geobanned: true })
+          }
         } else {
           INIT_FAILED.set({ geobanned: true });
         }
