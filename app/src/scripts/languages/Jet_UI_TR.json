@@ -143,6 +143,7 @@
         "date": "Date",
         "signature": "Signature",
         "tradeAction": "Transaction",
-        "tradeAmount": "Amount"
+        "tradeAmount": "Amount",
+        "noTrades": "You have no logged transactions with Jet."
     }
 }
