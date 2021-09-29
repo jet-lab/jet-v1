@@ -12,7 +12,8 @@
         "settings": "Ayarlar",
         "collapse": "Kollaps",
         "getCopilotSuggestion": "Yardımcı pilot önerisi alın.",
-        "disconnectWallet": "Cüzdan bağlantısını sonlandır"
+        "disconnectWallet": "Cüzdan bağlantısını sonlandır",
+        "transactions": "Flight Logs"
     },
     "cockpit": {
         "title": "Kokpit",
@@ -136,5 +137,12 @@
             "originationFee": "Bu borca ilişkin {{ORIGINATION FEE}}% kadar oluşturulma komisyonu bulunmaktadır. ",
             "headsup": "Dikkat buraya!"
         }
+    },
+    "transactions": {
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount"
     }
 }

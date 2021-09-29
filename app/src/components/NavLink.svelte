@@ -8,7 +8,7 @@
 </script>
 
 <a class="flex align-center justify-center" 
-  class:active class:text 
+  class:active class:text class:justify-start={text}
   href={path} use:link>
   <i class="text-gradient jet-icons"
     style={icon === '✔' || icon === '✈'
@@ -17,7 +17,7 @@
     {icon}
   </i>
   {#if text}
-    <p class="text-gradient bicyclette">
+    <p class="text-gradient bicyclette-bold">
       {text}
     </p>
   {/if}
@@ -41,7 +41,7 @@
   p {
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 10px;
+    font-size: 9px;
     margin: 0 0 -2px 0;
   }
   a:active {
