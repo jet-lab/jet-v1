@@ -12,7 +12,8 @@
         "settings": "设定",
         "collapse": "缩起",
         "getCopilotSuggestion": "获取副驾驶建议",
-        "disconnectWallet": "断开钱包"
+        "disconnectWallet": "断开钱包",
+        "transactions": "Flight Logs"
     },
     "cockpit": {
         "title": "驾驶舱",
@@ -136,5 +137,12 @@
             "originationFee": "这笔贷款会收取 {{ORIGINATION FEE}}% 发起费用.",
             "headsup": "小心!"
         }
+    },
+    "transactions": {
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount"
     }
 }

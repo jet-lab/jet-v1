@@ -12,7 +12,8 @@
         "settings": "Settings",
         "collapse": "Collapse",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Disconnect Wallet"
+        "disconnectWallet": "Disconnect Wallet",
+        "transactions": "Flight Logs"
     },
     "cockpit": {
         "title": "Cockpit",
@@ -136,5 +137,12 @@
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!"
         }
+    },
+    "transactions": {
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount"
     }
 }
