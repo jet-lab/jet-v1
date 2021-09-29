@@ -36,6 +36,7 @@
   let disabledMessage: string = '';
   let reserveDetail: Reserve | null = null;
   let sendingTrade: boolean = false;
+  let showAirdrop: boolean = inDevelopment || window.location.hostname.indexOf('devnet') !== -1;
 
   // Datatable settings
   let tableData: Reserve[] = [];
@@ -670,7 +671,7 @@
             </td>
             <!--Faucet for testing if in development-->
             <!--Replace with inDevelopment for mainnet-->
-            {#if inDevelopment}
+            {#if showAirdrop}
               <td class="faucet" on:click={() => doAirdrop($rows[i])}>
                 <i class="text-gradient fas fa-parachute-box"
                   title={`Airdrop ${$rows[i].abbrev}`}
@@ -678,11 +679,11 @@
                 </i>
               </td>
             {:else}
-            <td on:click={() => changeReserve($rows[i])}>
-                <i class="text-gradient jet-icons">
-                  ➜
-                </i>
-              </td>
+              <td on:click={() => changeReserve($rows[i])}>
+                  <i class="text-gradient jet-icons">
+                    ➜
+                  </i>
+                </td>
             {/if}
           </tr>
           <tr class="datatable-spacer">
