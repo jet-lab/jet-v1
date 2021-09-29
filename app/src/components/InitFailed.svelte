@@ -1,6 +1,8 @@
 <script>
-  import { GEOBANNED, PREFERRED_LANGUAGE } from '../store';
+  import { INIT_FAILED, PREFERRED_LANGUAGE, PREFERRED_NODE, PING } from '../store';
+  import { getMarketAndIDL } from '../scripts/jet';
   import { dictionary } from '../scripts/localization';
+  import Button from './Button.svelte';
 </script>
 
 <div class="view-container flex align-center justify-center column">
@@ -8,7 +10,7 @@
   <h1 class="bicyclette">
     {dictionary[$PREFERRED_LANGUAGE].copilot.alert.failed}
   </h1>
-  {#if $GEOBANNED}
+  {#if $INIT_FAILED.geobanned}
     <span>
       {dictionary[$PREFERRED_LANGUAGE].cockpit.geobanned}
     </span>
@@ -16,6 +18,19 @@
     <span>
       {dictionary[$PREFERRED_LANGUAGE].cockpit.noMarket}
     </span>
+  {/if}
+  {#if $PREFERRED_NODE}
+    <p>
+      <i class="fas fa-wifi"></i>
+      {$PREFERRED_NODE}
+    </p>
+    <Button small
+      text={dictionary[$PREFERRED_LANGUAGE].settings.reset}
+      onClick={() => {
+        localStorage.removeItem('jetPreferredNode');
+        PING.set(0);
+        getMarketAndIDL();
+      }} />
   {/if}
 </div>
 
@@ -36,8 +51,16 @@
     max-width: 300px;
     font-size: 16px;
   }
+  p {
+    margin-top: var(--spacing-lg);
+    opacity: var(--disabled-opacity);
+    color: var(--failure);
+  }
+  i {
+    font-size: 14px;
+  }
   img {
-    width: 700px;
+    width: 600px;
   }
 
   @media screen and (max-width: 1100px) {
