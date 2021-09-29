@@ -399,6 +399,7 @@ impl Reserve {
         let borrow_2 = Number::from_bps(self.config.borrow_rate_2);
 
         if util_rate <= util_2 {
+            // Second regime
             let borrow_1 = Number::from_bps(self.config.borrow_rate_1);
 
             return Reserve::interpolate(util_rate, util_1, util_2, borrow_1, borrow_2);
@@ -406,7 +407,13 @@ impl Reserve {
 
         let borrow_3 = Number::from_bps(self.config.borrow_rate_3);
 
-        Reserve::interpolate(util_rate, util_2, Number::ONE, borrow_2, borrow_3)
+        if util_rate < Number::ONE {
+            // Third regime
+            return Reserve::interpolate(util_rate, util_2, Number::ONE, borrow_2, borrow_3);
+        }
+
+        // Maximum interest
+        borrow_3
     }
 
     /// Linear interpolation between (x0, y0) and (x1, y1).
