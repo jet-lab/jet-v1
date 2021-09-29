@@ -681,7 +681,7 @@ export const repay = async (abbrev: string, amount: Amount)
 
   const reserve = market.reserves[abbrev];
   const asset = assets.tokens[abbrev];
-  let depositSourcePubkey: PublicKey | undefined;
+  let depositSourcePubkey = asset.walletTokenPubkey;
 
   // Optional signers
   let depositSourceKeypair: Keypair | undefined;
