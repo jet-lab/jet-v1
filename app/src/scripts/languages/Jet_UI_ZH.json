@@ -144,6 +144,6 @@
         "signature": "签章",
         "tradeAction": "交易",
         "tradeAmount": "金额",
-        "noTrades": "You have no logged transactions with Jet."
+        "noTrades": "您在 Jet 没有交易的记录。"
     }
 }
