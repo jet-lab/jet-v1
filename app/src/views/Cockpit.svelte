@@ -36,6 +36,7 @@
   let disabledMessage: string = '';
   let reserveDetail: Reserve | null = null;
   let sendingTrade: boolean = false;
+  let showAirdrop: boolean = inDevelopment || window.location.hostname.indexOf('devnet') !== -1;
 
   // Datatable settings
   let tableData: Reserve[] = [];
