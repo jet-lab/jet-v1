@@ -4,7 +4,7 @@
 <script lang="ts">
   import { WALLET, ASSETS, PREFERRED_LANGUAGE, DARK_THEME, PREFERRED_NODE, PING } from '../store';
   import { getMarketAndIDL } from '../scripts/jet';
-  import { disconnectWallet, setDark } from '../scripts/utils';
+  import { disconnectWallet, setDark, shortenPubkey } from '../scripts/utils';
   import { dictionary, updateLanguage } from '../scripts/localization';
   import Button from '../components/Button.svelte';
   import Toggle from '../components/Toggle.svelte';
@@ -109,9 +109,7 @@
         />
         <span class="text-gradient"
           style="font-size: 12px;">
-          {$WALLET.publicKey.toString().substring(0, 4)}...{$WALLET.publicKey.toString().substring(
-            $WALLET.publicKey.toString().length - 4
-          )}
+          {shortenPubkey($WALLET.publicKey.toString(), 4)}
         </span>
       </div>
     </div>
