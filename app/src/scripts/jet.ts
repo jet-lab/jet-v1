@@ -909,14 +909,14 @@ const buildFaucetAirdropIx = async (
 export const getErrNameAndMsg = (errCode: string): string => {
   const code = Number(errCode);
 
-  if (code >=100 && code <= 300) {
+  if (code >=100 && code < 300) {
     return `This is an Anchor program error code ${code}. Please check here: https://github.com/project-serum/anchor/blob/master/lang/src/error.rs`;
   }
 
   for (let i = 0; i < customProgramErrors.length; i++) {
     const err = customProgramErrors[i];
     if (err.code === code) {
-      return `\n\nCustom Program Error Code: ${errCode} \n- ${err.name} \n- ${err.msg}`;
+      return `Custom Program Error Code: ${errCode} \n- ${err.name} \n- ${err.msg}`;
     }
   } 
   return `No matching error code description or translation for ${errCode}`;
