@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::Key;
 use anchor_spl::token::{self, Burn, CloseAccount, Transfer};
 
+use crate::Rounding;
 use crate::state::*;
 
 #[derive(Accounts)]
@@ -97,7 +98,7 @@ pub fn handler(ctx: Context<CloseDepositAccount>, _bump: u8) -> ProgramResult {
         let clock = Clock::get()?;
 
         let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
-        let tokens_to_withdraw = reserve_info.deposit_notes_to_tokens(notes_remaining);
+        let tokens_to_withdraw = reserve_info.deposit_notes_to_tokens(notes_remaining, Rounding::Down);
 
         token::transfer(
             ctx.accounts

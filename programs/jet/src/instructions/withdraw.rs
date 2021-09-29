@@ -3,7 +3,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, Burn, Transfer};
 
 use crate::state::*;
-use crate::Amount;
+use crate::{Amount, Rounding};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -84,8 +84,8 @@ pub fn handler(ctx: Context<Withdraw>, _bump: u8, amount: Amount) -> ProgramResu
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
     // Calculate the number of tokens that the request amount is worth
-    let token_amount = amount.tokens(reserve_info);
-    let note_amount = amount.as_deposit_notes(reserve_info)?;
+    let token_amount = amount.as_tokens(reserve_info, Rounding::Down);
+    let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Up)?;
 
     reserve.withdraw(token_amount, note_amount);
 

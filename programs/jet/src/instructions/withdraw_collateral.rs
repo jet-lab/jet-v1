@@ -4,7 +4,7 @@ use anchor_spl::token::{self, Transfer};
 
 use crate::errors::ErrorCode;
 use crate::state::*;
-use crate::Amount;
+use crate::{Amount, Rounding};
 
 #[event]
 pub struct WithdrawCollateralEvent {
@@ -96,7 +96,7 @@ pub fn handler(
     let clock = Clock::get()?;
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
-    let note_amount = amount.as_deposit_notes(reserve_info)?;
+    let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Up)?;
 
     token::transfer(
         ctx.accounts

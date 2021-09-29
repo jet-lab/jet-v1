@@ -3,7 +3,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, MintTo, Transfer};
 
 use crate::state::*;
-use crate::{Amount, ErrorCode};
+use crate::{Amount, Rounding, ErrorCode};
 
 #[event]
 pub struct BorrowEvent {
@@ -98,14 +98,14 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
     let clock = Clock::get().unwrap();
     let reserve_info = market_reserves.get_cached(reserve.index, clock.slot);
 
-    let req_tokens = amount.tokens(reserve_info);
+    let req_tokens = amount.as_tokens(reserve_info, Rounding::Down);
     let fees = reserve.borrow_fee(req_tokens);
-    let token_amount = req_tokens + fees.as_u64(0);
+    let token_amount = req_tokens + fees;
 
     // Calculate the number of notes to create to match the value being
     // borrowed, then mint the notes as a way of tracking this borrower's
-    // debt. The notes will be truncated, add one to offset truncation.
-    let new_notes = reserve_info.loan_notes_from_tokens(token_amount) + 1;
+    // debt.
+    let new_notes = reserve_info.loan_notes_from_tokens(token_amount, Rounding::Up);
 
     // Record the borrow onto the reserve account, and also add any fees
     // to get the total amount borrowed.

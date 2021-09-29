@@ -6,7 +6,7 @@ use jet_math::Number;
 use crate::errors::ErrorCode;
 use crate::repay::{implement_repay_context, repay, RepayContext};
 use crate::state::*;
-use crate::Amount;
+use crate::{Amount, Rounding};
 
 #[event]
 pub struct LiquidateEvent {
@@ -131,7 +131,7 @@ fn transfer_collateral(
     }
 
     // Calclulate number of tokens being repaid to figure out the value
-    let repaid_amount = Number::from_decimal(amount.tokens(reserve_info), reserve.exponent);
+    let repaid_amount = Number::from_decimal(amount.as_tokens(reserve_info, Rounding::Down), reserve.exponent);
 
     // Calculate the appropriate amount of the collateral that the
     // liquidator should receive in return for this repayment

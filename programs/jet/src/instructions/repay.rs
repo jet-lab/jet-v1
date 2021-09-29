@@ -3,7 +3,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, Burn, Transfer};
 
 use crate::state::*;
-use crate::{Amount, AmountUnits, ErrorCode};
+use crate::{Amount, Rounding};
 
 #[event]
 pub struct RepayEvent {
@@ -150,18 +150,9 @@ pub fn repay<'info, T: RepayContext<'info>>(
     let loan_account = ctx.accounts.loan_account();
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
-    // Calculate the number of notes to pay off to match the value being repaid
-    let (payoff_tokens, payoff_notes) = match amount.units {
-        AmountUnits::Tokens => (
-            amount.value,
-            reserve_info.loan_notes_from_tokens(amount.value),
-        ),
-        AmountUnits::LoanNotes => (
-            reserve_info.loan_notes_to_tokens(amount.value),
-            amount.value,
-        ),
-        AmountUnits::DepositNotes => return Err(ErrorCode::InvalidAmountUnits.into()),
-    };
+    // Calculate the number of tokens and notes that match the value being repaid
+    let payoff_tokens = amount.as_tokens(reserve_info, Rounding::Up);
+    let payoff_notes = amount.as_loan_notes(reserve_info, Rounding::Down)?;
     let payoff_notes = std::cmp::min(payoff_notes, token::accessor::amount(loan_account)?);
 
     // Burn the debt that's being repaid

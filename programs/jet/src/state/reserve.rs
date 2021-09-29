@@ -207,11 +207,13 @@ impl Reserve {
         state.total_deposit_notes -= note_amount;
     }
 
-    pub fn borrow_fee(&self, token_amount: u64) -> Number {
+    /// Calculates the borrow fee token amount for
+    /// an amount of tokens to be borrowed from the reserve.
+    pub fn borrow_fee(&self, token_amount: u64) -> u64 {
         let origination_fee = Number::from_bps(self.config.loan_origination_fee);
         let fee_owed = origination_fee * token_amount;
 
-        fee_owed
+        fee_owed.as_u64_ceil(0)
     }
 
     /// Record an amount of tokens to be borrowed from the reserve.
@@ -223,11 +225,13 @@ impl Reserve {
         current_slot: u64,
         token_amount: u64,
         note_amount: u64,
-        fees: Number,
+        fees: u64,
     ) -> u64 {
         let debt_owed = Number::from(token_amount);
 
         let state = self.unwrap_state_mut(current_slot);
+
+        let fees = Number::from_decimal(fees, 0);
 
         state.outstanding_debt += debt_owed + fees;
         state.uncollected_fees += fees;

@@ -51,6 +51,31 @@ impl Number {
         target_value.as_u64()
     }
 
+    /// Ceiling value of number, fit in a u64
+    ///
+    /// The precision of the number in the u64 is based on the
+    /// exponent provided.
+    ///
+    /// The result is rounded up to the nearest one, based on the
+    /// target precision.
+    pub fn as_u64_ceil(&self, exponent: impl Into<i32>) -> u64 {
+        let extra_precision = PRECISION + exponent.into();
+        let mut prec_value = Self::ten_pow(extra_precision.abs() as u32);
+
+        
+        if extra_precision < 0 {
+            prec_value = ONE / prec_value;
+        }
+
+        let target_value = (prec_value - U192::from(1) + self.0) / prec_value;
+
+        if target_value > U64_MAX {
+            panic!("cannot convert to u64 due to overflow");
+        }
+
+        target_value.as_u64()
+    }
+
     /// Convert this number to fit in a u64
     ///
     /// The precision of the number in the u64 is based on the
@@ -309,6 +334,43 @@ mod tests {
             Number::from_decimal(1, 1) * 3u64
         )
     }
+
+    #[test]
+    fn ceil_gt_one() {
+        assert_eq!(
+            Number::from_decimal(11, -1).as_u64_ceil(0),
+            2u64
+        );
+        assert_eq!(
+            Number::from_decimal(19, -1).as_u64_ceil(0),
+            2u64
+        );
+    }
+
+    #[test]
+    fn ceil_lt_one() {
+        assert_eq!(
+            Number::from_decimal(1, -1).as_u64_ceil(0),
+            1u64
+        );
+        assert_eq!(
+            Number::from_decimal(1, -10).as_u64_ceil(0),
+            1u64
+        );
+    }
+
+    #[test]
+    fn ceil_of_int() {
+        assert_eq!(
+            Number::from_decimal(1, 0).as_u64_ceil(0),
+            1u64
+        );
+        assert_eq!(
+            Number::from_decimal(1_000_000u64, 0).as_u64_ceil(0),
+            1_000_000u64
+        );
+    }
+
 
     #[test]
     fn to_string() {

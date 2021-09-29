@@ -3,7 +3,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, MintTo, Transfer};
 
 use crate::state::*;
-use crate::Amount;
+use crate::{Amount, Rounding};
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -85,9 +85,8 @@ pub fn handler(ctx: Context<Deposit>, _bump: u8, amount: Amount) -> ProgramResul
 
     // Calculate the number of new notes that need to be minted to represent
     // the current value being deposited
-    // The notes will be truncated, add one to offset truncation.
-    let token_amount = amount.tokens(reserve_info);
-    let note_amount = amount.as_deposit_notes(reserve_info)? + 1;
+    let token_amount = amount.as_tokens(reserve_info, Rounding::Up);
+    let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Down)?;
 
     reserve.deposit(token_amount, note_amount);
 

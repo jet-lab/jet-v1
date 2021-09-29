@@ -160,29 +160,35 @@ pub struct Amount {
     pub value: u64,
 }
 
+/// Specifies rounding integers up or down
+pub enum Rounding {
+    Up,
+    Down
+}
+
 impl Amount {
     /// Get the amount represented in tokens
-    pub fn tokens(&self, reserve_info: &CachedReserveInfo) -> u64 {
+    pub fn as_tokens(&self, reserve_info: &CachedReserveInfo, rounding: Rounding) -> u64 {
         match self.units {
             AmountUnits::Tokens => self.value,
-            AmountUnits::DepositNotes => reserve_info.deposit_notes_to_tokens(self.value),
-            AmountUnits::LoanNotes => reserve_info.loan_notes_to_tokens(self.value),
+            AmountUnits::DepositNotes => reserve_info.deposit_notes_to_tokens(self.value, rounding),
+            AmountUnits::LoanNotes => reserve_info.loan_notes_to_tokens(self.value, rounding),
         }
     }
 
     /// Get the amount represented in deposit notes
-    pub fn as_deposit_notes(&self, reserve_info: &CachedReserveInfo) -> Result<u64, ErrorCode> {
+    pub fn as_deposit_notes(&self, reserve_info: &CachedReserveInfo, rounding: Rounding) -> Result<u64, ErrorCode> {
         match self.units {
-            AmountUnits::Tokens => Ok(reserve_info.deposit_notes_from_tokens(self.value)),
+            AmountUnits::Tokens => Ok(reserve_info.deposit_notes_from_tokens(self.value, rounding)),
             AmountUnits::DepositNotes => Ok(self.value),
             AmountUnits::LoanNotes => Err(ErrorCode::InvalidAmountUnits),
         }
     }
 
     /// Get the amount represented in loan notes
-    pub fn as_loan_notes(&self, reserve_info: &CachedReserveInfo) -> Result<u64, ErrorCode> {
+    pub fn as_loan_notes(&self, reserve_info: &CachedReserveInfo, rounding: Rounding) -> Result<u64, ErrorCode> {
         match self.units {
-            AmountUnits::Tokens => Ok(reserve_info.loan_notes_from_tokens(self.value)),
+            AmountUnits::Tokens => Ok(reserve_info.loan_notes_from_tokens(self.value, rounding)),
             AmountUnits::LoanNotes => Ok(self.value),
             AmountUnits::DepositNotes => Err(ErrorCode::InvalidAmountUnits),
         }
