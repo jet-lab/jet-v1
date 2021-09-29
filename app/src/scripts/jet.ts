@@ -32,7 +32,7 @@ PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 
 // Development environment variable
-export const inDevelopment: boolean = jetDev;
+export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
 
 // Rollbar error logging
 export const rollbar = new Rollbar({
@@ -40,7 +40,7 @@ export const rollbar = new Rollbar({
   captureUncaught: true,
   captureUnhandledRejections: true,
   payload: {
-    environment: inDevelopment ? 'development' : 'production'
+    environment: inDevelopment ? 'devnet' : 'mainnet'
   }
 });
 
