@@ -9,7 +9,7 @@
 
 <button class="bicyclette" class:secondary class:small class:disabled class:error
   title={text}
-  on:click={() => !disabled ? onClick() : null}>
+  on:click={() => {if(!disabled) onClick()}}>
   {text}
 </button>
 

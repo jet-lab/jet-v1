@@ -16,6 +16,7 @@
   import ReserveDetail from '../components/ReserveDetail.svelte';
   import Toggle from '../components/Toggle.svelte';
   import InitFailed from '../components/InitFailed.svelte';
+import Logo from '../components/Logo.svelte';
 
   let marketTVL: number = 0;
   let walletBalances: Record<string, TokenAmount> = {};
@@ -254,33 +255,35 @@
         }
       });
     // If trade would result in c-ratio below min ratio, inform user and reject
-    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio < $MARKET.minColRatio) {
+    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
+      && adjustedRatio < $MARKET.minColRatio) {
       if (adjustedRatio < obligation?.colRatio) {
         COPILOT.set({
-        suggestion: {
-        good: false,
-        detail: dictionary[$PREFERRED_LANGUAGE].cockpit.rejectTrade
-          .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
-          .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100)
-        }
-      });
-    } else {
-      // If this trade still results in undercollateralization, inform user
-      COPILOT.set({
-        suggestion: {
+          suggestion: {
           good: false,
-          detail: dictionary[$PREFERRED_LANGUAGE].cockpit.stillUndercollateralized
+          detail: dictionary[$PREFERRED_LANGUAGE].cockpit.rejectTrade
             .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
-            .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100),
-          action: {
-            text: dictionary[$PREFERRED_LANGUAGE].cockpit.confirm,
-            onClick: () => submitTrade()
+            .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100)
           }
-        }
-      });
-    }
+        });
+      } else {
+        // If this trade still results in undercollateralization, inform user
+        COPILOT.set({
+          suggestion: {
+            good: false,
+            detail: dictionary[$PREFERRED_LANGUAGE].cockpit.stillUndercollateralized
+              .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
+              .replaceAll('{{JET MIN C-RATIO}}', $MARKET.minColRatio * 100),
+            action: {
+              text: dictionary[$PREFERRED_LANGUAGE].cockpit.confirm,
+              onClick: () => submitTrade()
+            }
+          }
+        });
+      }
     // If trade would result in possible undercollateralization, inform user
-    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
+    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
+      && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
             good: false,
@@ -292,9 +295,9 @@
             }
           }
         });
-      } else {
-        submitTrade();
-      }
+    } else {
+      submitTrade();
+    }
   };
 
   // Check user input and submit trade RPC call
@@ -311,10 +314,11 @@
     }
 
     sendingTrade = true;
+    let tradeAction = $TRADE_ACTION;
     let tradeAmount = inputAmount;
     let ok;
     let txid;
-    if ($TRADE_ACTION === 'deposit') {
+    if (tradeAction === 'deposit') {
       if (TokenAmount.tokens(tradeAmount.toString(), walletBalances[$CURRENT_RESERVE.abbrev]?.decimals).amount.gt(walletBalances[$CURRENT_RESERVE.abbrev]?.amount)) {
         inputError = dictionary[$PREFERRED_LANGUAGE].cockpit.notEnoughAsset
           .replaceAll('{{ASSET}}', $CURRENT_RESERVE.abbrev);
@@ -326,7 +330,7 @@
       inputError = '';
       const depositLamports = TokenAmount.tokens(tradeAmount.toString(), $CURRENT_RESERVE.decimals).amount;
       [ok, txid] = await deposit($CURRENT_RESERVE.abbrev, depositLamports);
-    } else if ($TRADE_ACTION === 'withdraw') {
+    } else if (tradeAction === 'withdraw') {
       if (TokenAmount.tokens(tradeAmount.toString(), $CURRENT_RESERVE.decimals).amount.gt($CURRENT_RESERVE.availableLiquidity.amount)) {
         inputAmount = null;
         inputError = dictionary[$PREFERRED_LANGUAGE].cockpit.noLiquidity;
@@ -348,7 +352,7 @@
         Amount.depositNotes($ASSETS.tokens[$CURRENT_RESERVE.abbrev].collateralNoteBalance.amount) :
         Amount.tokens(withdrawLamports);
       [ok, txid] = await withdraw($CURRENT_RESERVE.abbrev, withdrawAmount);
-    } else if ($TRADE_ACTION === 'borrow') {
+    } else if (tradeAction === 'borrow') {
       if (TokenAmount.tokens(tradeAmount.toString(), $CURRENT_RESERVE.decimals).amount.gt($CURRENT_RESERVE.availableLiquidity.amount)) {
         inputAmount = null;
         inputError = dictionary[$PREFERRED_LANGUAGE].cockpit.noLiquidity;
@@ -367,7 +371,7 @@
       const borrowLamports = TokenAmount.tokens(tradeAmount.toString(), $CURRENT_RESERVE.decimals);
       const borrowAmount = Amount.tokens(borrowLamports.amount);
       [ok, txid] = await borrow($CURRENT_RESERVE.abbrev, borrowAmount);
-    } else if ($TRADE_ACTION === 'repay') {
+    } else if (tradeAction === 'repay') {
       let loanBalance = $ASSETS.tokens[$CURRENT_RESERVE.abbrev].loanBalance;
       if(!loanBalance) {
         sendingTrade = false;
@@ -393,7 +397,7 @@
       addNotification({
         success: true,
         text: dictionary[$PREFERRED_LANGUAGE].cockpit.txSuccess
-          .replaceAll('{{TRADE ACTION}}', $TRADE_ACTION)
+          .replaceAll('{{TRADE ACTION}}', tradeAction)
           .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount} ${$CURRENT_RESERVE.abbrev}`)
       });
       inputAmount = null;

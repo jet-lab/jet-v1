@@ -145,13 +145,13 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
-    wallet.on = (action: string, callback: Function) => callback();
-    wallet.connect = (action: string, callback: Function) => callback();
+    wallet.on = (action: string, callback: any) => {if (callback) callback()};
+    wallet.connect = (action: string, callback: any) => {if (callback) callback()};
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
-    wallet.on = (action: string, callback: Function) => callback();
-    wallet.connect = (action: string, callback: Function) => callback();
+    wallet.on = (action: string, callback: Function) => {if (callback) callback()};
+    wallet.connect = (action: string, callback: Function) => {if (callback) callback()};
   } else {
     wallet = new WalletAdapter(provider.url) as Wallet;
   };

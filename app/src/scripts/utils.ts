@@ -12,6 +12,8 @@ MARKET.subscribe(data => market = data);
 ASSETS.subscribe(data => assets = data);
 NOTIFICATIONS.subscribe(data => notifications = data);
 
+const NOTIFICATION_TIMEOUT = 4000;
+
 // If user's browser has dark theme preference, set app to dark theme right on init
 export const initDarkTheme = () => {
   let darkTheme: boolean = localStorage.getItem('jetDark') === 'true';
@@ -118,7 +120,7 @@ export const addNotification = (notification: Notification) => {
     if (notifications[index] && notifications[index].text === notification.text) {
       clearNotification(index);
     }
-  }, 4000);
+  }, NOTIFICATION_TIMEOUT);
 };
 export const clearNotification = (index: number): void => {
   const notifs = notifications;
