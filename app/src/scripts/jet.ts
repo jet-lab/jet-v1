@@ -6,7 +6,7 @@ import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } fro
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
 import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT } from '../store';
+import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -26,10 +26,12 @@ let assets: AssetStore | null;
 let program: anchor.Program | null;
 let market: Market;
 let idl: any;
+let customProgramErrors: CustomProgramError[];
 WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
+CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data)
 
 // Development environment variable
 export const inDevelopment: boolean = jetDev;
@@ -51,7 +53,7 @@ const solWindow = window as unknown as SolWindow;
 let connection: anchor.web3.Connection;
 let coder: anchor.Coder;
 
-let customProgramErrors: CustomProgramError[];
+
 
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
@@ -59,7 +61,7 @@ export const getMarketAndIDL = async (): Promise<void> => {
   const resp = await fetch('idl/jet.json');
   idl = await resp.json();
   const idlMetadata = parseIdlMetadata(idl.metadata);
-  customProgramErrors = idl.errors;
+  CUSTOM_PROGRAM_ERRORS.set(idl.errors);
   // Establish web3 connection
   const preferredNode = localStorage.getItem('jetPreferredNode');
   PREFERRED_NODE.set(preferredNode);
@@ -906,7 +908,7 @@ const buildFaucetAirdropIx = async (
 };
 
 //Take error code and and return error explanation
-export const getErrNameAndMsg = (errCode: string): string => {
+export const getErrNameAndMsg = (errCode: number): string => {
   const code = Number(errCode);
 
   if (code >=100 && code < 300) {
@@ -916,18 +918,24 @@ export const getErrNameAndMsg = (errCode: string): string => {
   for (let i = 0; i < customProgramErrors.length; i++) {
     const err = customProgramErrors[i];
     if (err.code === code) {
-      return `Custom Program Error Code: ${errCode} \n- ${err.name} \n- ${err.msg}`;
+      return `\n\nCustom Program Error Code: ${errCode} \n- ${err.name} \n- ${err.msg}`;
     }
   } 
   return `No matching error code description or translation for ${errCode}`;
 };
 
 //get the custom program error code if there's any in the error message and return parsed error code hex to number string
-export const getErrorCode = (errMessage: string): string => {
+
+  /**
+   * Get the custom program error code if there's any in the error message and return parsed error code hex to number string
+   * @param errMessage string - error message that would contain the word "custom program error:" if it's a customer program error
+   * @returns [boolean, string] - probably not a custom program error if false otherwise the second element will be the code number in string
+   */
+export const getCustomProgramErrorCode = (errMessage: string): [boolean, string] => {
   const index = errMessage.indexOf('custom program error:');
   if(index == -1) {
-    return ('No error code explanation'); 
+    return [false, 'May not be a custom program error']
   } else {
-    return `${parseInt(errMessage.substring(index + 22,  index + 28).replace(' ', ''), 16)}`;
+    return [true, `${parseInt(errMessage.substring(index + 22,  index + 28).replace(' ', ''), 16)}`];
   }
 };

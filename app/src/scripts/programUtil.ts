@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./utils";
-import { inDevelopment, getErrorCode, getErrNameAndMsg } from "./jet";
+import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
 
 // Find PDA functions and jet algorithms that are reimplemented here
 
@@ -399,7 +399,7 @@ export const transactionErrorToString = (error: any) => {
   if (error.code) {
     return `Code ${error.code}: ${error.msg}\n${error.logs}\n${error.stack}`
   } else {
-    return `${error} ${getErrNameAndMsg(getErrorCode(JSON.stringify(error)))}`;
+    return `${error} ${getErrNameAndMsg(Number(getCustomProgramErrorCode(JSON.stringify(error))[1]))}`;
   }
 };
 
