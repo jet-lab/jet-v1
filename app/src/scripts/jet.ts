@@ -12,6 +12,9 @@ import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress
 import { Amount, TokenAmount } from './utils';
 import { Buffer } from 'buffer';
 
+// Development environment variable
+export const inDevelopment: boolean = jetDev;
+
 const SECONDS_PER_HOUR: BN = new BN(3600);
 const SECONDS_PER_DAY: BN = SECONDS_PER_HOUR.muln(24);
 const SECONDS_PER_WEEK: BN = SECONDS_PER_DAY.muln(7);
@@ -33,9 +36,6 @@ PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
 
-// Development environment variable
-export const inDevelopment: boolean = jetDev;
-
 // Rollbar error logging
 export const rollbar = new Rollbar({
   accessToken: 'e29773335de24e1f8178149992226c5e',
@@ -46,14 +46,9 @@ export const rollbar = new Rollbar({
   }
 });
 
-// Cast solana injected window type
-const solWindow = window as unknown as SolWindow;
-
 // Establish Anchor variables
 let connection: anchor.web3.Connection;
 let coder: anchor.Coder;
-
-
 
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
@@ -126,6 +121,9 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
+  // Cast solana injected window type
+  const solWindow = window as unknown as SolWindow;
+
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana?.isPhantom) {
     wallet = solWindow.solana as unknown as Wallet;
