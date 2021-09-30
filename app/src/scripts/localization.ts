@@ -1,5 +1,5 @@
 import type { Locale } from '../models/JetTypes';
-import { GEOBANNED, LOCALE, PREFERRED_LANGUAGE } from '../store';
+import { INIT_FAILED, LOCALE, PREFERRED_LANGUAGE } from '../store';
 import * as Jet_UI_EN from './languages/Jet_UI_EN.json';
 import * as Jet_Definitions_EN from './languages/Jet_Definitions_EN.json';
 import * as Jet_UI_ZH from './languages/Jet_UI_ZH.json';
@@ -11,6 +11,14 @@ import * as Jet_Definitions_RU from './languages/Jet_Definitions_RU.json';
 import * as Jet_UI_TR from './languages/Jet_UI_TR.json';
 import * as Jet_Definitions_TR from './languages/Jet_Definitions_TR.json';
 
+const isCrimea = (locale: Locale): boolean => {
+  const postalCode: string = locale?.postal.toString().substring(0, 2);
+  if (postalCode === "95" || postalCode === "96" || postalCode === "97" || postalCode === "98") {
+    return true;
+  } else {
+    return false
+  }
+}
 
 // Get user's preferred language from browser
 // Use fallback if not
@@ -34,13 +42,14 @@ export const getLocale = async (): Promise<void> => {
     locale = await resp.json();
     geoBannedCountries.forEach(c => {
       if (!locale?.country || c.code === locale?.country) {
-  // If country is Ukraine, checks if first two digits
-  // of the postal code further match Crimean postal codes.
+        // If country is Ukraine, checks if first two digits
+        // of the postal code further match Crimean postal codes.
         if (locale?.country === "UA") {
-          const ifCrimea: string = locale?.postal.toString().substring(0, 2);
-          ifCrimea === ("95" || "96" || "97" || "98") ? GEOBANNED.set(true) : null
+          if(isCrimea(locale)) {
+            INIT_FAILED.set({ geobanned: true })
+          }
         } else {
-          GEOBANNED.set(true);
+          INIT_FAILED.set({ geobanned: true });
         }
       }
     });
@@ -124,7 +133,7 @@ export const dictionary: any = {
   //Turkish
   tr: Jet_UI_TR,
   //Korean
-  kr: Jet_UI_KR,
+  kr: Jet_UI_KR
 };
 
 // Definitions of various terminology

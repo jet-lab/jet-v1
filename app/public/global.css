@@ -17,8 +17,8 @@
   --black: #444444;
   --grey: #d8dfec;
 	--white: #e6edf7; /* e4ebf5 */
-	--jet-green: #44a88c; /* 53bd9f */
-	--jet-blue: #2a97c2; /* 32a5d3 */
+	--jet-green: #40a387; /* 53bd9f */
+	--jet-blue: #2994be; /* 32a5d3 */
   --success: #44a88c; /* 53bd9f */
   --failure: #ec6a69;
 
@@ -111,6 +111,9 @@ span {
 }
 .bicyclette {
   font-family: 'Bicyclette', 'Roboto', sans-serif;
+}
+.bicyclette-bold {
+  font-family: 'Bicyclette-Bold', 'Roboto', sans-serif;
 }
 .jet-icons {
   font-family: 'Jet-Icons';
@@ -428,7 +431,7 @@ input[type=number] {
   position: relative !important;
   font-size: 15px !important;
   border-radius: unset !important;
-  padding: var(--spacing-md) 0 !important;
+  padding: var(--spacing-md) !important;
   background: transparent !important;
   text-align: center !important;
   cursor: pointer !important;
@@ -442,10 +445,18 @@ input[type=number] {
   border-top-right-radius: var(--round-radius) !important;
   border-bottom-right-radius: var(--round-radius) !important;
 }
-.datatable td.reserve-detail {
+.datatable .reserve-detail {
   font-size: 12px !important;
   font-family: 'Bicyclette-Bold', 'Roboto', sans-serif;
   text-transform: uppercase;
+  background-image: var(--gradient) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  padding-bottom: calc(var(--spacing-md) - 4px) !important;
+}
+.datatable td.text-gradient {
+  font-size: 12px !important;
+  font-weight: 500 !important;
   background-image: var(--gradient) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -519,6 +530,24 @@ input[type=number] {
   background-image: var(--gradient) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
+}
+.datatable .dt-bold {
+  font-weight: 500 !important;
+}
+.transaction-logs .datatable {
+  box-shadow: unset !important;
+}
+.transaction-logs .datatable td{
+  min-width: 125px !important;
+}
+.transaction-logs .datatable td:last-of-type {
+  min-width: 30px !important;
+}
+.transaction-logs .datatable tr:hover {
+  box-shadow: var(--neu-shadow-inset-low) !important;
+}
+.transaction-logs .datatable tr .jet-icons {
+  margin-right: unset !important;
 }
 
 /* Tablet/Mobile styling */
@@ -607,5 +636,8 @@ input[type=number] {
   }
   .datatable td {
     font-size: 11px !important;
+  }
+  .transaction-logs .datatable td{
+    min-width: 70px !important;
   }
 }

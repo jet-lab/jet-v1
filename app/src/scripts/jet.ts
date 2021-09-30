@@ -5,8 +5,8 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, IdlMetadata } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA } from '../store';
+import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, TransactionLog, IdlMetadata } from '../models/JetTypes';
+import { MARKET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -53,17 +53,30 @@ export const rollbar = new Rollbar({
 });
 
 
+// Record of instructions to their first 8 bytes for transaction logs
+const INSTRUCTION_BYTES: Record<string, number[]> = {
+  'Deposit': [242, 35, 198, 137, 82, 225, 242, 182],
+  'Withdraw': [183, 18, 70, 156, 148, 109, 161, 34],
+  'Borrow': [228, 253, 131, 202, 207, 116, 89, 18],
+  'Repay': [234, 103, 67, 82, 208, 234, 219, 166]
+};
+
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
-  // Fetch IDL
+  // Fetch IDL and preferred RPC Node
   const resp = await fetch('idl/jet.json');
   idl = await resp.json();
   IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
 
   // Establish web3 connection
+  const idlMetadata = parseIdlMetadata(idl.metadata);
   const preferredNode = localStorage.getItem('jetPreferredNode');
   PREFERRED_NODE.set(preferredNode);
+  coder = new anchor.Coder(idl);
+
+  // Establish and test web3 connection
+  // If error log it and display failure component
   try {
     const anchorConnection = new anchor.web3.Connection(
       preferredNode ?? idlMetadata.cluster, 
@@ -76,6 +89,16 @@ export const getMarketAndIDL = async (): Promise<void> => {
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
   }
   ANCHOR_CODER.set(new anchor.Coder(idl));
+
+  try {
+    await connection.getVersion();
+    INIT_FAILED.set(null);
+  } catch (err) {
+    console.error(`Unable to connect: ${err}`)
+    rollbar.critical(`Unable to connect: ${err}`);
+    INIT_FAILED.set({ geobanned: false });
+    return;
+  }
 
   // Setup reserve structures
   const reserves: Record<string, Reserve> = {};
@@ -121,6 +144,9 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves: reserves,
   });
 
+  // Set current reserve to SOL
+  CURRENT_RESERVE.set(market.reserves.SOL);
+
   // Subscribe to market 
   await subscribeToMarket(idlMetadata, connection, coder);
 };
@@ -163,12 +189,74 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
+    getTransactionLogs();
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
     WALLET_INIT.set(true);
   });
   await wallet.connect();
   return;
+};
+
+// Get Jet transactions and associated UI data
+export const getTransactionLogs = async (): Promise<void> => {
+  // Establish solana connection and get all confirmed signatures
+  // associated with user's wallet pubkey
+  const txLogs: TransactionLog[] = [];
+  const solanaConnection = new anchor.web3.Connection(`https://api.${inDevelopment? 'devnet' : 'mainnet-beta'}.solana.com/`);
+  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey); 
+  for (let sig of sigs) {
+    // Get confirmed transaction from each signature
+    const log = await solanaConnection.getConfirmedTransaction(sig.signature) as unknown as TransactionLog;
+    // Use log messages to only surface transactions that utilize Jet
+    for (let msg of log.meta.logMessages) {
+      if (msg.indexOf(idl.metadata.address) !== -1) {
+        for (let progInst in INSTRUCTION_BYTES) {
+          for (let inst of log.transaction.instructions) {
+            // Get first 8 bytes from data
+            const txInstBytes = [];
+            for (let i = 0; i < 8; i++) {
+              txInstBytes.push(inst.data[i]);
+            }
+            // If those bytes match any of our instructions label trade action
+            if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
+              log.tradeAction = progInst;
+              // Determine asset and trade amount
+              for (let pre of log.meta.preTokenBalances as any[]) {
+                for (let post of log.meta.postTokenBalances as any[]) {
+                  if (pre.mint === post.mint && pre.uiTokenAmount.amount !== post.uiTokenAmount.amount) {
+                    for (let reserve of idl.metadata.reserves) {
+                      if (reserve.accounts.tokenMint === pre.mint) {
+                        log.tokenAbbrev = reserve.abbrev;
+                        log.tokenDecimals = reserve.decimals;
+                        log.tokenPrice = reserve.price;
+                        log.tradeAmount = new TokenAmount(
+                          new BN(post.uiTokenAmount.amount - pre.uiTokenAmount.amount),
+                          reserve.decimals
+                        );
+                      }
+                    }
+                  }
+                }
+              }
+              // Signature
+              log.signature = sig.signature;
+              // UI date
+              log.blockDate = new Date(log.blockTime * 1000).toLocaleDateString();
+              // Explorer URL
+              log.explorerUrl = explorerUrl(log.signature);
+              // Add tx to logs
+              txLogs.push(log);
+            }
+          }
+        }
+      }
+      // Break messages loop and move onto next signature
+      break;
+    }
+  }
+  // Update global store
+  TRANSACTION_LOGS.set(txLogs);
 };
 
 // Get user token accounts
@@ -409,13 +497,41 @@ export const withdraw = async (abbrev: string, amount: Amount)
   const reserve = market.reserves[abbrev];
   const asset = assets.tokens[abbrev];
 
-  // Close wrapped sol ixs
-  let createTokenAccountIx: TransactionInstruction | undefined;
-  let closeTokenAccountIx: TransactionInstruction | undefined;
+  let withdrawAccount = asset.walletTokenPubkey;
 
-  // Create the wallet token account if it doesn't exist
-  if (!asset.walletTokenExists) {
-    createTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
+  // Create token account ix
+  let createAssociatedTokenAccountIx: TransactionInstruction | undefined;
+  
+  // Wrapped sol ixs
+  let wsolKeypair: Keypair | undefined;
+  let createWsolIx: TransactionInstruction | undefined;
+  let initWsolIx: TransactionInstruction | undefined;
+  let closeIx: TransactionInstruction | undefined;
+  
+  if (asset.tokenMintPubkey.equals(NATIVE_MINT)) {
+    // Create a token account to receive wrapped sol.
+    // There isn't an easy way to unwrap sol without
+    // closing the account, so we avoid closing the 
+    // associated token account.
+    const rent = await Token.getMinBalanceRentForExemptAccount(connection);
+    
+    wsolKeypair = Keypair.generate();
+    withdrawAccount = wsolKeypair.publicKey;
+    createWsolIx = SystemProgram.createAccount({
+      fromPubkey: wallet.publicKey,
+      newAccountPubkey: wsolKeypair.publicKey,
+      programId: TOKEN_PROGRAM_ID,
+      space: TokenAccountLayout.span,
+      lamports: rent,
+    })
+    initWsolIx = Token.createInitAccountInstruction(
+      TOKEN_PROGRAM_ID, 
+      reserve.tokenMintPubkey, 
+      wsolKeypair.publicKey, 
+      wallet.publicKey);
+  } else if (!asset.walletTokenExists) {
+    // Create the wallet token account if it doesn't exist
+    createAssociatedTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
@@ -458,17 +574,17 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
       depositor: wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
-      withdrawAccount: asset.walletTokenPubkey,
+      withdrawAccount,
 
       tokenProgram: TOKEN_PROGRAM_ID,
     },
   });
 
-  // If withdrawing SOL, unwrap it first
-  if (asset.tokenMintPubkey.equals(NATIVE_MINT)) {
-    closeTokenAccountIx = Token.createCloseAccountInstruction(
+  // Unwrap sol
+  if (asset.tokenMintPubkey.equals(NATIVE_MINT) && wsolKeypair) {
+    closeIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
-      asset.walletTokenPubkey,
+      wsolKeypair.publicKey,
       wallet.publicKey,
       wallet.publicKey,
       []);
@@ -477,16 +593,18 @@ export const withdraw = async (abbrev: string, amount: Amount)
   const ixs: InstructionAndSigner[] = [
     {
       ix: [
-        createTokenAccountIx,
+        createAssociatedTokenAccountIx,
+        createWsolIx,
+        initWsolIx,
       ].filter(ix => ix) as TransactionInstruction[],
+      signers: [wsolKeypair].filter(signer => signer) as Signer[],
     },
     {
       ix: [
         ...refreshReserveIxs,
         withdrawCollateralIx,
         withdrawIx,
-        closeTokenAccountIx,
-        closeTokenAccountIx
+        closeIx,
       ].filter(ix => ix) as TransactionInstruction[],
     }
   ];

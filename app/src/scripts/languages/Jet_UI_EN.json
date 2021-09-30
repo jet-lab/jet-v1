@@ -2,14 +2,19 @@
     "language": "English",
     "loading": {
         "transactions": "Sending Transactions...",
-        "connectingWallet": "Connecting Wallet..."
+        "connectingWallet": "Connecting Wallet...",
+        "initializing": "Starting Jet Engines",
+        "fetchingReserves": "Fetching Reserve Data",
+        "fetchingAccount": "Fetching Account Data"
     },
     "nav": {
         "cockpit": "Cockpit",
+        "transactions": "Flight Logs",
         "settings": "Settings",
         "collapse": "Collapse",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Disconnect Wallet"
+        "disconnectWallet": "Disconnect Wallet",
+        "transactions": "Flight Logs"
     },
     "cockpit": {
         "title": "Cockpit",
@@ -43,15 +48,15 @@
         "noLiquidity": "Not enough liquidity.",
         "minCRatio": "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
         "belowMinRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which makes you subject to liquidation. Would you still like to borrow?",
         "confirm": "Confirm",
         "repay": "Repay",
         "amountOwed": "Amount Owed",
         "oweLess": "You owe less.",
         "geobanned": "Jet Protocol is not available in your region.",
         "noMarket": "We were unable to initialize the Jet marketplace.",
-        "txSuccess": "Success! Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received. Check out the transaction on the <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>.",
-        "txFailed": "Transaction failed. Not sure what went wrong, please try again later or contact us.",
+        "txSuccess": "Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received.",
+        "txFailed": "Transaction failed.",
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
@@ -60,9 +65,16 @@
         "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
         "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
         "noDebtForRepay": "You don't owe any {{ASSET}}.",
-        "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. There is also an origination fee of {{ORIGINATION FEE}}% attached to this loan. Would you still like to borrow?",
+        "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. Would you still like to borrow?",
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
-        "repayUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}} is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+    },
+    "transactions": {
+      "title": "Flight Logs",
+      "date": "Date",
+      "signature": "Signature",
+      "tradeAction": "Transaction",
+      "tradeAmount": "Amount"
     },
     "settings": {
         "title": "Settings",
@@ -133,5 +145,13 @@
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!"
         }
+    },
+    "transactions": {
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount",
+        "noTrades": "You have no logged transactions with Jet."
     }
 }

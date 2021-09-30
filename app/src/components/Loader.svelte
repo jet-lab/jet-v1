@@ -119,5 +119,9 @@
     .fullscreen {
       height: calc((var(--vh, 1vh) * 100)) !important;
     }
+    .fullview {
+      width: 100% !important;
+      left: 0 !important;
+    }
   }
 </style>
