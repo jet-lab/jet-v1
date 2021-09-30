@@ -31,7 +31,7 @@ WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
-CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data)
+CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
 
 // Development environment variable
 export const inDevelopment: boolean = jetDev;
