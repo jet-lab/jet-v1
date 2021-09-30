@@ -5,8 +5,8 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS } from '../store';
+import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, IdlMetadata } from '../models/JetTypes';
+import { MARKET, WALLET, ASSETS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
@@ -30,11 +30,17 @@ let program: anchor.Program | null;
 let market: Market;
 let idl: any;
 let customProgramErrors: CustomProgramError[];
+let connection: anchor.web3.Connection;
+let coder: anchor.Coder;
+let idlMetadata: IdlMetadata;
 WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
+ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
+ANCHOR_CODER.subscribe(data => coder = data);
+IDL_METADATA.subscribe(data => idlMetadata = data);
 
 // Rollbar error logging
 export const rollbar = new Rollbar({
@@ -46,30 +52,30 @@ export const rollbar = new Rollbar({
   }
 });
 
-// Establish Anchor variables
-let connection: anchor.web3.Connection;
-let coder: anchor.Coder;
 
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
   // Fetch IDL
   const resp = await fetch('idl/jet.json');
   idl = await resp.json();
-  const idlMetadata = parseIdlMetadata(idl.metadata);
+  IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
+
   // Establish web3 connection
   const preferredNode = localStorage.getItem('jetPreferredNode');
   PREFERRED_NODE.set(preferredNode);
   try {
-    connection = new anchor.web3.Connection(
+    const anchorConnection = new anchor.web3.Connection(
       preferredNode ?? idlMetadata.cluster, 
       (anchor.Provider.defaultOptions()).commitment
     );
+    ANCHOR_WEB3_CONNECTION.set(anchorConnection);
   } catch {
     localStorage.removeItem('jetPreferredNode');
-    connection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+    const anchorConnection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
+    ANCHOR_WEB3_CONNECTION.set(anchorConnection);
   }
-  coder = new anchor.Coder(idl);
+  ANCHOR_CODER.set(new anchor.Coder(idl));
 
   // Setup reserve structures
   const reserves: Record<string, Reserve> = {};

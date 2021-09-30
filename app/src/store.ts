@@ -1,5 +1,5 @@
 import type * as anchor from '@project-serum/anchor';
-import type { Market, Reserve, AssetStore, Copilot, Locale, CustomProgramError } from './models/JetTypes';
+import type { Market, Reserve, AssetStore, Copilot, Locale, CustomProgramError, IdlMetadata } from './models/JetTypes';
 import { writable } from 'svelte/store';
 
 // Writable value stores
@@ -19,3 +19,6 @@ export const PREFERRED_NODE = writable<string | null> (null);
 export const PING = writable<number> (0);
 export const WALLET_INIT = writable<boolean> (false);
 export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]>([])
+export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection>(undefined);
+export const ANCHOR_CODER = writable<anchor.Coder>(undefined);
+export const IDL_METADATA = writable<IdlMetadata>(undefined);
