@@ -10,13 +10,11 @@
   import { currencyFormatter, totalAbbrev, addNotification, getObligationData, TokenAmount, Amount } from '../scripts/utils';
   import { generateCopilotSuggestion } from '../scripts/copilot';
   import { dictionary, definitions } from '../scripts/localization'; 
-  import { explorerUrl } from '../scripts/programUtil';
   import Loader from '../components/Loader.svelte';
   import ConnectWallet from '../components/ConnectWallet.svelte';
   import ReserveDetail from '../components/ReserveDetail.svelte';
   import Toggle from '../components/Toggle.svelte';
   import InitFailed from '../components/InitFailed.svelte';
-import Logo from '../components/Logo.svelte';
 
   let marketTVL: number = 0;
   let walletBalances: Record<string, TokenAmount> = {};
@@ -84,6 +82,10 @@ import Logo from '../components/Logo.svelte';
 
   // Change current reserve
   const changeReserve = (reserve: Reserve): void => {
+    if (sendingTrade) {
+      return;
+    }
+
     inputError = '';
     inputAmount = null;
     CURRENT_RESERVE.set(reserve);
@@ -688,6 +690,10 @@ import Logo from '../components/Logo.svelte';
       <div class="trade-action-select-container flex align-center justify-between">
         {#each ['deposit', 'withdraw', 'borrow', 'repay'] as action}
           <div on:click={() => {
+              if (sendingTrade) {
+                return;
+              }
+
               inputAmount = null;
               inputError = '';
               TRADE_ACTION.set(action);
