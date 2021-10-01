@@ -817,8 +817,8 @@
           class:active={inputAmount} class:disabled={disabledInput}>
           <input on:keyup={() => adjustCollateralizationRatio()}
             on:keypress={(e) => {
-              if (e.code === 'Enter') {
-                checkSubmit();
+              if (e.key === "Enter"){
+                return checkSubmit()
               }
             }}
             on:click={() => inputError = ''}
