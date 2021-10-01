@@ -102,15 +102,15 @@ impl Number {
         Self(value)
     }
 
-    pub fn saturating_add(&mut self, n: Number) -> Number {
+    pub fn saturating_add(&self, n: Number) -> Number {
         Number(self.0.saturating_add(n.0))
     }
 
-    pub fn saturating_sub(&mut self, n: Number) -> Number {
+    pub fn saturating_sub(&self, n: Number) -> Number {
         Number(self.0.saturating_sub(n.0))
     }
 
-    pub fn saturating_mul(&mut self, n: Number) -> Number {
+    pub fn saturating_mul(&self, n: Number) -> Number {
         Number(self.0.saturating_mul(n.0))
     }
 
