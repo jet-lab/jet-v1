@@ -67,6 +67,12 @@ pub enum ErrorCode {
 
     #[msg("this action is currently not supported by this version of the program")]
     NotSupported,
+
+    #[msg("the market has currently halted this kind of operation")]
+    MarketHalted,
+
+    #[msg("a given parameter is not valid")]
+    InvalidParameter,
 }
 
 impl From<jet_math::Error> for ErrorCode {

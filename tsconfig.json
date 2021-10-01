@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["mocha", "chai"],
+    "types": ["mocha", "chai", "chai-as-promised"],
     "typeRoots": ["./node_modules/@types", "/usr/local/lib/node_modules"],
     "lib": ["es2019"],
     "module": "commonjs",

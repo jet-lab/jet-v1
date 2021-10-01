@@ -41,8 +41,11 @@ pub struct Market {
     /// The mint for the token used to quote the value for reserve assets.
     pub quote_token_mint: Pubkey,
 
+    /// Storage for flags that can be set on the market.
+    pub flags: u64,
+
     /// Unused space before start of reserve list
-    _reserved: [u8; 360],
+    _reserved: [u8; 352],
 
     /// The storage for information on reserves in the market
     reserves: [u8; 12288],
@@ -99,6 +102,46 @@ impl Market {
 
     pub fn reserves(&self) -> &MarketReserves {
         bytemuck::from_bytes(&self.reserves)
+    }
+
+    /// Get the current flags set on the market
+    pub fn flags(&self) -> MarketFlags {
+        MarketFlags::from_bits(self.flags).unwrap()
+    }
+
+    /// Set new flags on the market
+    pub fn reset_flags(&mut self, flags: MarketFlags) {
+        self.flags = flags.bits();
+    }
+
+    /// Verify that the market is currently allowing deposits and withdrawls
+    pub fn verify_ability_deposit_withdraw(&self) -> Result<(), ErrorCode> {
+        if self.flags().contains(MarketFlags::HALT_DEPOSITS) {
+            msg!("the market is currently not allowing deposits/withdrawls");
+            return Err(ErrorCode::MarketHalted);
+        }
+
+        Ok(())
+    }
+
+    /// Verify that the market is currently allowing changes to borrows
+    pub fn verify_ability_borrow(&self) -> Result<(), ErrorCode> {
+        if self.flags().contains(MarketFlags::HALT_BORROWS) {
+            msg!("the market is currently not allowing borrows");
+            return Err(ErrorCode::MarketHalted);
+        }
+
+        Ok(())
+    }
+
+    /// Verify that the market is currently allowing repayments to loans
+    pub fn verify_ability_repay(&self) -> Result<(), ErrorCode> {
+        if self.flags().contains(MarketFlags::HALT_REPAYS) {
+            msg!("the market is currently not allowing borrows");
+            return Err(ErrorCode::MarketHalted);
+        }
+
+        Ok(())
     }
 }
 
@@ -272,5 +315,24 @@ impl ReserveInfo {
         let key = self.reserve;
         self.try_get_mut(current_slot)
             .expect(&format!("reserve {}", key))
+    }
+}
+
+bitflags::bitflags! {
+    pub struct MarketFlags: u64 {
+        /// Disable all borrowing and collateral withdrawls
+        const HALT_BORROWS = 1 << 0;
+
+        /// Disable repaying loans
+        const HALT_REPAYS = 1 << 1;
+
+        /// Disable deposits + withdrawls
+        const HALT_DEPOSITS = 1 << 2;
+
+        /// Disable all operations
+        const HALT_ALL = Self::HALT_BORROWS.bits
+                       | Self::HALT_REPAYS.bits
+                       | Self::HALT_DEPOSITS.bits;
+
     }
 }

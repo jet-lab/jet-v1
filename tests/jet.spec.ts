@@ -1,17 +1,30 @@
 import * as anchor from "@project-serum/anchor";
-import { Amount, JetClient, JetReserve, JetUser, ReserveConfig } from "@jet-lab/jet-client";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
-import { CreateMarketParams, JetMarket } from "libraries/ts/src/market";
+import {
+  Amount,
+  JetClient,
+  JetReserve,
+  JetUser,
+  ReserveConfig,
+} from "@jet-lab/jet-client";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  CreateMarketParams,
+  JetMarket,
+  MarketFlags,
+} from "libraries/ts/src/market";
 import { TestToken, TestUtils, toBN } from "./utils";
 import { BN } from "@project-serum/anchor";
-import { NodeWallet } from '@project-serum/anchor/dist/provider';
+import { NodeWallet } from "@project-serum/anchor/dist/provider";
 import { CreateReserveParams } from "libraries/ts/src/reserve";
 import * as serum from "@project-serum/serum";
 import { SerumUtils } from "./utils/serum";
-import { assert } from "chai";
+import { assert, expect, use as chaiUse } from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
 import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
+
+chaiUse(chaiAsPromised.default);
 
 describe("jet", async () => {
   async function loadReserve(address: PublicKey) {
@@ -38,9 +51,11 @@ describe("jet", async () => {
 
   async function checkBalance(tokenAccount: PublicKey): Promise<BN> {
     let info = await provider.connection.getAccountInfo(tokenAccount);
-    const account: splToken.AccountInfo = splToken.AccountLayout.decode(info.data);
+    const account: splToken.AccountInfo = splToken.AccountLayout.decode(
+      info.data
+    );
 
-    return (new BN(account.amount, undefined, "le"));
+    return new BN(account.amount, undefined, "le");
   }
 
   async function createTokenEnv(decimals: number, price: bigint) {
@@ -50,8 +65,8 @@ describe("jet", async () => {
     await testUtils.pyth.updatePriceAccount(pythPrice, {
       exponent: -9,
       aggregatePriceInfo: {
-        price: price * 1000000000n
-      }
+        price: price * 1000000000n,
+      },
     });
     await testUtils.pyth.updateProductAccount(pythProduct, {
       priceAccount: pythPrice.publicKey,
@@ -64,13 +79,13 @@ describe("jet", async () => {
       token: await testUtils.createToken(decimals),
       pythPrice,
       pythProduct,
-    } as TokenEnv
+    } as TokenEnv;
   }
   interface TokenEnv {
-    token: TestToken,
-    pythPrice: Keypair,
-    pythProduct: Keypair,
-    reserve?: JetReserve,
+    token: TestToken;
+    pythPrice: Keypair;
+    pythProduct: Keypair;
+    reserve?: JetReserve;
   }
 
   let IDL: anchor.Idl;
@@ -114,7 +129,9 @@ describe("jet", async () => {
 
     let tokenAccounts: Record<string, PublicKey> = {};
     for (const asset of assets) {
-      tokenAccounts[asset.token.publicKey.toBase58()] = await createUserTokens(asset);
+      tokenAccounts[asset.token.publicKey.toBase58()] = await createUserTokens(
+        asset
+      );
     }
 
     const userProgram = new anchor.Program(
@@ -153,7 +170,7 @@ describe("jet", async () => {
     jet = new anchor.Program(IDL, program.programId, provider);
     client = new JetClient(jet);
 
-    usdc = await createTokenEnv(6, 1n);   // FIXME Break decimal symmetry
+    usdc = await createTokenEnv(6, 1n); // FIXME Break decimal symmetry
     wsol = await createTokenEnv(6, 100n); //       and ensure tests pass
 
     wsolusdc = await serumUtils.createMarket({
@@ -207,11 +224,26 @@ describe("jet", async () => {
     }
   });
 
-  it("user A deposits usdc notes", async () => {
+  it("halts deposits", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltDeposits));
+
+    await expect(
+      userA.client.deposit(
+        usdc.reserve,
+        userA.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(1)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
+  });
+
+  it("user A deposits usdc", async () => {
     const user = userA;
     const asset = usdc;
     const amount = Amount.depositNotes(usdcDeposit);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
 
     await user.client.deposit(asset.reserve, tokenAccountKey, amount);
     await user.client.depositCollateral(asset.reserve, amount);
@@ -245,8 +277,9 @@ describe("jet", async () => {
     const user = userB;
     const asset = wsol;
     const amount = Amount.tokens(wsolDeposit);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
-    
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
+
     const vaultKey = asset.reserve.data.vault;
     const notesKey = (
       await client.findDerivedAccount([
@@ -291,6 +324,21 @@ describe("jet", async () => {
     assert.equal(collateralBalance.toString(), bn(wsolDeposit).toString());
   });
 
+  it("halts borrows", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltBorrows));
+
+    await wsol.reserve.refresh();
+    await expect(
+      userB.client.borrow(
+        usdc.reserve,
+        userB.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(10)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
+  });
+
   it("user B borrows usdc", async () => {
     const user = userB;
     const asset = usdc;
@@ -315,6 +363,7 @@ describe("jet", async () => {
     ).address;
 
     await jetMarket.refresh();
+    await wsol.reserve.refresh();
     const txId = await user.client.borrow(asset.reserve, tokenAccountKey, amount);
     await new Promise(r => setTimeout(r, 500));
     const tx = await provider.connection.getTransaction(txId, {commitment: "confirmed"});
@@ -346,9 +395,17 @@ describe("jet", async () => {
 
     await wsol.reserve.refresh();
 
-    const tx = await user.client.makeBorrowTx(usdc.reserve, tokenAccount, amount);
+    const tx = await user.client.makeBorrowTx(
+      usdc.reserve,
+      tokenAccount,
+      amount
+    );
     let result = await client.program.provider.simulate(tx, [user.wallet]);
-    assert.notStrictEqual(result.value.err, null, "expected instruction to fail");
+    assert.notStrictEqual(
+      result.value.err,
+      null,
+      "expected instruction to fail"
+    );
   });
 
   it("user B wsol withdrawal blocked", async () => {
@@ -357,13 +414,17 @@ describe("jet", async () => {
     const amount = Amount.tokens(wsolDeposit * 0.1112);
 
     // Give it some seconds for interest to accrue
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
 
     await usdc.reserve.refresh();
 
     const tx = await user.client.makeWithdrawCollateralTx(wsol.reserve, amount);
     let result = await client.program.provider.simulate(tx, [user.wallet]);
-    assert.notStrictEqual(result.value.err, null, "expected instruction to failed");
+    assert.notStrictEqual(
+      result.value.err,
+      null,
+      "expected instruction to failed"
+    );
   });
 
   it("user B withdraws some wsol", async () => {
@@ -439,6 +500,20 @@ describe("jet", async () => {
     const naccRate = reserveConfig.borrowRate0 * 1e-4;
 
     assert.approximately(impliedRate, naccRate, 1e-4);
+  });
+
+  it("halts repays", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltRepays));
+
+    await expect(
+      userB.client.repay(
+        usdc.reserve,
+        userB.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(1)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
   });
 
   it("user B repays some usdc", async () => {
