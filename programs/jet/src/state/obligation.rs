@@ -78,8 +78,6 @@ impl Obligation {
         collateral_account: &Pubkey,
         deposit_notes_amount: Number,
     ) -> ProgramResult {
-        Self::validate(collateral_account, &self.collateral(), &self.loans())?;
-
         self.cached_mut().invalidate();
         self.collateral_mut()
             .add(collateral_account, deposit_notes_amount)
@@ -91,8 +89,6 @@ impl Obligation {
         collateral_account: &Pubkey,
         deposit_notes_amount: Number,
     ) -> ProgramResult {
-        Self::validate(collateral_account, &self.collateral(), &self.loans())?;
-
         self.cached_mut().invalidate();
         self.collateral_mut()
             .subtract(collateral_account, deposit_notes_amount)
@@ -100,30 +96,14 @@ impl Obligation {
 
     /// Record the loan borrowed from an obligation (borrow notes deposited)
     pub fn borrow(&mut self, loan_account: &Pubkey, loan_notes_amount: Number) -> ProgramResult {
-        Self::validate(loan_account, &self.loans(), &self.collateral())?;
-
         self.cached_mut().invalidate();
         self.loans_mut().add(loan_account, loan_notes_amount)
     }
 
     /// Record the loan repaid from an obligation (borrow notes burned)
     pub fn repay(&mut self, loan_account: &Pubkey, loan_notes_amount: Number) -> ProgramResult {
-        Self::validate(loan_account, &self.loans(), &self.collateral())?;
-
         self.cached_mut().invalidate();
         self.loans_mut().subtract(loan_account, loan_notes_amount)
-    }
-
-    fn validate(
-        account: &Pubkey,
-        active: &ObligationSide,
-        passive: &ObligationSide,
-    ) -> Result<(), ErrorCode> {
-        let position = active.position(account)?;
-        if passive.reserve_balance(position.reserve_index) != 0 {
-            return Err(ErrorCode::SimultaneousDepositAndBorrow);
-        }
-        Ok(())
     }
 
     /// Be smarter about compute
@@ -428,15 +408,6 @@ impl ObligationSide {
             .find(|p| p.account == *account)
             .ok_or(ErrorCode::UnregisteredPosition)?;
         Ok(position)
-    }
-
-    /// Return the balance for a reserve. If not found, returns 0.
-    fn reserve_balance(&self, reserve_index: ReserveIndex) -> u64 {
-        self.positions
-            .iter()
-            .find(|p| p.reserve_index == reserve_index)
-            .map(|p| p.amount.as_u64(0))
-            .unwrap_or(0)
     }
 
     pub fn market_value(&self, market_info: &MarketReserves, current_slot: u64) -> PositionValue {
