@@ -185,7 +185,7 @@
         );
     } else if ($TRADE_ACTION === 'repay') {
       adjustedRatio = obligation.depositedValue / (
-          (obligation.borrowedValue - ((inputAmount ?? 0) * $CURRENT_RESERVE.price))
+          (obligation.borrowedValue - ((inputAmount ?? 0) * $CURRENT_RESERVE.price)) > 0 
             ? (obligation.borrowedValue - ((inputAmount ?? 0) * $CURRENT_RESERVE.price))
              : 1
       );
