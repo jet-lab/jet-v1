@@ -1,5 +1,5 @@
 import { PublicKey, Keypair } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import * as BL from "@solana/buffer-layout";
 
@@ -45,7 +45,7 @@ export class JetMarket implements JetMarketData {
     public marketAuthority: PublicKey,
     public owner: PublicKey,
     public reserves: JetMarketReserveInfo[]
-  ) {}
+  ) { }
 
   private static async fetchData(
     client: JetClient,
@@ -94,6 +94,15 @@ export class JetMarket implements JetMarketData {
     this.marketAuthority = data.marketAuthority;
     this.quoteCurrency = data.quoteCurrency;
     this.quoteTokenMint = data.quoteTokenMint;
+  }
+
+  async setFlags(flags: u64) {
+    await this.client.program.rpc.setMarketFlags(flags, {
+      accounts: {
+        market: this.address,
+        owner: this.owner
+      }
+    });
   }
 
   async createReserve(params: CreateReserveParams): Promise<JetReserve> {
@@ -184,4 +193,11 @@ export interface CreateMarketParams {
    * If not provided an account will be generated.
    */
   account?: Keypair;
+}
+
+export enum MarketFlags {
+  HaltBorrows = 1 << 0,
+  HaltRepays = 1 << 1,
+  HaltDeposits = 1 << 2,
+  HaltAll = HaltBorrows | HaltRepays | HaltDeposits
 }

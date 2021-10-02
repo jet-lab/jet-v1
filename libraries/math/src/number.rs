@@ -62,7 +62,6 @@ impl Number {
         let extra_precision = PRECISION + exponent.into();
         let mut prec_value = Self::ten_pow(extra_precision.abs() as u32);
 
-        
         if extra_precision < 0 {
             prec_value = ONE / prec_value;
         }
@@ -127,15 +126,15 @@ impl Number {
         Self(value)
     }
 
-    pub fn saturating_add(&mut self, n: Number) -> Number {
+    pub fn saturating_add(&self, n: Number) -> Number {
         Number(self.0.saturating_add(n.0))
     }
 
-    pub fn saturating_sub(&mut self, n: Number) -> Number {
+    pub fn saturating_sub(&self, n: Number) -> Number {
         Number(self.0.saturating_sub(n.0))
     }
 
-    pub fn saturating_mul(&mut self, n: Number) -> Number {
+    pub fn saturating_mul(&self, n: Number) -> Number {
         Number(self.0.saturating_mul(n.0))
     }
 
@@ -337,40 +336,24 @@ mod tests {
 
     #[test]
     fn ceil_gt_one() {
-        assert_eq!(
-            Number::from_decimal(11, -1).as_u64_ceil(0),
-            2u64
-        );
-        assert_eq!(
-            Number::from_decimal(19, -1).as_u64_ceil(0),
-            2u64
-        );
+        assert_eq!(Number::from_decimal(11, -1).as_u64_ceil(0), 2u64);
+        assert_eq!(Number::from_decimal(19, -1).as_u64_ceil(0), 2u64);
     }
 
     #[test]
     fn ceil_lt_one() {
-        assert_eq!(
-            Number::from_decimal(1, -1).as_u64_ceil(0),
-            1u64
-        );
-        assert_eq!(
-            Number::from_decimal(1, -10).as_u64_ceil(0),
-            1u64
-        );
+        assert_eq!(Number::from_decimal(1, -1).as_u64_ceil(0), 1u64);
+        assert_eq!(Number::from_decimal(1, -10).as_u64_ceil(0), 1u64);
     }
 
     #[test]
     fn ceil_of_int() {
-        assert_eq!(
-            Number::from_decimal(1, 0).as_u64_ceil(0),
-            1u64
-        );
+        assert_eq!(Number::from_decimal(1, 0).as_u64_ceil(0), 1u64);
         assert_eq!(
             Number::from_decimal(1_000_000u64, 0).as_u64_ceil(0),
             1_000_000u64
         );
     }
-
 
     #[test]
     fn to_string() {

@@ -3,7 +3,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, MintTo, Transfer};
 
 use crate::state::*;
-use crate::{Amount, Rounding, ErrorCode};
+use crate::{Amount, ErrorCode, Rounding};
 
 #[event]
 pub struct BorrowEvent {
@@ -93,6 +93,8 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
     let market = ctx.accounts.market.load()?;
     let mut reserve = ctx.accounts.reserve.load_mut()?;
     let loan_account = &ctx.accounts.loan_account.key();
+
+    market.verify_ability_borrow()?;
 
     let market_reserves = market.reserves();
     let clock = Clock::get().unwrap();

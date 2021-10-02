@@ -72,8 +72,8 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           reserve.liquidationPremium = decoded.config.liquidationPremium;
           reserve.outstandingDebt = new TokenAmount(decoded.state.outstandingDebt, reserveMeta.decimals).divb(new BN(Math.pow(10, 15)));
           reserve.accruedUntil = decoded.state.accruedUntil;
-          reserve.borrowRate = getBorrowRate(ccRate, decoded.config.manageFeeRate);
-          reserve.depositRate = getDepositRate(ccRate, reserve.utilizationRate);
+          reserve.borrowAPR = getBorrowRate(ccRate, decoded.config.manageFeeRate);
+          reserve.depositAPY = getDepositRate(ccRate, reserve.utilizationRate);
 
           return market;
         })

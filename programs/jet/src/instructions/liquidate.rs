@@ -131,7 +131,10 @@ fn transfer_collateral(
     }
 
     // Calclulate number of tokens being repaid to figure out the value
-    let repaid_amount = Number::from_decimal(amount.as_tokens(reserve_info, Rounding::Down), reserve.exponent);
+    let repaid_amount = Number::from_decimal(
+        amount.as_tokens(reserve_info, Rounding::Down),
+        reserve.exponent,
+    );
 
     // Calculate the appropriate amount of the collateral that the
     // liquidator should receive in return for this repayment

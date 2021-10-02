@@ -3,7 +3,7 @@ import * as anchor from "@project-serum/anchor";
 import { u64 } from "@solana/spl-token";
 
 export { JetClient } from "./client";
-export { JetMarket } from "./market";
+export { JetMarket, MarketFlags } from "./market";
 export { JetReserve, ReserveConfig } from "./reserve";
 export { JetUser } from "./user";
 

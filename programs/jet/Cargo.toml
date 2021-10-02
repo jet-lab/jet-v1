@@ -26,3 +26,4 @@ pyth-client = "0.2"
 jet-math = { path = "../../libraries/math" }
 jet-proc-macros = { path = "../../libraries/proc-macros" }
 static_assertions = "1.1.0"
+bitflags = "1.3"

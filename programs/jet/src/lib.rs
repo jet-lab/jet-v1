@@ -63,6 +63,16 @@ mod jet {
         instructions::init_obligation::handler(ctx, bump)
     }
 
+    /// Change the owner on a market
+    pub fn set_market_owner(ctx: Context<SetMarketOwner>, new_owner: Pubkey) -> ProgramResult {
+        instructions::set_market_owner::handler(ctx, new_owner)
+    }
+
+    /// Change the flags on a market
+    pub fn set_market_flags(ctx: Context<SetMarketFlags>, flags: u64) -> ProgramResult {
+        instructions::set_market_flags::handler(ctx, flags)
+    }
+
     /// Close a deposit account
     pub fn close_deposit_account(ctx: Context<CloseDepositAccount>, bump: u8) -> ProgramResult {
         instructions::close_deposit_account::handler(ctx, bump)
@@ -163,7 +173,7 @@ pub struct Amount {
 /// Specifies rounding integers up or down
 pub enum Rounding {
     Up,
-    Down
+    Down,
 }
 
 impl Amount {
@@ -177,7 +187,11 @@ impl Amount {
     }
 
     /// Get the amount represented in deposit notes
-    pub fn as_deposit_notes(&self, reserve_info: &CachedReserveInfo, rounding: Rounding) -> Result<u64, ErrorCode> {
+    pub fn as_deposit_notes(
+        &self,
+        reserve_info: &CachedReserveInfo,
+        rounding: Rounding,
+    ) -> Result<u64, ErrorCode> {
         match self.units {
             AmountUnits::Tokens => Ok(reserve_info.deposit_notes_from_tokens(self.value, rounding)),
             AmountUnits::DepositNotes => Ok(self.value),
@@ -186,7 +200,11 @@ impl Amount {
     }
 
     /// Get the amount represented in loan notes
-    pub fn as_loan_notes(&self, reserve_info: &CachedReserveInfo, rounding: Rounding) -> Result<u64, ErrorCode> {
+    pub fn as_loan_notes(
+        &self,
+        reserve_info: &CachedReserveInfo,
+        rounding: Rounding,
+    ) -> Result<u64, ErrorCode> {
         match self.units {
             AmountUnits::Tokens => Ok(reserve_info.loan_notes_from_tokens(self.value, rounding)),
             AmountUnits::LoanNotes => Ok(self.value),

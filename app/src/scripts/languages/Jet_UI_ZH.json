@@ -3,9 +3,9 @@
     "loading": {
         "transactions": "交易发送中。。。",
         "connectingWallet": "钱包连结中。。。",
-        "initializing": "Starting Jet Engines",
-        "fetchingReserves": "Fetching Reserve Data",
-        "fetchingAccount": "Fetching Account Data"
+        "initializing": "启动JET发动机中",
+        "fetchingReserves": "获取储备数据中",
+        "fetchingAccount": "获取账户数据中"
     },
     "nav": {
         "cockpit": "驾驶舱",
@@ -13,7 +13,7 @@
         "collapse": "缩起",
         "getCopilotSuggestion": "获取副驾驶建议",
         "disconnectWallet": "断开钱包",
-        "transactions": "Flight Logs"
+        "transactions": "飞行日志"
     },
     "cockpit": {
         "title": "驾驶舱",
@@ -65,8 +65,8 @@
         "noDepositsForWithdraw": "您没有存任何 {{ASSET}} 来提款.",
         "noDebtForRepay": "您不欠任何 {{ASSET}}.",
         "rejectTrade": "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低.",
-        "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
-        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "insufficientLamports": "您这交易会存进您全部的SOL 您的交易费会不够! 请您输入低一点的金额",
+        "stillUndercollateralized": "您的新 {{NEW-C-RATIO}}% C-Ratio 仍低于 Jet 的最低市场抵押比率 {{JET MIN C-RATIO}}% 。 请考虑偿还更多，以避免清算。"
     },
     "settings": {
         "title": "设定",
@@ -78,10 +78,10 @@
         "dark": "黑暗",
         "language": "语言",
         "rpcNode": "RPC Node",
-        "current": "Current",
-        "defaultNode": "Jet Default",
-        "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "current": "当前的",
+        "defaultNode": "JET 默认",
+        "reset": "重新设定",
+        "noUrl": "输入网址"
     },
     "reserveDetail": {
         "reserveSize": "储备规模",
@@ -139,10 +139,11 @@
         }
     },
     "transactions": {
-        "title": "Flight Logs",
-        "date": "Date",
-        "signature": "Signature",
-        "tradeAction": "Transaction",
-        "tradeAmount": "Amount"
+        "title": "飞行日志",
+        "date": "日期",
+        "signature": "签章",
+        "tradeAction": "交易",
+        "tradeAmount": "金额",
+        "noTrades": "您在 Jet 没有交易的记录。"
     }
 }

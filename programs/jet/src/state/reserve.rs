@@ -195,16 +195,16 @@ impl Reserve {
     pub fn deposit(&mut self, token_amount: u64, note_amount: u64) {
         let state = self.state_mut().get_stale_mut();
 
-        state.total_deposits += token_amount;
-        state.total_deposit_notes += note_amount;
+        state.total_deposits = state.total_deposits.checked_add(token_amount).unwrap();
+        state.total_deposit_notes = state.total_deposit_notes.checked_add(note_amount).unwrap();
     }
 
     /// Record an amount of tokens withdrawn from the reserve
     pub fn withdraw(&mut self, token_amount: u64, note_amount: u64) {
         let state = self.state_mut().get_stale_mut();
 
-        state.total_deposits -= token_amount;
-        state.total_deposit_notes -= note_amount;
+        state.total_deposits = state.total_deposits.checked_sub(token_amount).unwrap();
+        state.total_deposit_notes = state.total_deposit_notes.checked_sub(note_amount).unwrap();
     }
 
     /// Calculates the borrow fee token amount for
@@ -233,10 +233,10 @@ impl Reserve {
 
         let fees = Number::from_decimal(fees, 0);
 
-        state.outstanding_debt += debt_owed + fees;
         state.uncollected_fees += fees;
-        state.total_deposits -= token_amount;
-        state.total_loan_notes += note_amount;
+        state.outstanding_debt += debt_owed + fees;
+        state.total_deposits = state.total_deposits.checked_sub(token_amount).unwrap();
+        state.total_loan_notes = state.total_loan_notes.checked_add(note_amount).unwrap();
 
         debt_owed.as_u64(0)
     }
@@ -246,8 +246,8 @@ impl Reserve {
         let state = self.unwrap_state_mut(current_slot);
 
         state.outstanding_debt -= Number::from(token_amount);
-        state.total_loan_notes -= note_amount;
-        state.total_deposits += token_amount;
+        state.total_loan_notes = state.total_loan_notes.checked_sub(note_amount).unwrap();
+        state.total_deposits = state.total_deposits.checked_add(token_amount).unwrap();
     }
 
     /// Record an amount of tokens added to the vault which need
@@ -255,7 +255,7 @@ impl Reserve {
     pub fn add_uncollected_fees(&mut self, current_slot: u64, amount: u64) {
         let state = self.unwrap_state_mut(current_slot);
         state.uncollected_fees += Number::from(amount);
-        state.total_deposits += amount;
+        state.total_deposits = state.total_deposits.checked_add(amount).unwrap();
     }
 
     /// Calculate the exchange rate for deposit notes (tokens per note)
@@ -319,7 +319,7 @@ impl Reserve {
 
             state.outstanding_debt += new_interest_accrued;
             state.uncollected_fees += fee_to_collect;
-            state.accrued_until += time_to_accrue;
+            state.accrued_until = state.accrued_until.checked_add(time_to_accrue).unwrap();
         }
 
         if time_behind == time_to_accrue {
@@ -346,7 +346,7 @@ impl Reserve {
         let fee_notes = (state.uncollected_fees / exchange_rate).as_u64(0);
 
         state.uncollected_fees = Number::ZERO;
-        state.total_deposit_notes += fee_notes;
+        state.total_deposit_notes = state.total_deposit_notes.checked_add(fee_notes).unwrap();
 
         fee_notes
     }

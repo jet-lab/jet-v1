@@ -150,8 +150,10 @@ pub fn repay<'info, T: RepayContext<'info>>(
     let loan_account = ctx.accounts.loan_account();
     let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
 
+    market.verify_ability_repay()?;
+
     // Calculate the number of tokens and notes that match the value being repaid
-    let payoff_tokens = amount.as_tokens(reserve_info, Rounding::Up);
+    let payoff_tokens = amount.as_tokens(reserve_info, Rounding::Down);
     let payoff_notes = amount.as_loan_notes(reserve_info, Rounding::Down)?;
     let payoff_notes = std::cmp::min(payoff_notes, token::accessor::amount(loan_account)?);
 

@@ -181,11 +181,11 @@ impl Obligation {
         repay_notes_amount: Number,
     ) -> Result<Number, ErrorCode> {
         let loan_total = self.loan_value(market, current_slot);
-        let loan_position = self.loans().position(&loan_account)?;
-        let loan_reserve = market.get_cached(loan_position.reserve_index, current_slot);
+        let loan = self.loans().position(&loan_account)?;
+        let loan_reserve = market.get_cached(loan.reserve_index, current_slot);
 
         let collateral_total = self.collateral_value(market, current_slot);
-        let collateral = self.collateral_mut().position_mut(collateral_account)?;
+        let collateral = self.collateral_mut().position(collateral_account)?;
         let collateral_reserve = market.get_cached(collateral.reserve_index, current_slot);
 
         // calculate the value of the debt being repaid
@@ -202,12 +202,18 @@ impl Obligation {
         let loan_to_value = loan_total / collateral_total;
         let c_ratio_ltv = min_c_ratio * loan_to_value;
 
-        if c_ratio_ltv < Number::ONE {
+        let collateral_max_value = if c_ratio_ltv < Number::ONE {
             // This means the loan is over-collateralized, so we shouldn't allow
             // any liquidation for it.
             msg!("c_ratio_ltv < 1 implies this cannot be liquidated");
             return Err(ErrorCode::ObligationHealthy.into());
-        }
+        } else if c_ratio_ltv >= min_c_ratio {
+            // This means the loan is under-collateralized, so force liquidator
+            // to take the loss.
+            collateral_total * repaid_ratio
+        } else {
+            collateral_total
+        };
 
         let limit_fraction = (c_ratio_ltv - Number::ONE)
             / (min_c_ratio * (Number::ONE - liquidation_bonus) - Number::ONE);
@@ -216,7 +222,6 @@ impl Obligation {
 
         // Limit collateral to allow for withdrawl by a liquidator, based on the
         // collateral amount to the ratio of the overall debt being repaid.
-        let collateral_max_value = collateral_total * repaid_ratio;
         let collateral_max_value = std::cmp::min(collateral_max_value, collateral_sellable_value);
 
         let collateral_max_notes = collateral_max_value
@@ -225,7 +230,8 @@ impl Obligation {
 
         let collateral_max_notes = std::cmp::min(collateral_max_notes, collateral.amount);
 
-        collateral.amount.saturating_sub(repay_notes_amount);
+        let collateral = self.collateral_mut().position_mut(collateral_account)?;
+        collateral.amount = collateral.amount.saturating_sub(repay_notes_amount);
 
         Ok(collateral_max_notes)
     }
@@ -393,7 +399,7 @@ impl ObligationSide {
     /// Record the loan repaid from an obligation (borrow notes burned)
     fn subtract(&mut self, account: &Pubkey, notes_amount: Number) -> ProgramResult {
         let position = self.position_mut(account)?;
-        position.amount -= notes_amount;
+        position.amount = position.amount.saturating_sub(notes_amount);
         Ok(())
     }
 

@@ -55,8 +55,8 @@
         "oweLess": "You owe less.",
         "geobanned": "Jet Protocol is not available in your region.",
         "noMarket": "We were unable to initialize the Jet marketplace.",
-        "txSuccess": "Success! Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received. Check out the transaction on the <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>.",
-        "txFailed": "Transaction failed. Not sure what went wrong, please try again later or contact us.",
+        "txSuccess": "Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received.",
+        "txFailed": "Transaction failed.",
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
@@ -151,6 +151,7 @@
         "date": "Date",
         "signature": "Signature",
         "tradeAction": "Transaction",
-        "tradeAmount": "Amount"
+        "tradeAmount": "Amount",
+        "noTrades": "You have no logged transactions with Jet."
     }
 }

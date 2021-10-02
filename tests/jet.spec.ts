@@ -1,24 +1,41 @@
 import * as anchor from "@project-serum/anchor";
-import { Amount, JetClient, JetReserve, JetUser, ReserveConfig } from "@jet-lab/jet-client";
-import { Keypair, LAMPORTS_PER_SOL, PublicKey, sendAndConfirmTransaction } from "@solana/web3.js";
-import { CreateMarketParams, JetMarket } from "libraries/ts/src/market";
+import {
+  Amount,
+  JetClient,
+  JetReserve,
+  JetUser,
+  ReserveConfig,
+} from "@jet-lab/jet-client";
+import { Keypair, LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import {
+  CreateMarketParams,
+  JetMarket,
+  MarketFlags,
+} from "libraries/ts/src/market";
 import { TestToken, TestUtils, toBN } from "./utils";
 import { BN } from "@project-serum/anchor";
-import { NodeWallet } from '@project-serum/anchor/dist/provider';
+import { NodeWallet } from "@project-serum/anchor/dist/provider";
 import { CreateReserveParams } from "libraries/ts/src/reserve";
 import * as serum from "@project-serum/serum";
 import { SerumUtils } from "./utils/serum";
-import { assert } from "chai";
+import { assert, expect, use as chaiUse } from "chai";
+import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
 import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
 
+chaiUse(chaiAsPromised.default);
+
 describe("jet", async () => {
   async function loadReserve(address: PublicKey) {
     const info = await provider.connection.getAccountInfo(address);
-    let reserve = program.coder.accounts.decode<ReserveAccount>("Reserve", info.data);
+    let reserve = program.coder.accounts.decode<ReserveAccount>(
+      "Reserve",
+      info.data
+    );
     const reserveState = ReserveStateLayout.decode(
-      Buffer.from(reserve.state as any as number[])) as ReserveStateStruct;
+      Buffer.from(reserve.state as any as number[])
+    ) as ReserveStateStruct;
     reserve.state = reserveState;
 
     return reserve;
@@ -28,19 +45,26 @@ describe("jet", async () => {
     console.log("accruedUntil:    ", state.accruedUntil.toString());
     console.log("invalidated:     ", state.invalidated);
     console.log("lastUpdated:     ", state.lastUpdated.toString());
-    console.log("outstandingDebt: ", state.outstandingDebt.div(bn(1e15)).toString());
+    console.log(
+      "outstandingDebt: ",
+      state.outstandingDebt.div(bn(1e15)).toString()
+    );
     console.log("totalDeposits:   ", state.totalDeposits.toString());
     console.log("totalLoanNotes:  ", state.totalLoanNotes.toString());
     console.log("uncollectedFees: ", state.uncollectedFees.toString());
   }
 
-  function bn(z: number): BN { return new BN(z); }
+  function bn(z: number): BN {
+    return new BN(z);
+  }
 
   async function checkBalance(tokenAccount: PublicKey): Promise<BN> {
     let info = await provider.connection.getAccountInfo(tokenAccount);
-    const account: splToken.AccountInfo = splToken.AccountLayout.decode(info.data);
+    const account: splToken.AccountInfo = splToken.AccountLayout.decode(
+      info.data
+    );
 
-    return (new BN(account.amount, undefined, "le"));
+    return new BN(account.amount, undefined, "le");
   }
 
   async function createTokenEnv(decimals: number, price: bigint) {
@@ -50,8 +74,8 @@ describe("jet", async () => {
     await testUtils.pyth.updatePriceAccount(pythPrice, {
       exponent: -9,
       aggregatePriceInfo: {
-        price: price * 1000000000n
-      }
+        price: price * 1000000000n,
+      },
     });
     await testUtils.pyth.updateProductAccount(pythProduct, {
       priceAccount: pythPrice.publicKey,
@@ -64,13 +88,13 @@ describe("jet", async () => {
       token: await testUtils.createToken(decimals),
       pythPrice,
       pythProduct,
-    } as TokenEnv
+    } as TokenEnv;
   }
   interface TokenEnv {
-    token: TestToken,
-    pythPrice: Keypair,
-    pythProduct: Keypair,
-    reserve?: JetReserve,
+    token: TestToken;
+    pythPrice: Keypair;
+    pythProduct: Keypair;
+    reserve?: JetReserve;
   }
 
   let IDL: anchor.Idl;
@@ -91,7 +115,7 @@ describe("jet", async () => {
 
   const initialTokenAmount = 1e6 * 1e6;
   const usdcDeposit = initialTokenAmount;
-  const wsolDeposit = usdcDeposit / 100 * 1.25 * 0.9;
+  const wsolDeposit = (usdcDeposit / 100) * 1.25 * 0.9;
 
   async function createTestUser(
     assets: Array<TokenEnv>,
@@ -107,14 +131,16 @@ describe("jet", async () => {
         tokenAccount.address,
         wallet.publicKey,
         [],
-        initialTokenAmount,
+        initialTokenAmount
       );
       return tokenAccount.address;
     };
 
     let tokenAccounts: Record<string, PublicKey> = {};
     for (const asset of assets) {
-      tokenAccounts[asset.token.publicKey.toBase58()] = await createUserTokens(asset);
+      tokenAccounts[asset.token.publicKey.toBase58()] = await createUserTokens(
+        asset
+      );
     }
 
     const userProgram = new anchor.Program(
@@ -153,7 +179,7 @@ describe("jet", async () => {
     jet = new anchor.Program(IDL, program.programId, provider);
     client = new JetClient(jet);
 
-    usdc = await createTokenEnv(6, 1n);   // FIXME Break decimal symmetry
+    usdc = await createTokenEnv(6, 1n); // FIXME Break decimal symmetry
     wsol = await createTokenEnv(6, 100n); //       and ensure tests pass
 
     wsolusdc = await serumUtils.createMarket({
@@ -207,11 +233,26 @@ describe("jet", async () => {
     }
   });
 
-  it("user A deposits usdc notes", async () => {
+  it("halts deposits", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltDeposits));
+
+    await expect(
+      userA.client.deposit(
+        usdc.reserve,
+        userA.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(1)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
+  });
+
+  it("user A deposits usdc", async () => {
     const user = userA;
     const asset = usdc;
     const amount = Amount.depositNotes(usdcDeposit);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
 
     await user.client.deposit(asset.reserve, tokenAccountKey, amount);
     await user.client.depositCollateral(asset.reserve, amount);
@@ -245,8 +286,9 @@ describe("jet", async () => {
     const user = userB;
     const asset = wsol;
     const amount = Amount.tokens(wsolDeposit);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
-    
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
+
     const vaultKey = asset.reserve.data.vault;
     const notesKey = (
       await client.findDerivedAccount([
@@ -291,12 +333,28 @@ describe("jet", async () => {
     assert.equal(collateralBalance.toString(), bn(wsolDeposit).toString());
   });
 
+  it("halts borrows", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltBorrows));
+
+    await wsol.reserve.refresh();
+    await expect(
+      userB.client.borrow(
+        usdc.reserve,
+        userB.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(10)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
+  });
+
   it("user B borrows usdc", async () => {
     const user = userB;
     const asset = usdc;
     const usdcBorrow = usdcDeposit * 0.8;
     const amount = Amount.tokens(usdcBorrow);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
 
     const obligationKey = (
       await client.findDerivedAccount([
@@ -315,9 +373,16 @@ describe("jet", async () => {
     ).address;
 
     await jetMarket.refresh();
-    const txId = await user.client.borrow(asset.reserve, tokenAccountKey, amount);
-    await new Promise(r => setTimeout(r, 500));
-    const tx = await provider.connection.getTransaction(txId, {commitment: "confirmed"});
+    await wsol.reserve.refresh();
+    const txId = await user.client.borrow(
+      asset.reserve,
+      tokenAccountKey,
+      amount
+    );
+    await new Promise((r) => setTimeout(r, 500));
+    const tx = await provider.connection.getTransaction(txId, {
+      commitment: "confirmed",
+    });
 
     const reserve = await loadReserve(asset.reserve.address);
 
@@ -325,8 +390,7 @@ describe("jet", async () => {
     const notesBalance = await checkBalance(notesKey);
 
     const expectedTokenBalance = bn(initialTokenAmount).add(amount.value);
-    expectedLoanNotesBalance =
-      bn(1e4)
+    expectedLoanNotesBalance = bn(1e4)
       .add(bn(reserveConfig.loanOriginationFee))
       .mul(amount.value)
       .div(bn(1e4));
@@ -336,7 +400,7 @@ describe("jet", async () => {
     assert.equal(
       reserve.state.outstandingDebt.div(bn(1e15)).toString(),
       expectedLoanNotesBalance.toString()
-    )
+    );
   });
 
   it("user B fails to borrow beyond limit", async () => {
@@ -346,9 +410,17 @@ describe("jet", async () => {
 
     await wsol.reserve.refresh();
 
-    const tx = await user.client.makeBorrowTx(usdc.reserve, tokenAccount, amount);
+    const tx = await user.client.makeBorrowTx(
+      usdc.reserve,
+      tokenAccount,
+      amount
+    );
     let result = await client.program.provider.simulate(tx, [user.wallet]);
-    assert.notStrictEqual(result.value.err, null, "expected instruction to fail");
+    assert.notStrictEqual(
+      result.value.err,
+      null,
+      "expected instruction to fail"
+    );
   });
 
   it("user B wsol withdrawal blocked", async () => {
@@ -357,13 +429,17 @@ describe("jet", async () => {
     const amount = Amount.tokens(wsolDeposit * 0.1112);
 
     // Give it some seconds for interest to accrue
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
 
     await usdc.reserve.refresh();
 
     const tx = await user.client.makeWithdrawCollateralTx(wsol.reserve, amount);
     let result = await client.program.provider.simulate(tx, [user.wallet]);
-    assert.notStrictEqual(result.value.err, null, "expected instruction to failed");
+    assert.notStrictEqual(
+      result.value.err,
+      null,
+      "expected instruction to failed"
+    );
   });
 
   it("user B withdraws some wsol", async () => {
@@ -406,13 +482,17 @@ describe("jet", async () => {
     const collateralBalance = await checkBalance(collateralKey);
     const vaultBalance = await checkBalance(vaultKey);
 
-    const expectedTokenBalance = initialTokenAmount - wsolDeposit + wsolWithdrawal;
+    const expectedTokenBalance =
+      initialTokenAmount - wsolDeposit + wsolWithdrawal;
     const expectedCollateralBalance = 0.95 * wsolDeposit;
     const expectedVaultBalance = expectedCollateralBalance;
 
     assert.equal(tokenBalance.toString(), bn(expectedTokenBalance).toString());
     assert.equal(notesBalance.toString(), "0");
-    assert.equal(collateralBalance.toString(), bn(expectedCollateralBalance).toString());
+    assert.equal(
+      collateralBalance.toString(),
+      bn(expectedCollateralBalance).toString()
+    );
     assert.equal(vaultBalance.toString(), bn(expectedVaultBalance).toString());
   });
 
@@ -424,7 +504,7 @@ describe("jet", async () => {
     const _debt0 = _reserve.state.outstandingDebt;
     const t0 = _reserve.state.accruedUntil;
 
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
 
     await asset.reserve.refresh();
     _reserve = await loadReserve(asset.reserve.address);
@@ -432,22 +512,41 @@ describe("jet", async () => {
     const t1 = _reserve.state.accruedUntil;
 
     const interestAccrued = debt1.sub(_debt0).div(bn(1e15)).toNumber();
-    const t = t1.sub(t0).toNumber() / (365*24*60*60);
+    const t = t1.sub(t0).toNumber() / (365 * 24 * 60 * 60);
 
-    const debt0 = _debt0.div(bn(1e15)).toNumber()
+    const debt0 = _debt0.div(bn(1e15)).toNumber();
     const impliedRate = Math.log1p(interestAccrued / debt0) / t;
     const naccRate = reserveConfig.borrowRate0 * 1e-4;
 
     assert.approximately(impliedRate, naccRate, 1e-4);
   });
 
+  it("halts repays", async () => {
+    await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltRepays));
+
+    await expect(
+      userB.client.repay(
+        usdc.reserve,
+        userB.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(1)
+      )
+    ).to.be.rejectedWith("0x142");
+
+    await jetMarket.setFlags(new splToken.u64(0));
+  });
+
   it("user B repays some usdc", async () => {
     const user = userB;
     const asset = usdc;
     const amount = Amount.loanNotes(usdcDeposit * 0.1);
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
 
-    const txId = await user.client.repay(asset.reserve, tokenAccountKey, amount);
+    const txId = await user.client.repay(
+      asset.reserve,
+      tokenAccountKey,
+      amount
+    );
 
     const obligationKey = (
       await client.findDerivedAccount([
@@ -466,7 +565,7 @@ describe("jet", async () => {
     ).address;
 
     const notesBalance = await checkBalance(notesKey);
-    
+
     expectedLoanNotesBalance = expectedLoanNotesBalance.sub(amount.value);
 
     assert.equal(notesBalance.toString(), expectedLoanNotesBalance.toString());
@@ -512,14 +611,18 @@ describe("jet", async () => {
     const expectedCollateralBalance = bn(usdcDeposit * 0.8);
 
     assert.equal(notesBalance.toString(), "0");
-    assert.equal(collateralBalance.toString(), expectedCollateralBalance.toString());
+    assert.equal(
+      collateralBalance.toString(),
+      expectedCollateralBalance.toString()
+    );
   });
 
   it("user B repays all usdc debt", async () => {
     const user = userB;
     const asset = usdc;
     const amount = Amount.loanNotes(expectedLoanNotesBalance.toNumber()); // FIXME Can user B overpay?
-    const tokenAccountKey = user.tokenAccounts[asset.token.publicKey.toBase58()];
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
 
     const obligationKey = (
       await client.findDerivedAccount([
@@ -640,7 +743,9 @@ describe("jet", async () => {
     const finalBalanceB = await checkBalance(tokenKeyB);
     const vaultBalance = await checkBalance(vaultKey);
 
-    const baseFee = bn(usdcDeposit * reserveConfig.loanOriginationFee * 0.8 * 1e-4)
+    const baseFee = bn(
+      usdcDeposit * reserveConfig.loanOriginationFee * 0.8 * 1e-4
+    );
 
     assert.ok(finalBalanceA.gt(finalBalanceB));
     assert.ok(vaultBalance.gt(baseFee));
