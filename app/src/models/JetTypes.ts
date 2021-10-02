@@ -108,7 +108,7 @@ export interface Reserve {
   loanNoteMintPubkey: PublicKey,
   loanNoteMint: TokenAmount,
   pythPricePubkey: PublicKey,
-  pythProductPubkey: PublicKey,
+  pythProductPubkey: PublicKey
 };
 
 // Reserve Account
