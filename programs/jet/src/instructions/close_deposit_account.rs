@@ -16,7 +16,8 @@ pub struct CloseDepositAccount<'info> {
     pub market_authority: AccountInfo<'info>,
 
     /// The reserve deposited into
-    #[account(has_one = market,
+    #[account(mut,
+              has_one = market,
               has_one = vault,
               has_one = deposit_note_mint)]
     pub reserve: Loader<'info, Reserve>,
@@ -96,12 +97,14 @@ pub fn handler(ctx: Context<CloseDepositAccount>, _bump: u8) -> ProgramResult {
     if notes_remaining > 0 {
         market.verify_ability_deposit_withdraw()?;
 
-        let reserve = ctx.accounts.reserve.load()?;
+        let mut reserve = ctx.accounts.reserve.load_mut()?;
         let clock = Clock::get()?;
 
         let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
         let tokens_to_withdraw =
             reserve_info.deposit_notes_to_tokens(notes_remaining, Rounding::Down);
+
+        reserve.withdraw(tokens_to_withdraw, notes_remaining);
 
         token::transfer(
             ctx.accounts
