@@ -59,7 +59,7 @@
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "search": "Search Market..",
+        "search": "Search Market...",
         "noBalanceForDeposit": "You have no {{ASSET}} in your wallet to deposit.",
         "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
         "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
