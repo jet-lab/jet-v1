@@ -17,8 +17,8 @@
   --black: #444444;
   --grey: #d8dfec;
 	--white: #e6edf7; /* e4ebf5 */
-	--jet-green: #3d9e83; /* 53bd9f */
-	--jet-blue: #278db6; /* 32a5d3 */
+	--jet-green: #40a387; /* 53bd9f */
+	--jet-blue: #2994be; /* 32a5d3 */
   --success: #44a88c; /* 53bd9f */
   --failure: #ec6a69;
 
@@ -37,12 +37,10 @@
   --neu-shadow-inset-gradient: inset -2px -2px 2.5px #75d3f8, inset 2px 2px 2.5px #28866c;
   --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #75d3f8, inset 1.5px 1.5px 2px #28866c;
 
-  --disabled-opacity: 0.8;
+  --disabled-opacity: 0.75;
 
   --nav-width: 60px;
   --mobile-nav-height: 60px;
-
-  --transition: all 0.1s;
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -87,7 +85,7 @@ a, i {
   font-style: normal;
 }
 span {
-  opacity: 0.85;
+  opacity: 0.75;
   font-size: 13px;
   text-align: center;
   max-width: 400px;
@@ -95,12 +93,8 @@ span {
 .info {
   color: var(--black);
   opacity: var(--disabled-opacity);
-  font-size: 9px !important;
+  font-size: 8px !important;
   cursor: pointer;
-  transition: var(--transition);
-}
-.info:hover {
-  opacity: 1;
 }
 *:focus-visible {
   outline: unset;
@@ -299,7 +293,7 @@ input[type=number] {
   font-weight: bold;
   text-transform: uppercase;
   font-size: 9px;
-  opacity: 0.85;
+  opacity: 0.65;
 }
 
 /* Modals */
@@ -310,7 +304,7 @@ input[type=number] {
   top: 0;
   left: var(--nav-width);
   background: var(--white);
-  opacity: 0.90;
+  opacity: 0.92;
   text-align: center;
 }
 .modal {
@@ -319,7 +313,7 @@ input[type=number] {
   left: calc(50% + var(--nav-width)/2);
   transform: translate(-50%, -50%);
   min-width: 300px;
-  max-width: 700px;
+  max-width: 550px;
   box-shadow: var(--neu-shadow);
   background: var(--white);
   border-radius: var(--border-radius);
@@ -487,7 +481,7 @@ input[type=number] {
   left: 24px !important;
   padding-left: 1px !important;
   font-size: 15px !important;
-  opacity: 0.85 !important;
+  opacity: 0.8 !important;
 }
 .datatable .dt-asset span, .datatable .dt-asset img {
   opacity: 1 !important;
@@ -523,8 +517,7 @@ input[type=number] {
   opacity: 1 !important;
 }
 .datatable .faucet {
-  opacity: var(--disabled-opacity) !important;
-  transiation: var(--transition) !important;
+  opacity: 0.5 !important;
 }
 .datatable .faucet:hover {
   opacity: 1 !important;
@@ -542,10 +535,9 @@ input[type=number] {
   font-weight: 500 !important;
 }
 .transaction-logs .datatable {
-  padding: unset !important;
   box-shadow: unset !important;
 }
-.transaction-logs .datatable td {
+.transaction-logs .datatable td{
   min-width: 125px !important;
 }
 .transaction-logs .datatable td:last-of-type {
@@ -645,7 +637,7 @@ input[type=number] {
   .datatable td {
     font-size: 11px !important;
   }
-  .transaction-logs .datatable td {
+  .transaction-logs .datatable td{
     min-width: 70px !important;
   }
 }

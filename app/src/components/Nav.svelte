@@ -39,8 +39,7 @@
   class:expanded
   style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
 	<div class="top flex align-center column">
-    <div class="nav-logo-container flex align-center justify-center"
-      on:click={() => window.open('https://jetprotocol.io/', '_blank')}>
+    <div class="nav-logo-container flex align-center justify-center">
       <Logo width={!expanded ? 50 : 100} logoMark={!expanded} />
     </div>
     <NavLink active={$location.pathname === '/'} 
@@ -78,7 +77,7 @@
           />
           {#if expanded}
             <div class="flex align-start justify-start column">
-              <span class="bicyclette-bold text-gradient">
+              <span class="bicyclette text-gradient">
                 {dictionary[$PREFERRED_LANGUAGE].copilot.name.toUpperCase()}
               </span>
             </div>
@@ -218,7 +217,6 @@
   }
   .nav-logo-container {
     height: 80px;
-    cursor: pointer;
   }
   .expanded .wallet, .expanded .copilot {
     width: 100px;

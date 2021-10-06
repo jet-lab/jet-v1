@@ -155,8 +155,6 @@
   }
   span {
     max-width: 400px;
-    line-height: 16px;
-    opacity: 1;
   }
 
   @media screen and (max-width: 1100px) {
