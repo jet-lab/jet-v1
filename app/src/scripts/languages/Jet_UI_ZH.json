@@ -139,11 +139,11 @@
         }
     },
     "transactions": {
-      "title": "飞行日志",
-      "date": "日期",
-      "signature": "签章",
-      "tradeAction": "交易",
-      "tradeAmount": "金额",
-      "noTrades": "您在 Jet 没有交易的记录。"
+        "title": "飞行日志",
+        "date": "日期",
+        "signature": "签章",
+        "tradeAction": "交易",
+        "tradeAmount": "金额",
+        "noTrades": "您在 Jet 没有交易的记录。"
     }
 }

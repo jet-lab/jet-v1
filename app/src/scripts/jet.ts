@@ -5,13 +5,15 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE, PREFERRED_LANGUAGE } from '../store';
+import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, TransactionLog, IdlMetadata } from '../models/JetTypes';
+import { MARKET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, TokenAmount } from './utils';
-import { dictionary } from './localization';
 import { Buffer } from 'buffer';
+
+// Development environment variable
+export const inDevelopment: boolean = jetDev;
 
 const SECONDS_PER_HOUR: BN = new BN(3600);
 const SECONDS_PER_DAY: BN = SECONDS_PER_HOUR.muln(24);
@@ -30,7 +32,7 @@ let idl: any;
 let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
 let coder: anchor.Coder;
-let preferredLanguage: string;
+let idlMetadata: IdlMetadata;
 WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
@@ -38,10 +40,7 @@ MARKET.subscribe(data => market = data);
 CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
 ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
 ANCHOR_CODER.subscribe(data => coder = data);
-PREFERRED_LANGUAGE.subscribe(data => preferredLanguage = data);
-
-// Development / Devnet identifier
-export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
+IDL_METADATA.subscribe(data => idlMetadata = data);
 
 // Rollbar error logging
 export const rollbar = new Rollbar({
@@ -49,16 +48,17 @@ export const rollbar = new Rollbar({
   captureUncaught: true,
   captureUnhandledRejections: true,
   payload: {
-    environment: inDevelopment ? 'devnet' : 'mainnet'
+    environment: inDevelopment ? 'development' : 'production'
   }
 });
 
+
 // Record of instructions to their first 8 bytes for transaction logs
 const INSTRUCTION_BYTES: Record<string, number[]> = {
-  deposit: [242, 35, 198, 137, 82, 225, 242, 182],
-  withdraw: [183, 18, 70, 156, 148, 109, 161, 34],
-  borrow: [228, 253, 131, 202, 207, 116, 89, 18],
-  repay: [234, 103, 67, 82, 208, 234, 219, 166]
+  'Deposit': [242, 35, 198, 137, 82, 225, 242, 182],
+  'Withdraw': [183, 18, 70, 156, 148, 109, 161, 34],
+  'Borrow': [228, 253, 131, 202, 207, 116, 89, 18],
+  'Repay': [234, 103, 67, 82, 208, 234, 219, 166]
 };
 
 // Get IDL and market data
@@ -162,13 +162,13 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
-    wallet.on = (action: string, callback: any) => {if (callback) callback()};
-    wallet.connect = (action: string, callback: any) => {if (callback) callback()};
+    wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
-    wallet.on = (action: string, callback: Function) => {if (callback) callback()};
-    wallet.connect = (action: string, callback: Function) => {if (callback) callback()};
+    wallet.on = (action: string, callback: Function) => callback();
+    wallet.connect = (action: string, callback: Function) => callback();
   } else {
     wallet = new WalletAdapter(provider.url) as Wallet;
   };
@@ -200,20 +200,14 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
 
 // Get Jet transactions and associated UI data
 export const getTransactionLogs = async (): Promise<void> => {
-  if (!wallet?.publicKey) {
-    return;
-  }
-  
-  // Reset global store
-  TRANSACTION_LOGS.set(null);
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  const solanaConnection = inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/') : connection;
-  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
+  const solanaConnection = new anchor.web3.Connection(`https://api.${inDevelopment? 'devnet' : 'mainnet-beta'}.solana.com/`);
+  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey); 
   for (let sig of sigs) {
     // Get confirmed transaction from each signature
-    const log = await solanaConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
+    const log = await solanaConnection.getConfirmedTransaction(sig.signature) as unknown as TransactionLog;
     // Use log messages to only surface transactions that utilize Jet
     for (let msg of log.meta.logMessages) {
       if (msg.indexOf(idl.metadata.address) !== -1) {
@@ -226,7 +220,7 @@ export const getTransactionLogs = async (): Promise<void> => {
             }
             // If those bytes match any of our instructions label trade action
             if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
-              log.tradeAction = dictionary[preferredLanguage].transactions[progInst];
+              log.tradeAction = progInst;
               // Determine asset and trade amount
               for (let pre of log.meta.preTokenBalances as any[]) {
                 for (let post of log.meta.postTokenBalances as any[]) {
@@ -251,10 +245,8 @@ export const getTransactionLogs = async (): Promise<void> => {
               log.blockDate = new Date(log.blockTime * 1000).toLocaleDateString();
               // Explorer URL
               log.explorerUrl = explorerUrl(log.signature);
-              // If we found mint match, add tx to logs
-              if (log.tokenAbbrev) {
-                txLogs.push(log);
-              }
+              // Add tx to logs
+              txLogs.push(log);
             }
           }
         }

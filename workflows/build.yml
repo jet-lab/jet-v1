@@ -1,0 +1,75 @@
+name: build
+env:
+  cli-id: anchor-v0.16.dev-75c2085-solana-1.7.8
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build-cli-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - id: cache-cli-deps
+        uses: actions/cache@v2
+        with:
+          key: $${{ env.cli-id }}
+          path: |
+            ~/.local/share/solana
+            ~/.cargo
+            ~/.rustup
+            ~/.cargo/bin/anchor
+
+      - id: install-os-deps
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
+
+      - id: install-rust-toolchain
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - id: install-solana-tools
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        run: sh -c "$(curl -sSfL https://release.solana.com/v1.7.8/install)"
+
+      - run: echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
+
+      - id: install-anchor-cli
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        run: cargo install --git https://github.com/jet-lab/anchor anchor-cli --locked
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [build-cli-deps]
+    steps:
+      - id: cache-cli-deps
+        uses: actions/cache@v2
+        with:
+          key: $${{ env.cli-id }}
+          path: |
+            ~/.local/share/solana
+            ~/.cargo
+            ~/.rustup
+            ~/.cargo/bin/anchor
+
+      - run: echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - run: npm install
+      - run: npm install @project-serum/anchor -g
+      - run: solana-keygen new --no-bip39-passphrase
+      - run: cargo test
+      - run: anchor build
+      - run: anchor test
+      - run: cargo fmt -- --check

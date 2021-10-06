@@ -36,7 +36,7 @@
 
 <div class="modal-bg"
   transition:fade={{duration: closeable ? 50 : 0}}
-  on:click={() => {if (closeable) closeModal()}}>
+  on:click={() => closeable ? closeModal() : null}>
 </div>
 <div class="modal flex align-center justify-center column"
   in:fly={{y: closeable ? 50 : 0, duration: closeable ? 500 : 0}}
@@ -111,5 +111,6 @@
   p {
     font-size: 14px;
     text-align: center;
+    opacity: 0.8;
   }
 </style>
