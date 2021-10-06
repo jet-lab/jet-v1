@@ -550,7 +550,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
   // Obligatory refresh instruction
   const refreshReserveIxs = buildRefreshReserveIxs();
-
+  
   const withdrawCollateralBumps = {
     collateralAccount: asset.collateralNoteBump,
     depositAccount: asset.depositNoteBump,
@@ -619,6 +619,9 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
   try {
     const [ok, txids] = await sendAllTransactions(program.provider, ixs);
+    if(!ok) {
+      console.log('Send All Transactions Failed', [ok, txids]);
+    }
     return [ok, txids[txids.length - 1]]
   } catch (err) {
     console.error(`Withdraw error: ${transactionErrorToString(err)}`);
@@ -763,6 +766,9 @@ export const borrow = async (abbrev: string, amount: Amount)
   try {
     // Make deposit RPC call
     const [ok, txids] = await sendAllTransactions(program.provider, ixs);
+    if (!ok) {
+      console.log('Send All Transactions Failed', [ok, txids]);
+    }
     return [ok, txids[txids.length - 1]];
   } catch (err) {
     console.error(`Borrow error: ${transactionErrorToString(err)}`);
