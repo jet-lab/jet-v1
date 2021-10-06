@@ -51,11 +51,20 @@
           <th data-key="tradeAmount" class="asset">
             {dictionary[$PREFERRED_LANGUAGE].transactions.tradeAmount} 
           </th>
+          <th>
+          <i class="refresh-logs fas fa-sync"
+            style="color: var(--jet-blue);"
+            on:click={() => getTransactionLogs()}>
+          </i>
+          </th>
         </thead>
         <div class="datatable-divider">
         </div>
         <tbody>
           {#each $rows as row, i}
+            <tr class="datatable-spacer">
+              <td><!-- Extra Row for spacing --></td>
+            </tr>
             <tr on:click={() => window.open($rows[i].explorerUrl, '_blank')}>
               <td>
                 {$rows[i].blockDate}
@@ -85,9 +94,6 @@
           {/each}
         </tbody>
       </Datatable>
-      <i class="refresh-logs fas fa-sync"
-        on:click={() => getTransactionLogs()}>
-      </i>
     </div>
   {:else}
     <Loader fullview />
@@ -115,14 +121,16 @@
   }
   .refresh-logs {
     color: var(--jet-blue);
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    cursor: pointer;
   }
 
   @media screen and (max-width: 1100px) {
     .transaction-logs {
       display: block;
+      width: 100%;
+      padding: unset;
+      margin: unset;
+      box-shadow: unset;
     }
   }
 </style>

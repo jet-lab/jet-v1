@@ -629,11 +629,11 @@ input[type=number] {
 .transaction-logs .dt-table td, .transaction-logs .dt-table th {
   min-width: 90px !important;
 }
+.transaction-logs .dt-table td:last-of-type, .transaction-logs .dt-table th:last-of-type {
+  min-width: 30px !important;
+}
 .transaction-logs .dt-table td.asset, .transaction-logs .dt-table th.asset {
   min-width: 150px !important;
-}
-.transaction-logs .dt-table td:last-of-type {
-  min-width: 30px !important;
 }
 .transaction-logs .dt-table tr:hover {
   box-shadow: var(--neu-datatable-shadow) !important;
@@ -643,6 +643,10 @@ input[type=number] {
 }
 .transaction-logs .dt-table tr .jet-icons {
   margin-right: unset !important;
+}
+.transaction-logs .dt-table tr.datatable-spacer:hover, .transaction-logs .datatable-spacer:hover td {
+  background: var(--white) !important;
+  box-shadow: unset !important;
 }
 .transaction-logs .dt-pagination {
   position: absolute !important;
