@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { CopilotDefinition } from '../models/JetTypes';
   import { COPILOT } from '../store';
-  import { timeout } from '../scripts/utils';
+  import { timeout } from '../scripts/util';
 
   export let percentage: number;
   export let text: string = '';
@@ -48,7 +48,7 @@
           <i on:click={() => COPILOT.set({
             definition: percentageDefinition
           })} 
-            class="info far fa-question-circle">
+            class="info fas fa-info-circle">
           </i>
       {/if}
       </span>

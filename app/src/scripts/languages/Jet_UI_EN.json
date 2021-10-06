@@ -12,7 +12,6 @@
         "settings": "Settings",
         "collapse": "Collapse",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Disconnect Wallet",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -59,7 +58,7 @@
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "search": "Search Market...",
+        "search": "Search Market..",
         "noBalanceForDeposit": "You have no {{ASSET}} in your wallet to deposit.",
         "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
         "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
@@ -71,7 +70,7 @@
     "settings": {
         "title": "Settings",
         "wallet": "Wallet",
-        "connect": "Connect",
+        "connect": "Connect Wallet",
         "worldOfDefi": "Connect your wallet to the world of DeFi.",
         "theme": "Theme",
         "light": "Light",
@@ -81,7 +80,9 @@
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "noUrl": "Enter a URL",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "Reserve Size",
@@ -132,10 +133,12 @@
         "alert": {
             "failed": "Mayday!",
             "success": "Success!",
-            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
+            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
-            "headsup": "Heads up!"
+            "headsup": "Heads up!",
+            "disclaimer": "",
+            "accept": "Accept"
         }
     },
     "transactions": {
@@ -145,7 +148,7 @@
       "tradeAction": "Transaction",
       "tradeAmount": "Amount",
       "noTrades": "You have no logged transactions with Jet.",
-      "entries": "Showing {start} to {end} of {rows} entries",
+      "entries": "{start} to {end} of {rows}",
       "deposit": "Deposit",
       "withdraw": "Withdraw",
       "borrow": "Borrow",

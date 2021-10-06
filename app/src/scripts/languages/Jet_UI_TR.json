@@ -144,6 +144,11 @@
         "signature": "Signature",
         "tradeAction": "Transaction",
         "tradeAmount": "Amount",
-        "noTrades": "You have no logged transactions with Jet."
+        "noTrades": "You have no logged transactions with Jet.",
+        "entries": "Showing {start} to {end} of {rows} entries",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "borrow": "Borrow",
+        "repay": "Repay"
     }
 }

@@ -1,13 +1,10 @@
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import type { WalletProvider } from '../models/JetTypes';
-  import { PREFERRED_LANGUAGE } from '../store';
+  import { CONNECT_WALLET, ASSETS, PREFERRED_LANGUAGE } from '../store';
   import { getWalletAndAnchor } from '../scripts/jet';
   import { dictionary } from '../scripts/localization';
   import Logo from '../components/Logo.svelte';
-
-  export let closeable: boolean = false;
-  export let closeModal: Function = () => null;
 
   let walletChoice: string;
   const providers: WalletProvider[] = [
@@ -34,48 +31,54 @@
   ];
 </script>
 
-<div class="modal-bg"
-  transition:fade={{duration: closeable ? 50 : 0}}
-  on:click={() => {if (closeable) closeModal()}}>
-</div>
-<div class="modal flex align-center justify-center column"
-  in:fly={{y: closeable ? 50 : 0, duration: closeable ? 500 : 0}}
-  out:fade={{duration: closeable ? 50 : 0}}>
-  <Logo width={120} />
-  <span>
-    {dictionary[$PREFERRED_LANGUAGE].settings.worldOfDefi}
-  </span>
-  <div class="divider">
+{#if $CONNECT_WALLET && !$ASSETS}
+  <div class="modal-bg"
+    transition:fade={{duration: 50}}
+    on:click={() => CONNECT_WALLET.set(false)}>
   </div>
-  <div class="wallets flex align-center justify-center column">
-    {#each providers as p}
-      <div class="wallet flex align-center justify-between" 
-        class:active={walletChoice === p.name} 
-        on:click={() => {
-          walletChoice = p.name;
-          getWalletAndAnchor(p);
-        }}>
-        <div class="flex align-center justify-center">
-          <img src={p.logo} alt={`${p.name} Logo`} />
-          <p>
-            {p.name}
-          </p>
+  <div class="modal flex align-center justify-center column"
+    in:fly={{y: 50, duration: 500}}
+    out:fade={{duration: 50}}>
+    <Logo width={120} />
+    <span>
+      {dictionary[$PREFERRED_LANGUAGE].settings.worldOfDefi}
+    </span>
+    <div class="divider">
+    </div>
+    <div class="wallets flex align-center justify-center column">
+      {#each providers as p}
+        <div class="wallet flex align-center justify-between" 
+          class:active={walletChoice === p.name} 
+          on:click={() => {
+            walletChoice = p.name;
+            getWalletAndAnchor(p);
+          }}>
+          <div class="flex align-center justify-center">
+            <img src={p.logo} alt={`${p.name} Logo`} />
+            <p>
+              {p.name}
+            </p>
+          </div>
+          <i class="text-gradient jet-icons">
+            ➜
+          </i>
         </div>
-        <i class="text-gradient jet-icons">
-          ➜
-        </i>
-      </div>
-    {/each} 
+      {/each} 
+    </div>
+    <i class="jet-icons close"
+      on:click={() => CONNECT_WALLET.set(false)}>
+      ✕
+    </i>
   </div>
-</div>
+{/if}
 
 <style>
   .modal-bg {
-    z-index: 100;
+    z-index: 102;
   }
   .modal {
     padding: var(--spacing-lg) var(--spacing-md);
-    z-index: 101;
+    z-index: 103;
   }
   .wallets {
     margin: var(--spacing-md);

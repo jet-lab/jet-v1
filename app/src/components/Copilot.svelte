@@ -19,7 +19,7 @@
     on:click={() => COPILOT.set(null)}
     transition:fade={{duration: 50}}>
   </div>
-  <div class="copilot modal flex align-center justify-center"
+  <div class="copilot modal flex align-center justify-center column"
     in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
     {#if $COPILOT.alert || $COPILOT.suggestion}
@@ -160,9 +160,6 @@
   }
 
   @media screen and (max-width: 1100px) {
-    .copilot {
-      flex-direction: column;
-    }
     img {
       width: 45px;
     }

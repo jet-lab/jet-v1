@@ -150,7 +150,7 @@ impl Obligation {
 
     /// Liquidate a loan on this obligation
     ///
-    /// Returns the number of collateral tokens that the liquidator should
+    /// Returns the number of collateral notes that the liquidator should
     /// receive in return for paying off the loan.
     pub fn liquidate(
         &mut self,
@@ -187,18 +187,17 @@ impl Obligation {
             // any liquidation for it.
             msg!("c_ratio_ltv < 1 implies this cannot be liquidated");
             return Err(ErrorCode::ObligationHealthy.into());
-        } else if c_ratio_ltv >= min_c_ratio {
-            // This means the loan is under-collateralized, so force liquidator
-            // to take the loss.
-            collateral_total * repaid_ratio
         } else {
-            collateral_total
+            collateral_total * repaid_ratio
         };
 
         let limit_fraction = (c_ratio_ltv - Number::ONE)
             / (min_c_ratio * (Number::ONE - liquidation_bonus) - Number::ONE);
 
-        let collateral_sellable_value = limit_fraction * collateral_total;
+        let collateral_sellable_value = std::cmp::min(
+            (Number::ONE + liquidation_bonus) * repaid_value,
+            limit_fraction * collateral_total,
+        );
 
         // Limit collateral to allow for withdrawl by a liquidator, based on the
         // collateral amount to the ratio of the overall debt being repaid.
@@ -626,6 +625,7 @@ mod tests {
         let collateral = ctx.create_collateral(|reserve| {
             let cache = reserve.get_stale_mut();
 
+            cache.liquidation_bonus = 1000;
             cache.price = Number::from(1);
             cache.deposit_note_exchange_rate = Number::from(1);
             cache.min_collateral_ratio = Number::from_bps(12500);
@@ -633,7 +633,6 @@ mod tests {
         let loan = ctx.create_loan(|reserve| {
             let cache = reserve.get_stale_mut();
 
-            cache.liquidation_bonus = 1000;
             cache.price = Number::from(2);
             cache.loan_note_exchange_rate = Number::from(1);
             cache.min_collateral_ratio = Number::from_bps(12500);
@@ -646,10 +645,164 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
+            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(347_826))
+            .unwrap();
+
+        ctx.obligation.repay(&loan, Number::from(347_826)).unwrap();
+
+        assert_eq!(765_217, collateral_returned.as_u64_rounded(0));
+        assert_eq!(
+            152_174,
+            ctx.obligation
+                .loans()
+                .position(&loan)
+                .unwrap()
+                .amount
+                .as_u64_rounded(0)
+        );
+        assert_eq!(
+            384_783,
+            ctx.obligation
+                .collateral()
+                .position(&collateral)
+                .unwrap()
+                .amount
+                .as_u64_rounded(0)
+        );
+    }
+
+    #[test]
+    fn ltv_90_liquidate_collateral_all() {
+        let mut ctx = ObligationTestContext::new();
+
+        let collateral = ctx.create_collateral(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.liquidation_bonus = 1000;
+            cache.price = Number::from(1);
+            cache.deposit_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+        let loan = ctx.create_loan(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.price = Number::from(2);
+            cache.loan_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+
+        ctx.obligation
+            .deposit_collateral(&collateral, Number::from(1_111_111))
+            .unwrap();
+        ctx.obligation.borrow(&loan, Number::from(500_000)).unwrap();
+
+        let collateral_returned = ctx
+            .obligation
             .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(500_000))
             .unwrap();
 
-        assert_eq!(400_000, collateral_returned.as_u64_rounded(0));
+        assert_eq!(1_100_000, collateral_returned.as_u64_rounded(0));
+    }
+
+    #[test]
+    fn ltv_98_liquidate_collateral_marginal() {
+        let mut ctx = ObligationTestContext::new();
+
+        let collateral = ctx.create_collateral(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.liquidation_bonus = 100;
+            cache.price = Number::from(1);
+            cache.deposit_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+        let loan = ctx.create_loan(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.price = Number::from(2);
+            cache.loan_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+
+        ctx.obligation
+            .deposit_collateral(&collateral, Number::from(1_020_408))
+            .unwrap();
+        ctx.obligation.borrow(&loan, Number::from(500_000)).unwrap();
+
+        let collateral_returned = ctx
+            .obligation
+            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
+            .unwrap();
+
+        assert_eq!(956_842, collateral_returned.as_u64_rounded(0));
+    }
+
+    #[test]
+    fn ltv_98_liquidate_collateral_limited_bonus() {
+        let mut ctx = ObligationTestContext::new();
+
+        let collateral = ctx.create_collateral(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.liquidation_bonus = 1000;
+            cache.price = Number::from(1);
+            cache.deposit_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+        let loan = ctx.create_loan(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.price = Number::from(2);
+            cache.loan_note_exchange_rate = Number::from(1);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+
+        ctx.obligation
+            .deposit_collateral(&collateral, Number::from(1_020_408))
+            .unwrap();
+        ctx.obligation.borrow(&loan, Number::from(500_000)).unwrap();
+
+        let collateral_returned = ctx
+            .obligation
+            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
+            .unwrap();
+
+        assert_eq!(966_702, collateral_returned.as_u64_rounded(0));
+    }
+
+    #[test]
+    fn ltv_826_liquidate_collateral() {
+        let mut ctx = ObligationTestContext::new();
+
+        let collateral = ctx.create_collateral(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.liquidation_bonus = 300;
+            cache.price = Number::from_decimal(162_080, -3);
+            cache.deposit_note_exchange_rate = Number::from_decimal(1_004_271, -6);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+        let loan = ctx.create_loan(|reserve| {
+            let cache = reserve.get_stale_mut();
+
+            cache.price = Number::from(1);
+            cache.loan_note_exchange_rate = Number::from_decimal(819_667, -6);
+            cache.min_collateral_ratio = Number::from_bps(12500);
+        });
+
+        ctx.obligation
+            .deposit_collateral(&collateral, Number::from(49_924))
+            .unwrap();
+        ctx.obligation
+            .borrow(&loan, Number::from(8_159_114))
+            .unwrap();
+
+        let collateral_returned = ctx
+            .obligation
+            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(97_303))
+            .unwrap();
+
+        assert_eq!(505, collateral_returned.as_u64_rounded(0));
     }
 
     #[test]

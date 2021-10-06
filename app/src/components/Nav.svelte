@@ -1,13 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { useLocation } from 'svelte-navigator';
-  import { WALLET, ASSETS, DARK_THEME, PREFERRED_LANGUAGE } from '../store';
-  import { disconnectWallet, setDark, shortenPubkey } from '../scripts/utils';
+  import { WALLET, ASSETS, PREFERRED_LANGUAGE } from '../store';
+  import { disconnectWallet, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
-  import { generateCopilotSuggestion } from '../scripts/copilot';
   import Logo from './Logo.svelte';
   import NavLink from './NavLink.svelte';
-  import Toggle from './Toggle.svelte';
 
   export let launchUI: boolean;
 
@@ -55,51 +53,8 @@
       path='/settings' icon={$location.pathname === '/settings' ? '✎' : '✀'}
       text={expanded ? dictionary[$PREFERRED_LANGUAGE].nav.settings : ''} 
     />
-    <div class="nav-toggle-container flex align-center justify-center">
-      <Toggle onClick={() => setDark(!$DARK_THEME)} 
-        text={expanded ? 
-          ($DARK_THEME ? dictionary[$PREFERRED_LANGUAGE].settings.dark : dictionary[$PREFERRED_LANGUAGE].settings.light) 
-            : ''}
-        icon="❂" 
-        active={$DARK_THEME} 
-      />
-    </div>
 	</div>
   <div class="bottom flex align-center justify-end column">
-    <div class="bottom-buttons flex align-center justify-center column">
-      {#if $WALLET && $ASSETS}
-        <div class="copilot flex align-center justify-center" 
-          class:justify-start={expanded}
-          title={dictionary[$PREFERRED_LANGUAGE].nav.getCopilotSuggestion}
-          on:click={() => generateCopilotSuggestion()}>
-          <img width="25px" height="auto" 
-            src="img/copilot/copilot.png" 
-            alt="Copilot Icon" 
-          />
-          {#if expanded}
-            <div class="flex align-start justify-start column">
-              <span class="bicyclette-bold text-gradient">
-                {dictionary[$PREFERRED_LANGUAGE].copilot.name.toUpperCase()}
-              </span>
-            </div>
-          {/if}
-        </div>
-        <div class="wallet flex align-center justify-center"
-          class:justify-start={expanded} 
-          title={dictionary[$PREFERRED_LANGUAGE].nav.disconnectWallet}
-          on:click={() => disconnectWallet()}>
-          <img width="25px" height="auto" 
-            src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
-            alt={`${$WALLET.name} Logo`}
-          />
-          {#if expanded}
-            <span class="text-gradient">
-              {shortenPubkey($WALLET.publicKey.toString(), 4)}
-            </span>
-          {/if}
-        </div>
-      {/if}
-    </div>
     <div on:click={() => toggleNav()} class="bottom-expand flex align-center justify-center">
       <i class="text-gradient jet-icons">
         {#if expanded}
@@ -135,25 +90,13 @@
   </div>
   <div class="bottom flex align-center justify-evenly">
     {#if $WALLET && $ASSETS}
-      <div class="copilot flex align-center justify-center"
-        on:click={() => generateCopilotSuggestion()}>
-        <img width="100%" height="auto" 
-          src="img/copilot/copilot.png" 
-          alt="Copilot Icon" 
-        />
-        <div class="flex align-start justify-start column">
-          <span class="text-gradient">
-            {dictionary[$PREFERRED_LANGUAGE].copilot.name.toUpperCase()}
-          </span>
-        </div>
-      </div>
       <div class="wallet flex align-center justify-center"
         on:click={() => disconnectWallet()}>
         <img width="100%" height="auto" 
           src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
           alt={`${$WALLET.name} Logo`}
         />
-        <span class="text-gradient">
+        <span>
           {shortenPubkey($WALLET.publicKey.toString(), 4)}
         </span>
       </div>
@@ -176,19 +119,15 @@
   </div>
   <div class="bottom flex align-center justify-evenly">
     {#if $WALLET && $ASSETS}
-      <div class="copilot flex align-center justify-center" 
-        on:click={() => generateCopilotSuggestion()}>
-        <img width="100%" height="auto" 
-          src="img/copilot/copilot.png" 
-          alt="Copilot Icon" 
-        />
-      </div>
       <div class="wallet flex align-center justify-center"
         on:click={() => disconnectWallet()}>
         <img width="100%" height="auto" 
           src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
           alt={`${$WALLET.name} Logo`}
         />
+        <span>
+          {shortenPubkey($WALLET.publicKey.toString(), 4)}
+        </span>
       </div>
     {/if}
   </div>
@@ -220,37 +159,25 @@
     height: 80px;
     cursor: pointer;
   }
-  .expanded .wallet, .expanded .copilot {
-    width: 100px;
-  }
-  .wallet, .copilot {
+  .wallet {
     width: 100%;
     cursor: pointer;
     margin: var(--spacing-sm) auto;
   }
-  .wallet img, .copilot img {
+  .wallet img {
     margin: 0 var(--spacing-xs);
   }
-  .copilot span, .wallet span {
+  .wallet span {
     margin: 0 2px;
   }
-  .nav-toggle-container  {
+  .top, .bottom {
     width: 100%;
-  }
-  .top, .bottom, .bottom-buttons, .bottom-expand {
-    width: 100%;
-  }
-  .bottom-buttons {
-    padding: var(--spacing-sm) 0;
   }
   .bottom-expand {
+    width: 100%;
     padding: var(--spacing-md) 0 var(--spacing-xs) 0;
     border-top: 2px solid var(--grey);
     cursor: pointer;
-  }
-  span {
-    font-weight: bold;
-    font-size: 10px;
   }
 
   @media screen and (max-width: 1100px) {
@@ -260,11 +187,8 @@
     .tablet {
       display: flex;
     }
-    .wallet, .copilot {
+    .wallet {
       width: 35px;
-    }
-    .nav-toggle-container  {
-      width: 60px;
     }
     .top, .bottom {
       width: 50%;

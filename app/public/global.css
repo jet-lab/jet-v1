@@ -15,10 +15,12 @@
 /* General styling & root variables */
 :root {
   --black: #444444;
+  --dark-grey: #949494;
   --grey: #d8dfec;
-	--white: #e6edf7; /* e4ebf5 */
-	--jet-green: #3d9e83; /* 53bd9f */
-	--jet-blue: #278db6; /* 32a5d3 */
+  --light-grey: #e1e7f1;
+	--white: #e5ebf4;
+	--jet-green: #3d9e83; /* brand: 53bd9f */
+	--jet-blue: #278db6; /* brand: 32a5d3 */
   --success: #53bd9f;
   --failure: #ec6a69;
 
@@ -27,19 +29,19 @@
 
   --light-shadow: rgba(255, 255, 255, 0.8);
   --dark-shadow: rgba(175, 186, 214, 0.8);
-  --neu-shadow: -2px -2px 4px var(--light-shadow), 2px 2px 4px var(--dark-shadow);
-  --neu-shadow-inset: inset -2px -2px 2.5px var(--light-shadow), inset 2px 2px 2.5px var(--dark-shadow);
-  --neu-shadow-inset-low: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
-  --neu--datatable-top-shadow: -2px -3px 4px var(--light-shadow), 2px 2px 4px var(--dark-shadow);
-  --neu--datatable-bottom-shadow: -2px 0px 4px var(--light-shadow), 2px 3px 4px var(--dark-shadow);
+  --neu-shadow: -1.75px -1.75px 3.5px var(--light-shadow), 1.75px 1.75px 3.5px var(--dark-shadow);
+  --neu-shadow-inset: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
+  --neu-shadow-inset-low: inset -1px -1px 1.5px var(--light-shadow), inset 1px 1px 1.5px var(--dark-shadow);
+  --neu--datatable-top-shadow: -1.5px -2px 3.5px var(--light-shadow), 1.5px 1.5px 3.5px var(--dark-shadow);
+  --neu--datatable-bottom-shadow: -3px 0px 2px var(--light-shadow), 1.5px 2.5px 3.5px var(--dark-shadow);
   --neu-datatable-inset-shadow: inset -1px -1px 1px var(--light-shadow), inset 1px 1px 1px var(--dark-shadow) !important;
   --neu-datatable-shadow: inset -1px -1px 1px var(--dark-shadow), inset 1px 1px 1px var(--light-shadow) !important;
   --neu-shadow-inset-success: inset -2px -2px 2px #78d6bb, inset 2px 2px 2px #28866c;
   --neu-shadow-inset-failure: inset -2px -2px 2px #f58d8d, inset 2px 2px 2px #c94646;
-  --neu-shadow-inset-gradient: inset -2px -2px 2.5px #75d3f8, inset 2px 2px 2.5px #28866c;
-  --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #75d3f8, inset 1.5px 1.5px 2px #28866c;
+  --neu-shadow-inset-gradient: inset -2px -2px 2.5px #36a3ce, inset 2px 2px 2.5px #28866c;
+  --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #36a3ce, inset 1.5px 1.5px 2px #28866c;
 
-  --disabled-opacity: 0.8;
+  --disabled-opacity: 0.85;
 
   --nav-width: 60px;
   --mobile-nav-height: 60px;
@@ -55,6 +57,7 @@
   --round-radius: 50px;
   --btn-radius: 7px;
   --btn-padding: 7px 20px 5px 20px;
+  --secondary-btn-padding: 7px 10px 5px 10px;
 }
 ::-webkit-scrollbar {
   display: none !important;
@@ -93,7 +96,7 @@ a, i {
 }
 span {
   opacity: 0.85;
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
   max-width: 400px;
 }
@@ -179,7 +182,7 @@ input {
   box-shadow: var(--neu-shadow-inset);
   background: var(--grey);
   color: var(--input-color);
-  border-radius: var(--btn-radius);
+  border-radius: 50px;
   font-size: 20px;
   border: none;
 }
@@ -250,8 +253,8 @@ input[type=number] {
   height: 43px;
   border: 2px solid var(--white);
   border-left: none;
-  border-top-right-radius: var(--btn-radius);
-  border-bottom-right-radius: var(--btn-radius);
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
   padding: 0 var(--spacing-md);
   cursor: pointer;
 }
@@ -284,8 +287,8 @@ input[type=number] {
   margin: var(--spacing-md) var(--spacing-lg);
 }
 .view-title {
-  font-family: 'Bicyclette', 'Roboto', sans-serif; 
-  font-size: 26px;
+  font-family: 'Bicyclette-Bold', 'Roboto', sans-serif; 
+  font-size: 35px;
   letter-spacing: 5px;
   margin: var(--spacing-md) 0 0 0;
 }
@@ -361,6 +364,58 @@ input[type=number] {
   font-size: 12px;
 }
 
+/* Dropdown Select component overrides */
+.dropdown-select {
+  position: relative;
+  width: 100px;
+  margin: var(--spacing-xs) 0;
+}
+.dropdown-select input {
+  box-shadow: var(--neu-shadow) !important;
+  padding: 2px var(--spacing-md) !important;
+  height: 30px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+.dropdown-select .selectedItem {
+  font-size: 14px !important;
+  padding: var(--spacing-sm) var(--spacing-sm) !important;
+}
+.dropdown-select .selectContainer {
+  border: unset !important;
+  background: var(--white) !important;
+  padding: var(--spacing-xs) var(--spacing-sm) !important;
+}
+.dropdown-select .listContainer {
+  width: 124px !important;
+  max-height: 200px !important;
+  box-shadow: var(--neu-shadow) !important;
+  padding: unset!important;
+  background: var(--white) !important;
+  border-radius: var(--btn-radius) !important;
+  overflow-y: scroll !important;
+}
+.dropdown-select .item {
+  font-size: 14px !important;
+  background: var(--white) !important;
+  color: var(--black) !important;
+  padding: 0 var(--spacing-lg) !important;
+}
+.dropdown-select .item:hover, .dropdown-select .item.hover {
+  background: var(--gradient) !important;
+  color: var(--white) !important;
+  cursor: pointer !important;
+}
+.dropdown-select .clearSelect {
+  display: none !important;
+}
+.dropdown-select i {
+  position: absolute;
+  top: 9px;
+  right: -17px;
+  opacity: var(--disabled-opacity);
+}
+
 /* Divider */
 .divider {
   width: 98%;
@@ -388,25 +443,7 @@ input[type=number] {
   margin: unset !important;
   border-top: var(--spacing-xs) solid var(--white) !important;
 }
-.dt-search {
-  margin-left: var(--spacing-sm) !important;
-  width: calc(100% - (var(--spacing-sm) * 2)) !important;
-  overflow: hidden !important;
-  border-radius: var(--border-radius) !important;
-  box-shadow: var(--neu-shadow-inset-low) !important;
-  background: var(--grey) !important;
-}
-.dt-search input {
-  margin: -1px 0 0 -5px !important;
-  line-height: 25px !important;
-  width: 100% !important;
-  padding: calc(var(--spacing-xs) * 1.25) var(--spacing-lg) var(--spacing-xs) calc(var(--spacing-lg) * 2.25) !important;
-  border: none !important;
-  color: var(--input-color) !important;
-  font-size: 13px !important;
-  box-shadow: unset !important;
-}
-.datatable th {
+.dt-table th {
   min-width: 60px !important;
   font-weight: bold !important;
   font-size: 10px !important;
@@ -414,37 +451,36 @@ input[type=number] {
   text-transform: uppercase !important;
   border-radius: var(--border-radius) !important;
   text-align: center !important;
-  cursor: pointer !important;
 }
-.datatable th:first-of-type {
+.dt-table th:first-of-type {
   text-align: left !important;
   min-width: 100px !important;
 }
-.datatable th:last-of-type, .datatable .native-toggle {
+.dt-table th:last-of-type, .dt-table .native-toggle {
   min-width: unset !important;
 }
-.datatable tr {
+.dt-table tr {
   border-radius: var(--round-radius) !important;
   cursor: pointer !important;
 }
-.datatable tr td:first-of-type, .datatable th:first-of-type {
+.dt-table tr td:first-of-type, .dt-table th:first-of-type {
   padding-left: var(--spacing-lg) !important;
 }
-.datatable tr:hover {
+.dt-table tr:hover {
   box-shadow: var(--neu-datatable-shadow) !important;
   background: var(--grey) !important;
 }
-.datatable tr:active, .datatable tr.active {
+.dt-table tr:active, .dt-table tr.active {
   box-shadow: var(--neu-datatable-inset-shadow) !important;
   background: var(--grey) !important;
 }
 /* fix for mozilla grey background overflow */
 @-moz-document url-prefix() {
-  .datatable tr:hover, .datatable tr.active {
+  .dt-table tr:hover, .dt-table tr.active {
     background: var(--white) !important;
   }
 }  
-.datatable td {
+.dt-table td {
   position: relative !important;
   font-size: 15px !important;
   border-radius: unset !important;
@@ -453,16 +489,16 @@ input[type=number] {
   text-align: center !important;
   cursor: pointer !important;
 }
-.datatable td:first-of-type {
+.dt-table td:first-of-type {
   border-top-left-radius: var(--round-radius) !important;
   border-bottom-left-radius: var(--round-radius) !important;
   text-align: left !important;
 }
-.datatable td:last-of-type {
+.dt-table td:last-of-type {
   border-top-right-radius: var(--round-radius) !important;
   border-bottom-right-radius: var(--round-radius) !important;
 }
-.datatable .reserve-detail {
+.dt-table .reserve-detail {
   font-size: 12px !important;
   font-family: 'Bicyclette-Bold', 'Roboto', sans-serif;
   text-transform: uppercase;
@@ -471,7 +507,7 @@ input[type=number] {
   -webkit-text-fill-color: transparent !important;
   padding-bottom: calc(var(--spacing-md) - 4px) !important;
 }
-.datatable td.text-gradient {
+.dt-table td.text-gradient {
   font-size: 12px !important;
   font-weight: 500 !important;
   background-image: var(--gradient) !important;
@@ -479,76 +515,61 @@ input[type=number] {
   -webkit-text-fill-color: transparent !important;
   padding-bottom: calc(var(--spacing-md) - 4px) !important;
 }
-.datatable-divider {
-  width: 2000% !important;
-  height: 1px !important;
-  background: var(--gradient) !important;
-  margin: var(--spacing-xs) 0 !important;
-  padding: unset !important;
-}
-.datatable .datatable-border-right {
+.dt-table .datatable-border-right {
   border-right: 1px solid var(--grey) !important;
 }
-.datatable tr:hover .datatable-border-right, .datatable tr.active .datatable-border-right {
+.dt-table tr:hover .datatable-border-right, .dt-table tr.active .datatable-border-right {
   border-right: 1px solid var(--white) !important;
 }
-.datatable .search {
-  position: absolute !important;
-  top: 23px !important;
-  left: 24px !important;
-  padding-left: 1px !important;
-  font-size: 15px !important;
-  opacity: 0.85 !important;
-}
-.datatable .dt-asset span, .datatable .dt-asset img {
+.dt-table .dt-asset span, .dt-table .dt-asset img {
   opacity: 1 !important;
   position: absolute !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
   left: 45px !important;
 }
-.datatable .dt-asset img {
-  height: 20px !important;
+.dt-table .dt-asset img {
+  height: 25px !important;
   width: auto !important;
-  left: 20px !important;
+  left: 15px !important;
 }
-.datatable .dt-asset span:first-of-type {
+.dt-table .dt-asset span:first-of-type {
   top: 20px !important;
 }
-.datatable .dt-asset span:last-of-type {
+.dt-table .dt-asset span:last-of-type {
   opacity: var(--disabled-opacity) !important;
-  font-size: 10px !important;
-  top: 32px !important;
+  font-size: 11px !important;
+  top: 34px !important;
 }
 .datatable-spacer td {
   padding: calc(var(--spacing-xs) / 3) 0 !important;
 }
-.datatable tr.datatable-spacer:hover, .datatable-spacer:hover td {
+.dt-table tr.datatable-spacer:hover, .datatable-spacer:hover td {
   background: var(--white) !important;
 }
-.datatable tr .jet-icons {
+.dt-table tr .jet-icons {
   opacity: 0 !important;
   margin-right: var(--spacing-lg) !important;;
 }
-.datatable tr:hover .jet-icons {
+.dt-table tr:hover .jet-icons {
   opacity: 1 !important;
 }
-.datatable .faucet {
+.dt-table .faucet {
   opacity: var(--disabled-opacity) !important;
 }
-.datatable .faucet:hover {
+.dt-table .faucet:hover {
   opacity: 1 !important;
 }
-.datatable .info {
+.dt-table .info {
   margin-left: 0px !important;
 }
-.datatable .dt-balance {
+.dt-table .dt-balance {
   opacity: 1 !important;
   background-image: var(--gradient) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
-.datatable .dt-bold {
+.dt-table .dt-bold {
   font-weight: 500 !important;
 }
 .dt-pagination-buttons button {
@@ -567,21 +588,80 @@ input[type=number] {
   color: var(--black) !important;
   background: unset !important;
 }
+.datatable .search {
+  position: absolute !important;
+  top: 23px !important;
+  left: 24px !important;
+  padding-left: 1px !important;
+  font-size: 15px !important;
+  opacity: 0.85 !important;
+}
+.dt-search {
+  margin-left: var(--spacing-sm) !important;
+  width: calc(100% - (var(--spacing-sm) * 2)) !important;
+  overflow: hidden !important;
+  border-radius: var(--border-radius) !important;
+  box-shadow: var(--neu-shadow-inset-low) !important;
+  background: var(--grey) !important;
+}
+.dt-search input {
+  margin: -1px 0 0 -5px !important;
+  line-height: 25px !important;
+  width: 100% !important;
+  padding: calc(var(--spacing-xs) * 1.25) var(--spacing-lg) var(--spacing-xs) calc(var(--spacing-lg) * 2.25) !important;
+  border: none !important;
+  color: var(--input-color) !important;
+  font-size: 13px !important;
+  box-shadow: unset !important;
+}
+.datatable-divider {
+  width: 2000% !important;
+  height: 1px !important;
+  background: var(--gradient) !important;
+  margin: var(--spacing-xs) 0 !important;
+  padding: unset !important;
+}
+/* Transaction Logs datatable overrides */
 .transaction-logs .datatable {
   padding: unset !important;
   box-shadow: unset !important;
 }
-.transaction-logs .datatable td {
-  min-width: 125px !important;
+.transaction-logs .dt-table td, .transaction-logs .dt-table th {
+  min-width: 90px !important;
 }
-.transaction-logs .datatable td:last-of-type {
+.transaction-logs .dt-table td:last-of-type, .transaction-logs .dt-table th:last-of-type {
   min-width: 30px !important;
 }
-.transaction-logs .datatable tr:hover {
-  box-shadow: var(--neu-shadow-inset-low) !important;
+.transaction-logs .dt-table td.asset, .transaction-logs .dt-table th.asset {
+  min-width: 150px !important;
 }
-.transaction-logs .datatable tr .jet-icons {
+.transaction-logs .dt-table tr:hover {
+  box-shadow: var(--neu-datatable-shadow) !important;
+}
+.transaction-logs .dt-table tr:active {
+  box-shadow: var(--neu-datatable-inset-shadow) !important;
+}
+.transaction-logs .dt-table tr .jet-icons {
   margin-right: unset !important;
+}
+.transaction-logs .dt-table tr.datatable-spacer:hover, .transaction-logs .datatable-spacer:hover td {
+  background: var(--white) !important;
+  box-shadow: unset !important;
+}
+.transaction-logs .dt-pagination {
+  position: absolute !important;
+  bottom: -80px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+}
+.transaction-logs aside b {
+  font-weight: unset !important;
+}
+.transaction-logs .dt-pagination-buttons button {
+  color: var(--jet-green) !important;
+}
+.transaction-logs .dt-pagination-buttons button:first-of-type, .transaction-logs .dt-pagination-buttons button:last-of-type {
+  display: none;
 }
 
 /* Tablet/Mobile styling */
@@ -622,11 +702,11 @@ input[type=number] {
     align-items: flex-start;
   }
   .view-title {
-    margin: var(--spacing-md) 0 0 var(--spacing-md);
+    font-size: 20px;
   }
   .view-header {
-    font-size: 30px;
-    line-height: 30px;
+    font-size: 40px;
+    line-height: 40px;
   }
   .view-header span {
     font-size: 20px;

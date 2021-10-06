@@ -3,7 +3,7 @@
     "loading": {
         "transactions": "Транзакции отправляются...",
         "connectingWallet": "Кошелёк подключается...",
-        "initializing": "Starting Jet Engines",
+        "initializing": "Завести Jet двигатели",
         "fetchingReserves": "Fetching Reserve Data",
         "fetchingAccount": "Fetching Account Data"
     },
@@ -12,7 +12,7 @@
         "settings": "Настройки",
         "collapse": "Свернуть",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Disconnect Wallet",
+        "disconnectWallet": "Отключить кошелёк",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -56,7 +56,7 @@
         "noMarket": "площадка Jet не смогла запуститься.",
         "txSuccess": "Успез! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
         "txFailed": "Транзакция не прошла. Мы не уверены, что пошло не так. Попробуйте еще раз позже или свяжитесь с нами.",
-        "max": "Max",
+        "max": "Максимум",
         "assetIsCurrentBorrow": "Вы одолжили {{ASSET}}, поэтому не можете его внести на депозит",
         "belowMinCRatio": "У вас недостаточно средств в залоге. Пополните залог или верните долг чтобы избежать ликвидации.",
         "search": "Поиск валюты",
@@ -65,8 +65,8 @@
         "noDepositsForWithdraw": "Вы не внесли на депозит {{ASSET}} чтобы вывести",
         "noDebtForRepay": "Вы не дожны {{ASSET}}.",
         "rejectTrade": "Сделка понизит ваш коэфициент залог {{NEW-C-RATIO}}%, что будет ниже \n минимального уровня {{JET MIN C-RATIO}}.",
-        "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
-        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "insufficientLamports": "Вы пытаетесь внести на депозит все Sol. У Вас не останется \"лампорт\" на комиссию. Уменьшите сумму Sol и попытайтесь снова ",
+        "stillUndercollateralized": "Ваш новый К-рейтинг {{NEW-C-RATIO}}% ниже минимального уровня на Jet's протоколе-  {{JET MIN C-RATIO}}%. Пожалуйста, оплатите больше, чтобы избежать ликвидации."
     },
     "settings": {
         "title": "Настройки",
@@ -77,11 +77,11 @@
         "light": "Светлая",
         "dark": "Тёмная",
         "language": "Язык",
-        "rpcNode": "RPC Node",
-        "current": "Current",
+        "rpcNode": "RPC нода",
+        "current": "Текущий",
         "defaultNode": "Jet Default",
-        "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "reset": "Перезагрузка",
+        "noUrl": "Ввести URL"
     },
     "reserveDetail": {
         "reserveSize": "Размер резерва",
@@ -135,15 +135,20 @@
             "airdropSuccess": "Вы получили Airdrop {{UI AMOUNT}} {{RESERVE ABBREV}}.\nПожалуйста, обновите страницу чтобы увидеть новый баланс.",
             "refresh": "Обновить",
             "originationFee": "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
-            "headsup": "Heads up!"
+            "headsup": "Внимание!"
         }
     },
     "transactions": {
         "title": "Flight Logs",
-        "date": "Date",
-        "signature": "Signature",
-        "tradeAction": "Transaction",
-        "tradeAmount": "Amount",
-        "noTrades": "You have no logged transactions with Jet."
+        "date": "Дата",
+        "signature": "Подпись",
+        "tradeAction": "Транзакция",
+        "tradeAmount": "Сумма",
+        "noTrades": "У Вас нету зарегистрированных транзакций в Jet",
+        "entries": "Showing {start} to {end} of {rows} entries",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "borrow": "Borrow",
+        "repay": "Repay"
     }
 }

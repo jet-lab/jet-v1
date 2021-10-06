@@ -71,7 +71,7 @@
     "settings": {
         "title": "设定",
         "wallet": "钱包",
-        "connect": "连结",
+        "connect": "连结钱包",
         "worldOfDefi": "连结到 DeFi 世界",
         "theme": "模式",
         "light": "明亮",
@@ -139,11 +139,16 @@
         }
     },
     "transactions": {
-      "title": "飞行日志",
-      "date": "日期",
-      "signature": "签章",
-      "tradeAction": "交易",
-      "tradeAmount": "金额",
-      "noTrades": "您在 Jet 没有交易的记录。"
+        "title": "飞行日志",
+        "date": "日期",
+        "signature": "签章",
+        "tradeAction": "交易",
+        "tradeAmount": "金额",
+        "noTrades": "您在 Jet 没有交易的记录。",
+        "entries": "显示 {start} 到 {end} 的 {row} 条目",
+        "deposit": "存款",
+        "withdraw": "借贷",
+        "borrow": "借贷",
+        "repay": "偿还"
     }
 }
