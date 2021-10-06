@@ -65,12 +65,6 @@ export const getLocale = async (): Promise<void> => {
   return;
 };
 
-// Update language store and preference
-export const updateLanguage = (language: string): void => {
-  PREFERRED_LANGUAGE.set(language);
-  localStorage.setItem('jetPreferredLanguage', language);
-};
-
 // Banned countries
 export const geoBannedCountries = [
   {

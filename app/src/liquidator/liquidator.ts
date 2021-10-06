@@ -1,6 +1,6 @@
 import { rollbar } from '../scripts/jet';
 import { parseObligationAccount } from "../scripts/programUtil";
-import { timeout } from "../scripts/utils";
+import { timeout } from "../scripts/util";
 import { liquidateObligation } from "./liquidateObligation";
 import { setupEnv } from "./setupEnv";
 const yargs = require('yargs/yargs')

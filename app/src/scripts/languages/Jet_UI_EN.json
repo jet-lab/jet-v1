@@ -81,7 +81,9 @@
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "noUrl": "Enter a URL",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "Reserve Size",
@@ -135,7 +137,9 @@
             "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
-            "headsup": "Heads up!"
+            "headsup": "Heads up!",
+            "disclaimer": "",
+            "accept": "Accept"
         }
     },
     "transactions": {
@@ -145,7 +149,7 @@
       "tradeAction": "Transaction",
       "tradeAmount": "Amount",
       "noTrades": "You have no logged transactions with Jet.",
-      "entries": "Showing {start} to {end} of {rows} entries",
+      "entries": "{start} to {end} of {rows}",
       "deposit": "Deposit",
       "withdraw": "Withdraw",
       "borrow": "Borrow",

@@ -2,7 +2,7 @@
   import { fade, fly } from 'svelte/transition';
   import { navigate } from 'svelte-navigator';
   import { NOTIFICATIONS } from '../store';
-  import { clearNotification } from '../scripts/utils';
+  import { clearNotification } from '../scripts/util';
 </script>
 
 {#if $NOTIFICATIONS.length}

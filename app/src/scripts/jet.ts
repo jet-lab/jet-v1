@@ -6,10 +6,10 @@ import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } fro
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
 import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
-import { MARKET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE, PREFERRED_LANGUAGE } from '../store';
+import { MARKET, CONNECT_WALLET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE, PREFERRED_LANGUAGE, COPILOT } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
-import { Amount, TokenAmount } from './utils';
+import { Amount, TokenAmount } from './util';
 import { dictionary } from './localization';
 import { Buffer } from 'buffer';
 
@@ -31,6 +31,7 @@ let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
 let coder: anchor.Coder;
 let preferredLanguage: string;
+let preferredNode: string | null;
 WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
@@ -39,6 +40,7 @@ CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
 ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
 ANCHOR_CODER.subscribe(data => coder = data);
 PREFERRED_LANGUAGE.subscribe(data => preferredLanguage = data);
+PREFERRED_NODE.subscribe(data => preferredNode = data);
 
 // Development / Devnet identifier
 export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
@@ -71,8 +73,7 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
   // Establish web3 connection
   const idlMetadata = parseIdlMetadata(idl.metadata);
-  const preferredNode = localStorage.getItem('jetPreferredNode');
-  PREFERRED_NODE.set(preferredNode);
+  PREFERRED_NODE.set(localStorage.getItem('jetPreferredNode'));
   coder = new anchor.Coder(idl);
 
   // Establish and test web3 connection
@@ -149,6 +150,9 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
   // Subscribe to market 
   await subscribeToMarket(idlMetadata, connection, coder);
+
+  // Prompt user to connect wallet
+  CONNECT_WALLET.set(true);
 };
 
 // Connect to user's wallet
@@ -193,9 +197,24 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
     WALLET_INIT.set(true);
+
+    // Must accept disclaimer upon mainnet launch
+    const accepted = localStorage.getItem('jetDisclaimer');
+    if (!accepted) {
+      COPILOT.set({
+        alert: {
+          good: false,
+          header: dictionary[preferredLanguage].copilot.alert.headsup,
+          text: dictionary[preferredLanguage].copilot.alert.disclaimer,
+          action: {
+            text: dictionary[preferredLanguage].copilot.alert.accept,
+            onClick: () => localStorage.setItem('jetDisclaimer', 'true')
+          }
+        }
+      });
+    }
   });
   await wallet.connect();
-  return;
 };
 
 // Get Jet transactions and associated UI data
@@ -209,11 +228,12 @@ export const getTransactionLogs = async (): Promise<void> => {
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  const solanaConnection = inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/') : connection;
-  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
+  const transactionConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
+    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
+  const sigs = await transactionConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
   for (let sig of sigs) {
     // Get confirmed transaction from each signature
-    const log = await solanaConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
+    const log = await transactionConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
     // Use log messages to only surface transactions that utilize Jet
     for (let msg of log.meta.logMessages) {
       if (msg.indexOf(idl.metadata.address) !== -1) {

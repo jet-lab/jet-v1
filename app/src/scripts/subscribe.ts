@@ -8,7 +8,7 @@ import { parsePriceData } from "@pythnetwork/client";
 import type { Asset, AssetStore, IdlMetadata, Market, Reserve } from "../models/JetTypes";
 import { ASSETS, MARKET, PING } from "../store";
 import { getAccountInfoAndSubscribe, getMintInfoAndSubscribe, getTokenAccountAndSubscribe, parseMarketAccount, parseObligationAccount, parseReserveAccount, SOL_DECIMALS, getCcRate, getBorrowRate, getDepositRate } from "./programUtil";
-import { TokenAmount } from "./utils";
+import { TokenAmount } from "./util";
 import { MarketReserveInfoList } from "./layout";
 
 let assetStore: AssetStore | null;

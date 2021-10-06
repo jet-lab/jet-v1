@@ -41,7 +41,7 @@
   p {
     font-weight: bold;
     text-transform: uppercase;
-    font-size: 9px;
+    font-size: 10.5px;
     margin: 0 0 -2px 0;
   }
   a:active {

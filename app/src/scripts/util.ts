@@ -1,7 +1,7 @@
 import { BN } from '@project-serum/anchor';
 import type { AccountInfo as TokenAccountInfo, MintInfo, u64 } from '@solana/spl-token';
 import type { Market, AssetStore, Obligation, Notification } from '../models/JetTypes';
-import { MARKET, ASSETS, DARK_THEME, WALLET, WALLET_INIT, NOTIFICATIONS } from '../store';
+import { MARKET, ASSETS, DARK_THEME, WALLET, WALLET_INIT, NOTIFICATIONS, TRANSACTION_LOGS, CONNECT_WALLET } from '../store';
 
 let wallet: any;
 let market: Market | null;
@@ -28,7 +28,9 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--jet-green', '#53bd9f');
     document.documentElement.style.setProperty('--jet-blue', '#32a5d3');
     document.documentElement.style.setProperty('--black', '#ffffff');
+    document.documentElement.style.setProperty('--dark-grey', '#e1e7f1');
     document.documentElement.style.setProperty('--grey', '#504f4f');
+    document.documentElement.style.setProperty('--light-grey', '#494848');
     document.documentElement.style.setProperty('--white', '#444444');
     document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 0.8)');
@@ -37,8 +39,10 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--jet-green', '#3d9e83');
     document.documentElement.style.setProperty('--jet-blue', '#278db6');
     document.documentElement.style.setProperty('--black', '#1a495e');
-    document.documentElement.style.setProperty('--grey', '#dee4ec');
-    document.documentElement.style.setProperty('--white', '#e6edf7');
+    document.documentElement.style.setProperty('--dark-grey', '#949494');
+    document.documentElement.style.setProperty('--grey', '#d8dfec');
+    document.documentElement.style.setProperty('--light-grey', '#e1e7f1');
+    document.documentElement.style.setProperty('--white', '#e5ebf4');
     document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(175, 186, 214, 0.8)');
     document.documentElement.style.setProperty('--input-color', 'rgba(26, 73, 94, 0.8)');
@@ -57,9 +61,11 @@ export const disconnectWallet = () => {
     wallet.forgetAccounts();
   }
 
+  CONNECT_WALLET.set(true);
   WALLET.set(null);
   ASSETS.set(null);
   WALLET_INIT.set(false);
+  TRANSACTION_LOGS.set([]);
 };
 
 // Format USD or crypto with default or desired decimals

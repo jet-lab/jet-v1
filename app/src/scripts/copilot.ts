@@ -1,6 +1,6 @@
 import type { Market, AssetStore, } from '../models/JetTypes';
 import { COPILOT, MARKET, ASSETS, CURRENT_RESERVE, PREFERRED_LANGUAGE, LIQUIDATION_WARNED } from '../store';
-import { currencyFormatter, getObligationData } from "./utils";
+import { currencyFormatter, getObligationData } from "./util";
 import { dictionary } from './localization';
 
 let market: Market | null;

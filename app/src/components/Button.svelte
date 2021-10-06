@@ -1,15 +1,24 @@
 <script lang="ts">
+  import { PREFERRED_LANGUAGE } from "../store";
+  import { dictionary } from "../scripts/localization";
+
   export let text: string;
+  export let img: string = '';
   export let disabled: boolean = false;
   export let secondary: boolean = false;
   export let small: boolean = false;
   export let error: boolean = false;
+  export let noCaps: boolean = false;
   export let onClick: Function;
 </script>
 
-<button class="bicyclette" class:secondary class:small class:disabled class:error
+<button class="bicyclette flex align-center justify-center"
+  class:secondary class:small class:disabled class:error class:noCaps
   title={text}
   on:click={() => {if(!disabled) onClick()}}>
+  {#if img}
+    <img src={img} alt={dictionary[$PREFERRED_LANGUAGE].settings.wallet} />
+  {/if}
   {text}
 </button>
 
@@ -17,7 +26,6 @@
   button {
     background: var(--gradient);
     color: var(--white);
-    box-shadow: var(--neu-shadow);
     border: none;
     border-radius: var(--btn-radius);
     padding: var(--btn-padding);
@@ -31,16 +39,17 @@
   }
   button:active {
     box-shadow: var(--neu-shadow-inset-gradient-low);
+    opacity: var(--disabled-opacity);
   }
   .secondary {
-    background: transparent;
-    box-shadow: none;
-    border: 1px solid var(--white);
-    border-left: none;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    height: 47px;
-    margin-left: -20px;
+    /* Using #9D9D9D to match grayscaled wallet logo */
+    background: var(--white);
+    border: 1px solid #9D9D9D;
+    padding: var(--secondary-btn-padding);
+    color: #9D9D9D;
+  }
+  .secondary:active {
+    box-shadow: unset;
   }
   .error {
     background: var(--failure);
@@ -53,6 +62,14 @@
   }
   .disabled:active {
     box-shadow: var(--neu-shadow);
+  }
+  .noCaps {
+    text-transform: unset !important;
+  }
+  img {
+    width: 20px;
+    margin-right: var(--spacing-sm);
+    filter: grayscale(1);
   }
 
   @media screen and (max-width: 1100px) {
