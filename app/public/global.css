@@ -554,10 +554,10 @@ input[type=number] {
   min-width: 20px !important;
   font-weight: bold !important;
   transition: unset !important;
-  border-radius: var(--btn-radius) !important;
+  display: none !important;
 }
-.dt-pagination-buttons .active {
-  box-shadow: var(--neu-shadow-inset-low) !important;
+.dt-pagination-buttons .text, .dt-pagination-buttons .active {
+  display: unset !important;
 }
 .dt-pagination-rowcount {
   color: var(--black) !important;
