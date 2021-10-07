@@ -52,7 +52,7 @@
           </th>
           <th>
           <i class="refresh-logs fas fa-sync"
-            style="color: var(--jet-blue);"
+            style="color: var(--jet-blue); font-size: 15px;"
             on:click={() => getTransactionLogs()}>
           </i>
           </th>

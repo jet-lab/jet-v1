@@ -64,6 +64,17 @@
               ({$PING}ms)
             </p>
           {/if}
+          {#if $PREFERRED_NODE}
+          <p class="reset-rpc bicyclette-bold text-gradient"
+            on:click={() => {
+              localStorage.removeItem('jetPreferredNode');
+              PING.set(0);
+              getMarketAndIDL();
+              getTransactionLogs();
+            }}>
+            {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
+          </p>
+        {/if}
         </div>
       </div>
       <div class="submit-input flex align-center justify-center">
@@ -89,16 +100,6 @@
             ➜
           </i>
         </div>
-        {#if $PREFERRED_NODE}
-          <Button small
-            text={dictionary[$PREFERRED_LANGUAGE].settings.reset}
-            onClick={() => {
-              localStorage.removeItem('jetPreferredNode');
-              PING.set(0);
-              getMarketAndIDL();
-              getTransactionLogs();
-            }} />
-        {/if}
       </div>
     </div>
     <div class="divider"></div>
@@ -217,6 +218,10 @@
     border-radius: 50px;
     margin: 0 var(--spacing-xs) 0 var(--spacing-sm);
     opacity: var(--disabled-opacity);
+  }
+  .reset-rpc {
+    margin: var(--spacing-xs) 0 0 var(--spacing-xs);
+    cursor: pointer;
   }
   input {
     width: 200px;

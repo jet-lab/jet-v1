@@ -196,6 +196,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     getTransactionLogs();
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
+    await getMarketAndIDL();
     WALLET_INIT.set(true);
 
     // Must accept disclaimer upon mainnet launch
