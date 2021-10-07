@@ -65,16 +65,16 @@
             </p>
           {/if}
           {#if $PREFERRED_NODE}
-          <p class="reset-rpc bicyclette-bold text-gradient"
-            on:click={() => {
-              localStorage.removeItem('jetPreferredNode');
-              PING.set(0);
-              getMarketAndIDL();
-              getTransactionLogs();
-            }}>
-            {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
-          </p>
-        {/if}
+            <p class="reset-rpc bicyclette-bold text-gradient"
+              on:click={() => {
+                localStorage.removeItem('jetPreferredNode');
+                PING.set(0);
+                getMarketAndIDL();
+                getTransactionLogs();
+              }}>
+              {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
+            </p>
+          {/if}
         </div>
       </div>
       <div class="submit-input flex align-center justify-center">
