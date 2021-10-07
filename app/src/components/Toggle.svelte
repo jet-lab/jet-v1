@@ -74,7 +74,7 @@
   .crypto, .usd {
     width: 50%;
     height: 100%;
-    padding: var(--spacing-xs) 0;
+    padding: 5px 0 4px 0;
   }
   .crypto {
     border-top-left-radius: var(--round-radius);
@@ -91,7 +91,7 @@
   .crypto i, .usd i {
     color: var(--black);
     margin: unset;
-    font-size: 14px;
+    font-size: 16px;
     opacity: var(--disabled-opacity);
   }
   .crypto i {

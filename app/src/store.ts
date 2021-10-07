@@ -1,5 +1,5 @@
 import type * as anchor from '@project-serum/anchor';
-import type { Market, Reserve, AssetStore, Copilot, Locale, CustomProgramError, IdlMetadata, TransactionLog } from './models/JetTypes';
+import type { Market, Reserve, AssetStore, Copilot, Locale, TransactionLog, Notification, CustomProgramError, IdlMetadata } from './models/JetTypes';
 import { writable } from 'svelte/store';
 
 // Writable value stores
@@ -18,9 +18,10 @@ export const DARK_THEME = writable<boolean> (false);
 export const PREFERRED_NODE = writable<string | null> (null);
 export const PING = writable<number> (0);
 export const WALLET_INIT = writable<boolean> (false);
-export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]>([])
-export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection>(undefined);
-export const ANCHOR_CODER = writable<anchor.Coder>(undefined);
-export const IDL_METADATA = writable<IdlMetadata>(undefined);
 export const LIQUIDATION_WARNED = writable<boolean> (false);
 export const INIT_FAILED = writable<{ geobanned: boolean } | null> (null);
+export const NOTIFICATIONS = writable<Notification[]> ([]);
+export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]> ([]);
+export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection> (undefined);
+export const ANCHOR_CODER = writable<anchor.Coder> (undefined);
+export const IDL_METADATA = writable<IdlMetadata> (undefined);

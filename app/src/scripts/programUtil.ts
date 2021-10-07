@@ -523,7 +523,7 @@ const interpolate = (x: number, x0: number, x1: number, y0: number, y1: number):
 
 /** Continuous Compounding Rate 
 */
-export const getCcRate = (reserveConfig: ReserveConfigStruct, outstandingDebt: number, vaultTotal: number, utilRate: number): number => {
+export const getCcRate = (reserveConfig: ReserveConfigStruct, utilRate: number): number => {
   const basisPointFactor = 10000;
   let util1 = reserveConfig.utilizationRate1 / basisPointFactor;
   let util2 = reserveConfig.utilizationRate2 / basisPointFactor;

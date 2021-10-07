@@ -10,6 +10,7 @@
   import Settings from './views/Settings.svelte';
   import Loader from './components/Loader.svelte';
   import Copilot from './components/Copilot.svelte';
+  import Notifications from './components/Notifications.svelte';
 
   let launchUI: boolean = false;
   onMount(async () => {
@@ -43,4 +44,5 @@
     <Loader fullscreen />
   {/if}
   <Copilot />
+  <Notifications />
 </Router>

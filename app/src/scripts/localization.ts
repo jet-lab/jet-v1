@@ -11,6 +11,7 @@ import * as Jet_Definitions_RU from './languages/Jet_Definitions_RU.json';
 import * as Jet_UI_TR from './languages/Jet_UI_TR.json';
 import * as Jet_Definitions_TR from './languages/Jet_Definitions_TR.json';
 
+// Check to see if user's locale is special case of Crimea
 const isCrimea = (locale: Locale): boolean => {
   const postalCode: string = locale?.postal.toString().substring(0, 2);
   if (postalCode === "95" || postalCode === "96" || postalCode === "97" || postalCode === "98") {
