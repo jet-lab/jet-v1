@@ -32,6 +32,8 @@
   --neu-shadow-inset-low: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
   --neu--datatable-top-shadow: -2px -3px 4px var(--light-shadow), 2px 2px 4px var(--dark-shadow);
   --neu--datatable-bottom-shadow: -2px 0px 4px var(--light-shadow), 2px 3px 4px var(--dark-shadow);
+  --neu-datatable-inset-shadow: inset -1px -1px 1px var(--light-shadow), inset 1px 1px 1px var(--dark-shadow) !important;
+  --neu-datatable-shadow: inset -1px -1px 1px var(--dark-shadow), inset 1px 1px 1px var(--light-shadow) !important;
   --neu-shadow-inset-success: inset -2px -2px 2px #78d6bb, inset 2px 2px 2px #28866c;
   --neu-shadow-inset-failure: inset -2px -2px 2px #f58d8d, inset 2px 2px 2px #c94646;
   --neu-shadow-inset-gradient: inset -2px -2px 2.5px #75d3f8, inset 2px 2px 2.5px #28866c;
@@ -425,7 +427,12 @@ input[type=number] {
 .datatable tr td:first-of-type, .datatable th:first-of-type {
   padding-left: var(--spacing-lg) !important;
 }
-.datatable tr:hover, .datatable tr.active {
+.datatable tr:hover {
+  box-shadow: var(--neu-datatable-shadow) !important;
+  background: var(--grey) !important;
+}
+.datatable tr:active, .datatable tr.active {
+  box-shadow: var(--neu-datatable-inset-shadow) !important;
   background: var(--grey) !important;
 }
 /* fix for mozilla grey background overflow */
@@ -434,9 +441,6 @@ input[type=number] {
     background: var(--white) !important;
   }
 }  
-.datatable tr.active {
-  box-shadow: var(--neu-shadow-inset-low) !important;
-}
 .datatable td {
   position: relative !important;
   font-size: 15px !important;
