@@ -469,7 +469,7 @@
     </h1>
     <div class="connect-wallet-btn flex align-center justify-center">
       {#if $WALLET?.publicKey}
-        <Button secondary noCaps
+        <Button secondary noCaps bicyclette={false}
           img={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
           text={shortenPubkey($WALLET.publicKey.toString(), 4) + ' ' + dictionary[$PREFERRED_LANGUAGE].settings.connected.toLowerCase()}
           onClick={() => disconnectWallet()}

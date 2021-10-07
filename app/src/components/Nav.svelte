@@ -64,7 +64,8 @@
         {/if}
       </i>
       {#if expanded}
-        <span class="text-gradient">
+        <span class="bicyclette-bold text-gradient"
+          style="font-size: 10.5px;">
           {dictionary[$PREFERRED_LANGUAGE].nav.collapse.toUpperCase()}
         </span>
       {/if}

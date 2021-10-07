@@ -9,10 +9,11 @@
   export let small: boolean = false;
   export let error: boolean = false;
   export let noCaps: boolean = false;
+  export let bicyclette: boolean = true;
   export let onClick: Function;
 </script>
 
-<button class="bicyclette flex align-center justify-center"
+<button class="flex align-center justify-center" class:bicyclette
   class:secondary class:small class:disabled class:error class:noCaps
   title={text}
   on:click={() => {if(!disabled) onClick()}}>
