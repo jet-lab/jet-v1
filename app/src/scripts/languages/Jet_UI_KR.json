@@ -12,7 +12,6 @@
         "settings": "설정",
         "collapse": "붕괴",
         "getCopilotSuggestion": "부조종사 의견 받기",
-        "disconnectWallet": "지갑 연결 해제",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -81,7 +80,9 @@
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "noUrl": "Enter a URL",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "비축 규모",
@@ -135,7 +136,9 @@
             "airdropSuccess": "{{UI AMOUNT}} {{RESERVE ABBREV}} 에어드랍했습니다. 최신화된 잔액을 보려면 앱을 새로고침하세요.",
             "refresh": "새로고침",
             "originationFee": "이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다.",
-            "headsup": "예의주시하세요!"
+            "headsup": "예의주시하세요!",
+            "disclaimer": "This is experimental software.",
+            "accept": "Accept"
         }
     },
     "transactions": {
@@ -145,7 +148,7 @@
         "tradeAction": "Transaction",
         "tradeAmount": "Amount",
         "noTrades": "You have no logged transactions with Jet.",
-        "entries": "Showing {start} to {end} of {rows} entries",
+        "entries": "{start} to {end} of {rows}",
         "deposit": "Deposit",
         "withdraw": "Withdraw",
         "borrow": "Borrow",

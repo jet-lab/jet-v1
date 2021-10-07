@@ -12,7 +12,6 @@
         "settings": "Настройки",
         "collapse": "Свернуть",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Отключить кошелёк",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -81,7 +80,9 @@
         "current": "Текущий",
         "defaultNode": "Jet Default",
         "reset": "Перезагрузка",
-        "noUrl": "Ввести URL"
+        "noUrl": "Ввести URL",
+        "disconnect": "Отключить кошелёк",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "Размер резерва",
@@ -135,7 +136,10 @@
             "airdropSuccess": "Вы получили Airdrop {{UI AMOUNT}} {{RESERVE ABBREV}}.\nПожалуйста, обновите страницу чтобы увидеть новый баланс.",
             "refresh": "Обновить",
             "originationFee": "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
-            "headsup": "Внимание!"
+            "headsup": "Внимание!",
+            "disclaimer": "This is experimental software.",
+            "accept": "Accept"
+
         }
     },
     "transactions": {
@@ -145,7 +149,7 @@
         "tradeAction": "Транзакция",
         "tradeAmount": "Сумма",
         "noTrades": "У Вас нету зарегистрированных транзакций в Jet",
-        "entries": "Showing {start} to {end} of {rows} entries",
+        "entries": "{start} to {end} of {rows}",
         "deposit": "Deposit",
         "withdraw": "Withdraw",
         "borrow": "Borrow",

@@ -12,7 +12,6 @@
         "settings": "设定",
         "collapse": "缩起",
         "getCopilotSuggestion": "获取副驾驶建议",
-        "disconnectWallet": "断开钱包",
         "transactions": "飞行日志"
     },
     "cockpit": {
@@ -81,7 +80,9 @@
         "current": "当前的",
         "defaultNode": "JET 默认",
         "reset": "重新设定",
-        "noUrl": "输入网址"
+        "noUrl": "输入网址",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "储备规模",
@@ -135,7 +136,9 @@
             "airdropSuccess": "我们已经寄给您 {{AMOUNT}} {{RESERVE ABBREV}}。请更新您到网页。",
             "refresh": "更新网页",
             "originationFee": "这笔贷款会收取 {{ORIGINATION FEE}}% 发起费用.",
-            "headsup": "小心!"
+            "headsup": "小心!",
+            "disclaimer": "This is experimental software.",
+            "accept": "Accept"
         }
     },
     "transactions": {

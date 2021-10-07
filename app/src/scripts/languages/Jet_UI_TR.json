@@ -12,7 +12,6 @@
         "settings": "Ayarlar",
         "collapse": "Kollaps",
         "getCopilotSuggestion": "Yardımcı pilot önerisi alın.",
-        "disconnectWallet": "Cüzdan bağlantısını sonlandır",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -81,7 +80,9 @@
         "current": "Şu andaki",
         "defaultNode": "Jet varsayılan",
         "reset": "Sıfırla",
-        "noUrl": "URL girin"
+        "noUrl": "URL girin",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "Rezerv Büyüklüğü",
@@ -135,7 +136,9 @@
             "airdropSuccess": "Size {{UI AMOUNT}} {{RESERVE ABBREV}} değerindeki varlığı Airdrop'la gönderdik. Yeni bakiyenizi görmek için lütfen uygulamayı yenileyin.",
             "refresh": "Yenile",
             "originationFee": "Bu borca ilişkin {{ORIGINATION FEE}}% kadar oluşturulma komisyonu bulunmaktadır. ",
-            "headsup": "Dikkat buraya!"
+            "headsup": "Dikkat buraya!",
+            "disclaimer": "This is experimental software.",
+            "accept": "Accept"
         }
     },
     "transactions": {
@@ -145,7 +148,7 @@
         "tradeAction": "Transaction",
         "tradeAmount": "Amount",
         "noTrades": "You have no logged transactions with Jet.",
-        "entries": "Showing {start} to {end} of {rows} entries",
+        "entries": "{start} to {end} of {rows}",
         "deposit": "Deposit",
         "withdraw": "Withdraw",
         "borrow": "Borrow",
