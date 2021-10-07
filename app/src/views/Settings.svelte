@@ -43,39 +43,32 @@
       </span>
       <div class="flex align-center justify-start"
         style="padding: var(--spacing-xs) 0;">
-        <div class="flex align-center justify-start">
-          <p>
-            {dictionary[$PREFERRED_LANGUAGE].settings.current}:&nbsp;
+        <p>
+          {$PREFERRED_NODE ?? dictionary[$PREFERRED_LANGUAGE].settings.defaultNode}
+        </p>
+        {#if $PING}
+          <div class="ping-indicator"
+            style={$PING < 1000 
+              ? 'background: var(--success);' 
+                : 'background: var(--failure);'}>
+          </div>
+          <p style={$PING < 1000 
+            ? 'color: var(--success);' 
+              : 'color: var(--failure);'}>
+            ({$PING}ms)
           </p>
-        </div>
-        <div class="flex align-center justify-start">
-          <p>
-           {$PREFERRED_NODE ?? dictionary[$PREFERRED_LANGUAGE].settings.defaultNode}
+        {/if}
+        {#if $PREFERRED_NODE}
+          <p class="reset-rpc bicyclette-bold text-gradient"
+            on:click={() => {
+              localStorage.removeItem('jetPreferredNode');
+              PING.set(0);
+              getMarketAndIDL();
+              getTransactionLogs();
+            }}>
+            {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
           </p>
-          {#if $PING}
-            <div class="ping-indicator"
-              style={$PING < 1000 
-                ? 'background: var(--success);' 
-                  : 'background: var(--failure);'}>
-            </div>
-            <p style={$PING < 1000 
-              ? 'color: var(--success);' 
-                : 'color: var(--failure);'}>
-              ({$PING}ms)
-            </p>
-          {/if}
-          {#if $PREFERRED_NODE}
-            <p class="reset-rpc bicyclette-bold text-gradient"
-              on:click={() => {
-                localStorage.removeItem('jetPreferredNode');
-                PING.set(0);
-                getMarketAndIDL();
-                getTransactionLogs();
-              }}>
-              {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
-            </p>
-          {/if}
-        </div>
+        {/if}
       </div>
       <div class="submit-input flex align-center justify-center">
         <input
@@ -216,16 +209,17 @@
     width: 8px;
     height: 8px;
     border-radius: 50px;
-    margin: 0 var(--spacing-xs) 0 var(--spacing-sm);
+    margin: 0 var(--spacing-xs);
     opacity: var(--disabled-opacity);
   }
   .reset-rpc {
-    margin: var(--spacing-xs) 0 0 var(--spacing-xs);
+    margin: var(--spacing-xs) 0 0 var(--spacing-sm);
     cursor: pointer;
   }
   input {
-    width: 200px;
+    width: 250px;
     padding-left: var(--spacing-lg);
+    padding-right: var(--spacing-lg);
     font-size: 13px;
   }
   span {
