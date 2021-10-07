@@ -9,7 +9,6 @@
     },
     "nav": {
         "cockpit": "Cockpit",
-        "transactions": "Flight Logs",
         "settings": "Settings",
         "collapse": "Collapse",
         "getCopilotSuggestion": "Get Copilot Suggestion",
@@ -67,13 +66,6 @@
         "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. Would you still like to borrow?",
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
         "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
-    },
-    "transactions": {
-      "title": "Flight Logs",
-      "date": "Date",
-      "signature": "Signature",
-      "tradeAction": "Transaction",
-      "tradeAmount": "Amount"
     },
     "settings": {
         "title": "Settings",
@@ -145,8 +137,9 @@
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!",
-            "disclaimer": "This is experimental software.",
-            "accept": "Accept"
+            "disclaimer": "You are accessing the Jet Protocol mainnet. Do not proceed if you are unfamiliar, or do not accept the terms, or the potential for total financial loss. Use of the Jet Protocol may result in complete and total financial losses.",
+            "accept": "Accept",
+            "warning": "WARNING"
         }
     },
     "transactions": {
