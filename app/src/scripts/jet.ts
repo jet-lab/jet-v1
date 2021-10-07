@@ -204,7 +204,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       COPILOT.set({
         alert: {
           good: false,
-          header: dictionary[preferredLanguage].copilot.alert.headsup,
+          header: dictionary[preferredLanguage].copilot.alert.warning,
           text: dictionary[preferredLanguage].copilot.alert.disclaimer,
           action: {
             text: dictionary[preferredLanguage].copilot.alert.accept,

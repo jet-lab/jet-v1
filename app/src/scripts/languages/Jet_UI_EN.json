@@ -146,7 +146,8 @@
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!",
             "disclaimer": "This is experimental software.",
-            "accept": "Accept"
+            "accept": "Accept",
+            "warning": "Warning"
         }
     },
     "transactions": {
