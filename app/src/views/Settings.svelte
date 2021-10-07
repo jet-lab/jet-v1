@@ -163,6 +163,8 @@
       <a href="https://twitter.com/jetprotocol" target="_blank"><i class="text-gradient fab fa-twitter"></i></a>
       <a href="https://discord.gg/RW2hsqwfej" target="_blank"><i class="text-gradient fab fa-discord"></i></a>
       <a href="https://github.com/jet-lab/jet-v1" target="_blank"><i class="text-gradient fab fa-github"></i></a>
+      <a href="https://www.jetprotocol.io/terms-of-use" target="_blank"><i class="text-gradient fas fa-file-contract"></i></a>
+      <a href="https://www.jetprotocol.io/privacy-policy" target="_blank"><i class="text-gradient fas fa-user-secret"></i></a>
     </div>
   </div>
 </div>
