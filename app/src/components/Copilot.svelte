@@ -140,7 +140,7 @@
     width: 70px;
     height: auto;
     margin: var(--spacing-md);
-    padding: 15px;
+    padding: 10px;
     border-radius: 100px;
     background: var(--white);
     box-shadow: var(--neu-shadow-inset);

@@ -87,7 +87,7 @@
   .inner-circle img {
     width: 100%;
     height: auto;
-    animation: rotate 1.25s ease-in-out infinite;
+    animation: rotate 1.15s ease-in-out infinite;
   }
   span {
     position: absolute;

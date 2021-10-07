@@ -14,16 +14,19 @@
   // Datatable Settings
   const tableSettings: any = {
     sortable: false,
-    pagination: false,
+    pagination: true,
+    rowPerPage: 10,
     scrollY: false,
     blocks: {
       searchInput: false
+    },
+    labels: {
+      noRows: dictionary[$PREFERRED_LANGUAGE].transactions.noTrades,
+      info: dictionary[$PREFERRED_LANGUAGE].transactions.entries,
+      previous: '<',
+      next: '>'
     }
   };
-
-  onMount(() => {
-    getTransactionLogs();
-  });
 </script>
 
 <div class="view-container flex justify-center column">

@@ -292,7 +292,7 @@
         });
       }
     // If trade would result in possible undercollateralization, inform user
-  } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') && adjustedRatio < obligation?.colRatio
+  } else if ((obligation?.borrowedValue && adjustedRatio < obligation?.colRatio || $TRADE_ACTION === 'borrow')
       && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {

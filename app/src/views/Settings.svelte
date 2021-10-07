@@ -101,6 +101,7 @@
         {dictionary[$PREFERRED_LANGUAGE].settings.wallet}
       </span>
       <div class="wallet flex align-center justify-center"
+        title={dictionary[$PREFERRED_LANGUAGE].nav.disconnectWallet}
         on:click={() => disconnectWallet()}>
         <img width="28px" height="auto" 
           style="margin-right: var(--spacing-xs);"
