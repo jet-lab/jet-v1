@@ -9,7 +9,7 @@ import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Mar
 import { MARKET, CONNECT_WALLET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE, PREFERRED_LANGUAGE, COPILOT } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
-import { Amount, TokenAmount } from './util';
+import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
 import { Buffer } from 'buffer';
 
@@ -29,9 +29,11 @@ let market: Market;
 let idl: any;
 let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
+let transactionLogConnection: anchor.web3.Connection;
 let coder: anchor.Coder;
 let preferredLanguage: string;
 let preferredNode: string | null;
+let transactionLogs: TransactionLog[] | null;
 WALLET.subscribe(data => wallet = data);
 ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
@@ -41,6 +43,7 @@ ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
 ANCHOR_CODER.subscribe(data => coder = data);
 PREFERRED_LANGUAGE.subscribe(data => preferredLanguage = data);
 PREFERRED_NODE.subscribe(data => preferredNode = data);
+TRANSACTION_LOGS.subscribe(data => transactionLogs = data);
 
 // Development / Devnet identifier
 export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
@@ -220,74 +223,101 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   await wallet.connect();
 };
 
-// Get Jet transactions and associated UI data
+// Get Jet transaction logs and associated UI data on wallet init
 export const getTransactionLogs = async (): Promise<void> => {
-  if (!wallet?.publicKey) {
-    return;
-  }
-
-  // Reset global store
-  TRANSACTION_LOGS.set(null);
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  const transactionConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
+  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
     : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
-  const sigs = await transactionConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
+  const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
   for (let sig of sigs) {
+    //Reset global variable for load
+    TRANSACTION_LOGS.set(null);
     // Get confirmed transaction from each signature
-    const log = await transactionConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
-    // Use log messages to only surface transactions that utilize Jet
-    for (let msg of log.meta.logMessages) {
-      if (msg.indexOf(idl.metadata.address) !== -1) {
-        for (let progInst in INSTRUCTION_BYTES) {
-          for (let inst of log.transaction.instructions) {
-            // Get first 8 bytes from data
-            const txInstBytes = [];
-            for (let i = 0; i < 8; i++) {
-              txInstBytes.push(inst.data[i]);
-            }
-            // If those bytes match any of our instructions label trade action
-            if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
-              log.tradeAction = dictionary[preferredLanguage].transactions[progInst];
-              // Determine asset and trade amount
-              for (let pre of log.meta.preTokenBalances as any[]) {
-                for (let post of log.meta.postTokenBalances as any[]) {
-                  if (pre.mint === post.mint && pre.uiTokenAmount.amount !== post.uiTokenAmount.amount) {
-                    for (let reserve of idl.metadata.reserves) {
-                      if (reserve.accounts.tokenMint === pre.mint) {
-                        log.tokenAbbrev = reserve.abbrev;
-                        log.tokenDecimals = reserve.decimals;
-                        log.tokenPrice = reserve.price;
-                        log.tradeAmount = new TokenAmount(
-                          new BN(post.uiTokenAmount.amount - pre.uiTokenAmount.amount),
-                          reserve.decimals
-                        );
-                      }
+    const log = await transactionLogConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
+    const detailedLog = log ? await getLogDetails(log, sig.signature) : null;
+    if (detailedLog) {
+      txLogs.push(detailedLog);
+    }
+  }
+
+  // Check if user has submitted new trades before all were loaded
+  // Update global store
+  const newerLogs = transactionLogs ?? [];
+  newerLogs.forEach(l => txLogs.push(l));
+  TRANSACTION_LOGS.set(txLogs);
+};
+
+// Get UI data of a transaction log
+export let getLogDetails = async (log: TransactionLog, signature: string): Promise<TransactionLog | undefined> => {
+  // Use log messages to only surface transactions that utilize Jet
+  for (let msg of log.meta.logMessages) {
+    if (msg.indexOf(idl.metadata.address) !== -1) {
+      for (let progInst in INSTRUCTION_BYTES) {
+        for (let inst of log.transaction.instructions) {
+          // Get first 8 bytes from data
+          const txInstBytes = [];
+          for (let i = 0; i < 8; i++) {
+            txInstBytes.push(inst.data[i]);
+          }
+          // If those bytes match any of our instructions label trade action
+          if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
+            log.tradeAction = dictionary[preferredLanguage].transactions[progInst];
+            // Determine asset and trade amount
+            for (let pre of log.meta.preTokenBalances as any[]) {
+              for (let post of log.meta.postTokenBalances as any[]) {
+                if (pre.mint === post.mint && pre.uiTokenAmount.amount !== post.uiTokenAmount.amount) {
+                  for (let reserve of idl.metadata.reserves) {
+                    if (reserve.accounts.tokenMint === pre.mint) {
+                      log.tokenAbbrev = reserve.abbrev;
+                      log.tokenDecimals = reserve.decimals;
+                      log.tokenPrice = reserve.price;
+                      log.tradeAmount = new TokenAmount(
+                        new BN(post.uiTokenAmount.amount - pre.uiTokenAmount.amount),
+                        reserve.decimals
+                      );
                     }
                   }
                 }
               }
-              // Signature
-              log.signature = sig.signature;
-              // UI date
-              log.blockDate = new Date(log.blockTime * 1000).toLocaleDateString();
-              // Explorer URL
-              log.explorerUrl = explorerUrl(log.signature);
-              // If we found mint match, add tx to logs
-              if (log.tokenAbbrev) {
-                txLogs.push(log);
-              }
+            }
+            // Signature
+            log.signature = signature;
+            // UI date
+            log.blockDate = new Date(log.blockTime * 1000).toLocaleDateString();
+            // Explorer URL
+            log.explorerUrl = explorerUrl(log.signature);
+            // If we found mint match, add tx to logs
+            if (log.tokenAbbrev) {
+              return log;
             }
           }
         }
       }
-      // Break messages loop and move onto next signature
-      break;
     }
   }
-  // Update global store
-  TRANSACTION_LOGS.set(txLogs);
+};
+
+// Add new transaction log on trade submit
+export let addTransactionLog = async (signature: string) => {
+  const txLogs = transactionLogs ?? [];
+  //Reset global variable for load
+  TRANSACTION_LOGS.set(null);
+
+  // Keep trying to get confirmed log (may take a few seconds for validation)
+  let log: TransactionLog | null = null;
+  while (!log) {
+    log = await transactionLogConnection.getConfirmedTransaction(signature, 'confirmed') as unknown as TransactionLog | null;
+    timeout(2000);
+  }
+
+  // Get UI details and add to logs store
+  const logDetail = await getLogDetails(log, signature);
+  if (logDetail) {
+    txLogs.push(logDetail);
+    TRANSACTION_LOGS.set(txLogs);
+  }
 };
 
 // Get user token accounts

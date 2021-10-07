@@ -13,7 +13,7 @@
   const tableSettings: any = {
     sortable: false,
     pagination: true,
-    rowPerPage: 10,
+    rowPerPage: 8,
     scrollY: false,
     blocks: {
       searchInput: false

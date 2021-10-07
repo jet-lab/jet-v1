@@ -6,7 +6,7 @@
   import { NATIVE_MINT } from '@solana/spl-token';
   import type { Reserve, Obligation } from '../models/JetTypes';
   import { TRADE_ACTION, MARKET, WALLET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE, WALLET_INIT, INIT_FAILED, LIQUIDATION_WARNED, CONNECT_WALLET } from '../store';
-  import { inDevelopment, airdrop, deposit, withdraw, borrow, repay, getTransactionLogs } from '../scripts/jet';
+  import { inDevelopment, airdrop, deposit, withdraw, borrow, repay, addTransactionLog } from '../scripts/jet';
   import { currencyFormatter, totalAbbrev, addNotification, getObligationData, TokenAmount, Amount, shortenPubkey, disconnectWallet } from '../scripts/util';
   import { generateCopilotSuggestion } from '../scripts/copilot';
   import { dictionary, definitions } from '../scripts/localization'; 
@@ -410,6 +410,7 @@
           .replaceAll('{{TRADE ACTION}}', tradeAction)
           .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount} ${$CURRENT_RESERVE.abbrev}`)
       });
+      addTransactionLog(txid);
       inputAmount = null;
     } else if (!ok && !txid) {
       addNotification({
@@ -421,7 +422,6 @@
 
     updateValues();
     adjustCollateralizationRatio();
-    getTransactionLogs();
     sendingTrade = false;
     return;
   };
