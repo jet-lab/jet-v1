@@ -514,7 +514,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
   let wsolKeypair: Keypair | undefined;
   let createWsolIx: TransactionInstruction | undefined;
   let initWsolIx: TransactionInstruction | undefined;
-  let closeIx: TransactionInstruction | undefined;
+  let closeWsolIx: TransactionInstruction | undefined;
   
   if (asset.tokenMintPubkey.equals(NATIVE_MINT)) {
     // Create a token account to receive wrapped sol.
@@ -527,7 +527,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
     withdrawAccount = wsolKeypair.publicKey;
     createWsolIx = SystemProgram.createAccount({
       fromPubkey: wallet.publicKey,
-      newAccountPubkey: wsolKeypair.publicKey,
+      newAccountPubkey: withdrawAccount,
       programId: TOKEN_PROGRAM_ID,
       space: TokenAccountLayout.span,
       lamports: rent,
@@ -535,7 +535,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
     initWsolIx = Token.createInitAccountInstruction(
       TOKEN_PROGRAM_ID, 
       reserve.tokenMintPubkey, 
-      wsolKeypair.publicKey, 
+      withdrawAccount, 
       wallet.publicKey);
   } else if (!asset.walletTokenExists) {
     // Create the wallet token account if it doesn't exist
@@ -543,7 +543,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
       ASSOCIATED_TOKEN_PROGRAM_ID,
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
-      asset.walletTokenPubkey,
+      withdrawAccount,
       wallet.publicKey,
       wallet.publicKey);
   }
@@ -590,9 +590,9 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
   // Unwrap sol
   if (asset.tokenMintPubkey.equals(NATIVE_MINT) && wsolKeypair) {
-    closeIx = Token.createCloseAccountInstruction(
+    closeWsolIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
-      wsolKeypair.publicKey,
+      withdrawAccount,
       wallet.publicKey,
       wallet.publicKey,
       []);
@@ -612,7 +612,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
         ...refreshReserveIxs,
         withdrawCollateralIx,
         withdrawIx,
-        closeIx,
+        closeWsolIx,
       ].filter(ix => ix) as TransactionInstruction[],
     }
   ];
