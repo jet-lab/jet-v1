@@ -163,6 +163,11 @@
       return;
     }
 
+    // If input is negative, reset to zero
+    if (inputAmount < 0) {
+      inputAmount = 0;
+    }
+    
     if ($TRADE_ACTION === 'deposit') {
       adjustedRatio = (obligation.depositedValue + inputAmount * $CURRENT_RESERVE.price) / (
           obligation.borrowedValue > 0
@@ -177,13 +182,13 @@
         );
     } else if ($TRADE_ACTION === 'borrow') {
       adjustedRatio = obligation.depositedValue / (
-          (obligation.borrowedValue + inputAmount * $CURRENT_RESERVE.price) > 0
+        (obligation.borrowedValue + inputAmount * $CURRENT_RESERVE.price) > 0
             ? (obligation.borrowedValue + ((inputAmount ?? 0) * $CURRENT_RESERVE.price))
               : 1
         );
     } else if ($TRADE_ACTION === 'repay') {
       adjustedRatio = obligation.depositedValue / (
-          (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price) > 0
+        (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price) > 0
             ? (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price)
              : 1
       );
@@ -260,7 +265,7 @@
         }
       });
     // If trade would result in c-ratio below min ratio, inform user and reject
-    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
+  } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
       && adjustedRatio < $MARKET.minColRatio) {
       if (adjustedRatio < obligation?.colRatio) {
         COPILOT.set({
@@ -287,7 +292,7 @@
         });
       }
     // If trade would result in possible undercollateralization, inform user
-    } else if ((obligation?.borrowedValue && adjustedRatio < obligation?.colRatio || $TRADE_ACTION === 'borrow')
+  } else if ((obligation?.borrowedValue && adjustedRatio < obligation?.colRatio || $TRADE_ACTION === 'borrow')
       && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
@@ -365,7 +370,7 @@
         return;
       }
 
-       if ((adjustedRatio && Math.ceil((adjustedRatio * 1000) / 1000) < $MARKET.minColRatio) || tradeAmount > maxBorrowAmounts[$CURRENT_RESERVE.abbrev]) {
+      if ((adjustedRatio && Math.ceil((adjustedRatio * 1000) / 1000) < $MARKET.minColRatio) || tradeAmount > maxBorrowAmounts[$CURRENT_RESERVE.abbrev]) {
         inputAmount = null;
         inputError = dictionary[$PREFERRED_LANGUAGE].cockpit.belowMinCRatio;
         sendingTrade = false;

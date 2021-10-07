@@ -2,12 +2,11 @@
   <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { TRANSACTION_LOGS, PREFERRED_LANGUAGE } from '../store';
   import { getTransactionLogs } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
-  import { dictionary } from '../scripts/localization'; 
+  import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
 
   // Datatable Settings

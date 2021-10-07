@@ -110,9 +110,6 @@ span {
 .info:hover {
   opacity: 1;
 }
-.info:hover {
-  opacity: 1;
-}
 *:focus-visible {
   outline: unset;
 }
