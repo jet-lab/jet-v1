@@ -199,19 +199,21 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     WALLET_INIT.set(true);
 
     // Must accept disclaimer upon mainnet launch
-    const accepted = localStorage.getItem('jetDisclaimer');
-    if (!accepted) {
-      COPILOT.set({
-        alert: {
-          good: false,
-          header: dictionary[preferredLanguage].copilot.alert.warning,
-          text: dictionary[preferredLanguage].copilot.alert.disclaimer,
-          action: {
-            text: dictionary[preferredLanguage].copilot.alert.accept,
-            onClick: () => localStorage.setItem('jetDisclaimer', 'true')
+    if (!inDevelopment) {
+      const accepted = localStorage.getItem('jetDisclaimer');
+      if (!accepted) {
+        COPILOT.set({
+          alert: {
+            good: false,
+            header: dictionary[preferredLanguage].copilot.alert.warning,
+            text: dictionary[preferredLanguage].copilot.alert.disclaimer,
+            action: {
+              text: dictionary[preferredLanguage].copilot.alert.accept,
+              onClick: () => localStorage.setItem('jetDisclaimer', 'true')
+            }
           }
-        }
-      });
+        });
+      }
     }
   });
   await wallet.connect();
