@@ -219,6 +219,11 @@ export class TokenAmount {
 
   // Convert a uiAmount string into lamports BN
   private static tokensToLamports(uiAmount: string, decimals: number) {
+    // Convert from exponential notation (7.46e-7) to regular
+    if(uiAmount.indexOf("e+") !== -1 || uiAmount.indexOf("e-") !== -1) {
+      uiAmount = Number(uiAmount).toLocaleString('fullwide', {useGrouping:false});
+    }
+
     let lamports: string = uiAmount;
 
     // Remove commas
