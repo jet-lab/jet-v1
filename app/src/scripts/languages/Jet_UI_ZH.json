@@ -137,8 +137,9 @@
             "refresh": "更新网页",
             "originationFee": "这笔贷款会收取 {{ORIGINATION FEE}}% 发起费用.",
             "headsup": "小心!",
-            "disclaimer": "This is experimental software.",
-            "accept": "Accept"
+            "disclaimer": "You are accessing the Jet Protocol mainnet. Do not proceed if you are unfamiliar, or do not accept the terms, or the potential for total financial loss. Use of the Jet Protocol may result in complete and total financial losses.",
+            "accept": "Accept",
+            "warning": "WARNING"
         }
     },
     "transactions": {
