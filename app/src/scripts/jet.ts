@@ -210,10 +210,10 @@ export const getTransactionLogs = async (): Promise<void> => {
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
   const solanaConnection = inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/') : connection;
-  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey); 
+  const sigs = await solanaConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
   for (let sig of sigs) {
     // Get confirmed transaction from each signature
-    const log = await solanaConnection.getConfirmedTransaction(sig.signature) as unknown as TransactionLog;
+    const log = await solanaConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
     // Use log messages to only surface transactions that utilize Jet
     for (let msg of log.meta.logMessages) {
       if (msg.indexOf(idl.metadata.address) !== -1) {
