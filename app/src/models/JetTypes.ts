@@ -1,7 +1,7 @@
 import type { AccountInfo, PublicKey, TransactionInstruction } from '@solana/web3.js';
 import type BN from 'bn.js';
 import type WalletAdapter from '../scripts/walletAdapter';
-import type { TokenAmount } from '../scripts/utils';
+import type { TokenAmount } from '../scripts/util';
 
 // Market
 export interface Market {
@@ -46,7 +46,7 @@ export interface JetMarketReserveInfo {
   liquidationBonus: number;
   lastUpdated: BN;
   invalidated: number;
-}
+};
 
 export type CacheReserveInfoStruct = CacheStruct & {
   /** The price of the asset being stored in the reserve account.
@@ -63,7 +63,7 @@ export type CacheReserveInfoStruct = CacheStruct & {
   liquidationBonus: number,
   /** Unused space */
   _reserved: number[],
-}
+};
 
 export interface CacheStruct {
   /** The last slot that this information was updated in */
@@ -72,7 +72,7 @@ export interface CacheStruct {
   invalidated: number,
   /** Unused space */
   _reserved: number[],
-}
+};
 
 // Reserve
 export interface Reserve {
@@ -178,7 +178,7 @@ export type ReserveStateStruct = CacheStruct & {
   totalDepositNotes: BN,
   totalLoanNotes: BN,
   _reserved: number[],
-}
+};
 
 // Obligation
 export interface Obligation {
@@ -215,7 +215,7 @@ export interface ObligationPositionStruct {
   /** The index of the reserve that this position's assets are from */
   reserveIndex: number,
   _reserved: number[],
-}
+};
 
 // Wallet
 export interface WalletProvider {
@@ -319,7 +319,7 @@ export interface TransactionLog {
   tokenAbbrev: string,
   tokenDecimals: number,
   tokenPrice: number
-}
+};
 
 // Web3
 export interface HasPublicKey {

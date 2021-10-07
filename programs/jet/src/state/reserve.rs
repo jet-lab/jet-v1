@@ -248,6 +248,11 @@ impl Reserve {
         state.outstanding_debt -= Number::from(token_amount);
         state.total_loan_notes = state.total_loan_notes.checked_sub(note_amount).unwrap();
         state.total_deposits = state.total_deposits.checked_add(token_amount).unwrap();
+
+        if state.total_loan_notes == 0 && state.outstanding_debt < Number::ONE {
+            // Truncate any leftover fraction from debts
+            state.outstanding_debt = Number::ZERO;
+        }
     }
 
     /// Record an amount of tokens added to the vault which need

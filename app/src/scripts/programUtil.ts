@@ -5,7 +5,7 @@ import { AccountInfo, Commitment, Connection, Context, PublicKey, Signer, Transa
 import { Buffer } from "buffer";
 import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
-import { TokenAmount } from "./utils";
+import { TokenAmount } from "./util";
 import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
 
 // Find PDA functions and jet algorithms that are reimplemented here
@@ -346,11 +346,21 @@ export const sendAllTransactions = async (
   }
 
   // Signing phase
-  let signedTransactions: Transaction[];
+  let signedTransactions: Transaction[] = [];
+
   try {
-    signedTransactions = await provider.wallet.signAllTransactions(txs);
+    //solong does not have a signAllTransactions Func so we sign one by one
+    if (!provider.wallet.signAllTransactions) {
+      for (let i = 0; i < txs.length; i++) {
+        const signedTxn = await provider.wallet.signTransaction(txs[i]);
+        signedTransactions.push(signedTxn);
+      }
+    } else {
+      signedTransactions = await provider.wallet.signAllTransactions(txs);
+    }
   }
-  catch (ex) {
+  catch (err) {
+    console.log('Sign All Transactions Failed', err);
     // wallet refused to sign
     return [false, ['cancelled']];
   }

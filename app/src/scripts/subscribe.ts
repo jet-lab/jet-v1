@@ -8,7 +8,7 @@ import { parsePriceData } from "@pythnetwork/client";
 import type { Asset, AssetStore, IdlMetadata, Market, Reserve } from "../models/JetTypes";
 import { ASSETS, MARKET, PING } from "../store";
 import { getAccountInfoAndSubscribe, getMintInfoAndSubscribe, getTokenAccountAndSubscribe, parseMarketAccount, parseObligationAccount, parseReserveAccount, SOL_DECIMALS, getCcRate, getBorrowRate, getDepositRate } from "./programUtil";
-import { TokenAmount } from "./utils";
+import { TokenAmount } from "./util";
 import { MarketReserveInfoList } from "./layout";
 
 let assetStore: AssetStore | null;
@@ -280,9 +280,10 @@ const deriveValues = (reserve: Reserve, asset: Asset | undefined) => {
       ? reserve.outstandingDebt.uiAmountFloat / reserve.marketSize.uiAmountFloat
         : 0;
 
-  if (asset) {
-    asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
-    asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
-    asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+        if (asset) {
+          asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+          asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+          asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+    }
   }
 };

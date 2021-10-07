@@ -2,7 +2,7 @@
   export let icon: string = '';
   export let text: string = '';
   export let maxWidth: string = '';
-  export let active: boolean;
+  export let active: boolean = false;
   export let native: boolean = false;
   export let onClick: Function;
 </script>
@@ -74,7 +74,7 @@
   .crypto, .usd {
     width: 50%;
     height: 100%;
-    padding: 5px 0 4px 0;
+    padding: 5px 3px;
   }
   .crypto {
     border-top-left-radius: var(--round-radius);
@@ -91,7 +91,7 @@
   .crypto i, .usd i {
     color: var(--black);
     margin: unset;
-    font-size: 16px;
+    font-size: 17px;
     opacity: var(--disabled-opacity);
   }
   .crypto i {

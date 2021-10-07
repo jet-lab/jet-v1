@@ -2,13 +2,11 @@
   <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { Datatable, rows } from 'svelte-simple-datatables';
-  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, WALLET_INIT } from '../store';
+  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE } from '../store';
   import { getTransactionLogs } from '../scripts/jet'; 
-  import { totalAbbrev, shortenPubkey } from '../scripts/utils';
-  import { dictionary } from '../scripts/localization'; 
-  import ConnectWallet from '../components/ConnectWallet.svelte';
+  import { totalAbbrev, shortenPubkey } from '../scripts/util';
+  import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
 
   // Datatable Settings
@@ -35,7 +33,7 @@
   </h1>
   <div class="divider">
   </div>
-  {#if $TRANSACTION_LOGS && $WALLET_INIT}
+  {#if $TRANSACTION_LOGS}
     <div class="transaction-logs flex">
       <Datatable settings={tableSettings} data={$TRANSACTION_LOGS}>
         <thead>
@@ -49,72 +47,66 @@
             style="text-align: center !important;">
             {dictionary[$PREFERRED_LANGUAGE].transactions.tradeAction} 
           </th>
-          <th data-key="tradeAmount">
+          <th data-key="tradeAmount" class="asset">
             {dictionary[$PREFERRED_LANGUAGE].transactions.tradeAmount} 
           </th>
-          <th data-key="">
-            <i class="text-gradient fas fa-sync"
-              on:click={() => getTransactionLogs()}>
-            </i>
+          <th>
+          <i class="refresh-logs fas fa-sync"
+            style="color: var(--jet-blue);"
+            on:click={() => getTransactionLogs()}>
+          </i>
           </th>
         </thead>
         <div class="datatable-divider">
         </div>
         <tbody>
-          {#if $TRANSACTION_LOGS.length}
-            {#each $rows as row, i}
-              <tr class="datatable-spacer">
-                <td><!-- Extra Row for spacing --></td>
-              </tr>
-              <tr on:click={() => window.open($rows[i].explorerUrl, '_blank')}>
-                <td>
-                  {$rows[i].blockDate}
-                </td>
-                <td style="color: var(--success);">
-                  {shortenPubkey($rows[i].signature, 8)}
-                </td>
-                <td class="reserve-detail"
-                  style="text-align: center !important;">
-                  {$rows[i].tradeAction}
-                </td>
-                <td>
-                  {totalAbbrev(
-                    Math.abs($rows[i].tradeAmount.uiAmountFloat),
-                    $rows[i].tokenPrice,
-                    true,
-                    $rows[i].tokenDecimals
-                  )}&nbsp;
-                  {$rows[i].tokenAbbrev}
-                  </td>
-                <td>
-                  <i class="text-gradient jet-icons">
-                    ➜
-                  </i>
-                </td>
-              </tr>
-              <tr class="datatable-spacer">
-                <td><!-- Extra Row for spacing --></td>
-              </tr>
-            {/each}
-          {:else}
-            <tr>
-              <td></td>
+          {#each $rows as row, i}
+            <tr class="datatable-spacer">
+              <td><!-- Extra Row for spacing --></td>
+            </tr>
+            <tr on:click={() => window.open($rows[i].explorerUrl, '_blank')}>
               <td>
-                {dictionary[$PREFERRED_LANGUAGE].transactions.noTrades} 
+                {$rows[i].blockDate}
+              </td>
+              <td style="color: var(--success);">
+                {shortenPubkey($rows[i].signature, 4)}
+              </td>
+              <td class="reserve-detail"
+                style="text-align: center !important;">
+                {$rows[i].tradeAction}
+              </td>
+              <td class="asset">
+                {totalAbbrev(
+                  Math.abs($rows[i].tradeAmount.uiAmountFloat),
+                  $rows[i].tokenPrice,
+                  true,
+                  $rows[i].tokenDecimals
+                )}&nbsp;
+                {$rows[i].tokenAbbrev}
+                </td>
+              <td>
+                <i class="text-gradient jet-icons">
+                  ➜
+                </i>
               </td>
             </tr>
-          {/if}
+          {/each}
         </tbody>
       </Datatable>
     </div>
-  {:else if !$WALLET_INIT}
-    <ConnectWallet />
   {:else}
     <Loader fullview />
   {/if}
 </div>
 
 <style>
+  .transaction-logs {
+    width: 600px;
+    padding: var(--spacing-lg);
+    margin: var(--spacing-lg) 0;
+    box-shadow: var(--neu-shadow);
+    border-radius: var(--border-radius);
+  }
   .transaction-logs th {
     text-align: left !important;
   }
@@ -126,10 +118,18 @@
   .divider {
     max-width: 400px;
   }
+  .refresh-logs {
+    color: var(--jet-blue);
+    cursor: pointer;
+  }
 
   @media screen and (max-width: 1100px) {
     .transaction-logs {
       display: block;
+      width: 100%;
+      padding: unset;
+      margin: unset;
+      box-shadow: unset;
     }
   }
 </style>

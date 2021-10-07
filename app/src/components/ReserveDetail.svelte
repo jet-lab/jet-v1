@@ -2,20 +2,21 @@
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { Reserve } from '../models/JetTypes';
-  import { COPILOT, CURRENT_RESERVE, PREFERRED_LANGUAGE } from '../store';
-  import { currencyFormatter, } from '../scripts/utils';
+  import { CONNECT_WALLET, WALLET, COPILOT, CURRENT_RESERVE, PREFERRED_LANGUAGE, NATIVE} from '../store';
+  import { currencyFormatter, } from '../scripts/util';
   import { dictionary, definitions } from '../scripts/localization';
   import Button from './Button.svelte';
   import PercentageChart from './PercentageChart.svelte';
+  import Toggle from './Toggle.svelte';
 
   export let reserveDetail: Reserve;
   export let updateValues: Function;
-  export let closeReserveDetail: Function;
+  export let closeModal: Function;
 
   onMount(() => {
     document.addEventListener('keypress', (e) => {
       if (e.code === 'Escape' || e.code === 'Enter') {
-        closeReserveDetail();
+        closeModal();
       }
     });
   });
@@ -24,7 +25,7 @@
 {#if reserveDetail}
   <div class="modal-bg flex align-center justify-center"
     transition:fade={{duration: 50}}
-    on:click={() => closeReserveDetail()}>
+    on:click={() => closeModal()}>
   </div>
   <div class="reserve-detail modal flex align-center justify-center column"
     in:fly={{y: 50, duration: 500}}
@@ -42,14 +43,28 @@
         1 {reserveDetail.abbrev} ≈ {currencyFormatter(reserveDetail.price, true, 2)}
       </span>
     </div>
-    <div class="divider">
+    <div class="native-toggle">
+      <div class="divider">
+      </div>
+      <div class="toggler">
+        <Toggle onClick={() => NATIVE.set(!$NATIVE)}
+          active={!$NATIVE} 
+          native 
+        />
+      </div>
     </div>
     <div class="modal-section flex align-center justify-center column">
       <span class="flex align-center justify-center">
         {dictionary[$PREFERRED_LANGUAGE].reserveDetail.reserveSize.toUpperCase()}
       </span>
       <h2 class="modal-subheader text-gradient">
-        {currencyFormatter(reserveDetail.marketSize.muln(reserveDetail.price).uiAmountFloat, true, 2)}
+        {currencyFormatter(
+          $NATIVE
+            ? reserveDetail.marketSize.uiAmountFloat
+              : reserveDetail.marketSize.muln(reserveDetail.price).uiAmountFloat, 
+          !$NATIVE, 
+          2
+        )}
       </h2>
     </div>
     <div class="divider">
@@ -68,7 +83,16 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.outstandingDebt.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
+              {currencyFormatter(
+                $NATIVE
+                  ? reserveDetail.outstandingDebt.uiAmountFloat
+                    : reserveDetail.outstandingDebt.muln(reserveDetail.price).uiAmountFloat, 
+                !$NATIVE, 
+                2
+              )}
+              {#if $NATIVE}
+                &nbsp;{reserveDetail.abbrev}
+              {/if}
             </p>
           </span>
         </div>
@@ -80,7 +104,16 @@
             {dictionary[$PREFERRED_LANGUAGE].reserveDetail.availableLiquidity.toUpperCase()}
             <br>
             <p>
-              {currencyFormatter(reserveDetail.availableLiquidity.uiAmountFloat, false, 2) + ' ' + reserveDetail.abbrev}
+              {currencyFormatter(
+                $NATIVE
+                  ? reserveDetail.availableLiquidity.uiAmountFloat
+                    : reserveDetail.availableLiquidity.muln(reserveDetail.price).uiAmountFloat, 
+                !$NATIVE, 
+                2
+              )}
+              {#if $NATIVE}
+                &nbsp;{reserveDetail.abbrev}
+              {/if}
             </p>
           </span>
         </div>
@@ -92,7 +125,7 @@
       <div class="modal-detail flex align-center justify-center column">
         <span>
           {dictionary[$PREFERRED_LANGUAGE].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
-          <i class="info far fa-question-circle"
+          <i class="info fas fa-info-circle"
             on:click={() => COPILOT.set({
               definition: definitions[$PREFERRED_LANGUAGE].collateralizationRatio
             })}>
@@ -108,7 +141,7 @@
           <i on:click={() => COPILOT.set({
             definition: definitions[$PREFERRED_LANGUAGE].liquidationPremium
           })} 
-            class="info far fa-question-circle">
+            class="info fas fa-info-circle">
           </i>
         </span>
         <p>
@@ -119,15 +152,23 @@
     <div class="divider">
     </div>
     <div class="modal-section flex align-center justify-center">
-      <Button text={`${dictionary[$PREFERRED_LANGUAGE].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)}`} 
-        onClick={() => {
-          closeReserveDetail();
-          CURRENT_RESERVE.set(reserveDetail);
-          updateValues();
-        }} 
-      />
+      {#if $WALLET}
+        <Button text={dictionary[$PREFERRED_LANGUAGE].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
+          onClick={() => {
+            closeModal();
+            CURRENT_RESERVE.set(reserveDetail);
+            updateValues();
+          }} 
+        />
+      {:else}
+        <Button text={dictionary[$PREFERRED_LANGUAGE].settings.connect} 
+          onClick={() => {
+            CONNECT_WALLET.set(true);
+          }} 
+        />
+      {/if}
     </div>
-    <i on:click={() => closeReserveDetail()} class="jet-icons close">
+    <i on:click={() => closeModal()} class="jet-icons close">
       ✕
     </i>
   </div>
@@ -151,6 +192,17 @@
   .info {
     position: absolute;
     top: -2px;
+  }
+  .native-toggle {
+    position: relative;
+    width: 100%;
+    margin: var(--spacing-md) 0;
+  }
+  .toggler {
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   img {
     width: 40px;
@@ -177,6 +229,9 @@
       width: 6px;
       height: 6px;
       margin: var(--spacing-md) var(--spacing-sm);
+    }
+    .toggler {
+      top: -10px;
     }
     img {
       width: 30px;

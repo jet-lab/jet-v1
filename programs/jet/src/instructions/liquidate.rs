@@ -1,7 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
 use anchor_spl::token::{self, Transfer};
-use jet_math::Number;
 
 use crate::errors::ErrorCode;
 use crate::repay::{implement_repay_context, repay, RepayContext};
@@ -131,10 +130,7 @@ fn transfer_collateral(
     }
 
     // Calclulate number of tokens being repaid to figure out the value
-    let repaid_amount = Number::from_decimal(
-        amount.as_tokens(reserve_info, Rounding::Down),
-        reserve.exponent,
-    );
+    let repaid_notes_amount = reserve.amount(amount.as_loan_notes(reserve_info, Rounding::Down)?);
 
     // Calculate the appropriate amount of the collateral that the
     // liquidator should receive in return for this repayment
@@ -145,19 +141,15 @@ fn transfer_collateral(
         clock.slot,
         &collateral_account,
         &loan_account,
-        repaid_amount,
+        repaid_notes_amount,
     )?;
 
     let collateral_amount = collateral_amount.as_u64_rounded(collateral_reserve.exponent);
-
-    msg!("amount = {}", collateral_amount);
 
     if collateral_amount < min_collateral {
         msg!("collateral below amount requested");
         return Err(ErrorCode::LiquidationLowCollateral.into());
     }
-
-    msg!("liquidation complete!");
 
     // Transfer the collateral to the liquidator's account
     token::transfer(

@@ -9,10 +9,10 @@
     },
     "nav": {
         "cockpit": "Cockpit",
+        "transactions": "Flight Logs",
         "settings": "Settings",
         "collapse": "Collapse",
         "getCopilotSuggestion": "Get Copilot Suggestion",
-        "disconnectWallet": "Disconnect Wallet",
         "transactions": "Flight Logs"
     },
     "cockpit": {
@@ -68,10 +68,17 @@
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
         "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
     },
+    "transactions": {
+      "title": "Flight Logs",
+      "date": "Date",
+      "signature": "Signature",
+      "tradeAction": "Transaction",
+      "tradeAmount": "Amount"
+    },
     "settings": {
         "title": "Settings",
         "wallet": "Wallet",
-        "connect": "Connect",
+        "connect": "Connect Wallet",
         "worldOfDefi": "Connect your wallet to the world of DeFi.",
         "theme": "Theme",
         "light": "Light",
@@ -81,7 +88,9 @@
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
-        "noUrl": "Enter a URL"
+        "noUrl": "Enter a URL",
+        "disconnect": "Disconnect Wallet",
+        "connected": "Connected"
     },
     "reserveDetail": {
         "reserveSize": "Reserve Size",
@@ -132,23 +141,25 @@
         "alert": {
             "failed": "Mayday!",
             "success": "Success!",
-            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
+            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
-            "headsup": "Heads up!"
+            "headsup": "Heads up!",
+            "disclaimer": "This is experimental software.",
+            "accept": "Accept"
         }
     },
     "transactions": {
-      "title": "Flight Logs",
-      "date": "Date",
-      "signature": "Signature",
-      "tradeAction": "Transaction",
-      "tradeAmount": "Amount",
-      "noTrades": "You have no logged transactions with Jet.",
-      "entries": "Showing {start} to {end} of {rows} entries",
-      "deposit": "Deposit",
-      "withdraw": "Withdraw",
-      "borrow": "Borrow",
-      "repay": "Repay"
+        "title": "Flight Logs",
+        "date": "Date",
+        "signature": "Signature",
+        "tradeAction": "Transaction",
+        "tradeAmount": "Amount",
+        "noTrades": "You have no logged transactions with Jet.",
+        "entries": "{start} to {end} of {rows}",
+        "deposit": "Deposit",
+        "withdraw": "Withdraw",
+        "borrow": "Borrow",
+        "repay": "Repay"
     }
 }

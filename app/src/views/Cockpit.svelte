@@ -5,16 +5,16 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token';
   import type { Reserve, Obligation } from '../models/JetTypes';
-  import { TRADE_ACTION, MARKET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE, WALLET_INIT, INIT_FAILED, LIQUIDATION_WARNED } from '../store';
+  import { TRADE_ACTION, MARKET, WALLET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE, WALLET_INIT, INIT_FAILED, LIQUIDATION_WARNED, CONNECT_WALLET } from '../store';
   import { inDevelopment, airdrop, deposit, withdraw, borrow, repay, getTransactionLogs } from '../scripts/jet';
-  import { currencyFormatter, totalAbbrev, addNotification, getObligationData, TokenAmount, Amount } from '../scripts/utils';
+  import { currencyFormatter, totalAbbrev, addNotification, getObligationData, TokenAmount, Amount, shortenPubkey, disconnectWallet } from '../scripts/util';
   import { generateCopilotSuggestion } from '../scripts/copilot';
   import { dictionary, definitions } from '../scripts/localization'; 
   import Loader from '../components/Loader.svelte';
-  import ConnectWallet from '../components/ConnectWallet.svelte';
   import ReserveDetail from '../components/ReserveDetail.svelte';
   import Toggle from '../components/Toggle.svelte';
   import InitFailed from '../components/InitFailed.svelte';
+  import Button from '../components/Button.svelte';
 
   let marketTVL: number = 0;
   let walletBalances: Record<string, TokenAmount> = {};
@@ -167,7 +167,7 @@
     if (inputAmount < 0) {
       inputAmount = 0;
     }
-
+    
     if ($TRADE_ACTION === 'deposit') {
       adjustedRatio = (obligation.depositedValue + inputAmount * $CURRENT_RESERVE.price) / (
           obligation.borrowedValue > 0
@@ -182,13 +182,13 @@
         );
     } else if ($TRADE_ACTION === 'borrow') {
       adjustedRatio = obligation.depositedValue / (
-          (obligation.borrowedValue + inputAmount * $CURRENT_RESERVE.price) > 0
+        (obligation.borrowedValue + inputAmount * $CURRENT_RESERVE.price) > 0
             ? (obligation.borrowedValue + ((inputAmount ?? 0) * $CURRENT_RESERVE.price))
               : 1
         );
     } else if ($TRADE_ACTION === 'repay') {
       adjustedRatio = obligation.depositedValue / (
-          (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price)
+        (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price) > 0
             ? (obligation.borrowedValue - inputAmount * $CURRENT_RESERVE.price)
              : 1
       );
@@ -199,6 +199,7 @@
   const updateValues = (): void => {
     marketTVL = 0;
     tableData = [];
+    obligation = getObligationData();
     for (let r in $MARKET.reserves) {
       // Market data
       marketTVL += $MARKET.reserves[r].marketSize.muln($MARKET.reserves[r].price)?.uiAmountFloat;
@@ -211,7 +212,7 @@
       loanBalances[r] = $ASSETS?.tokens[r]?.loanBalance?.uiAmountFloat ?? 0;
 
       // Deposit data
-     if ($ASSETS) {
+      if ($ASSETS) {
         walletBalances[r] = $ASSETS.tokens[r]?.tokenMintPubkey.equals(NATIVE_MINT) 
           ? $ASSETS.sol
           : $ASSETS.tokens[r]?.walletTokenBalance;
@@ -226,7 +227,6 @@
       }
 
       // Borrow data
-      obligation = getObligationData();
       belowMinCRatio = obligation.depositedValue / obligation.borrowedValue <= $MARKET.minColRatio;
       noDeposits = !obligation.depositedValue;
       assetsAreCurrentDeposit[r] = collateralBalances[r] > 0;
@@ -265,7 +265,7 @@
         }
       });
     // If trade would result in c-ratio below min ratio, inform user and reject
-    } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
+  } else if ((obligation?.borrowedValue || $TRADE_ACTION === 'borrow') 
       && adjustedRatio < $MARKET.minColRatio) {
       if (adjustedRatio < obligation?.colRatio) {
         COPILOT.set({
@@ -292,7 +292,7 @@
         });
       }
     // If trade would result in possible undercollateralization, inform user
-    } else if ((obligation?.borrowedValue && adjustedRatio < obligation?.colRatio || $TRADE_ACTION === 'borrow')
+  } else if ((obligation?.borrowedValue && adjustedRatio < obligation?.colRatio || $TRADE_ACTION === 'borrow')
       && adjustedRatio <= $MARKET.minColRatio + 0.2 && adjustedRatio >= $MARKET.minColRatio) {
         COPILOT.set({
           suggestion: {
@@ -370,7 +370,7 @@
         return;
       }
 
-       if ((adjustedRatio && Math.ceil((adjustedRatio * 1000) / 1000) < $MARKET.minColRatio) || tradeAmount > maxBorrowAmounts[$CURRENT_RESERVE.abbrev]) {
+      if ((adjustedRatio && Math.ceil((adjustedRatio * 1000) / 1000) < $MARKET.minColRatio) || tradeAmount > maxBorrowAmounts[$CURRENT_RESERVE.abbrev]) {
         inputAmount = null;
         inputError = dictionary[$PREFERRED_LANGUAGE].cockpit.belowMinCRatio;
         sendingTrade = false;
@@ -433,13 +433,13 @@
 
   // Reactive statement to update data
   // on any reserve, user account or price change
-  // every 3 seconds, on tx call, trade action or reserve change
+  // every 2 seconds, on tx call, trade action or reserve change
   let updateTime: number = 0;
   $: if ($MARKET || $ASSETS || $CURRENT_RESERVE || $TRADE_ACTION) {
     const currentTime = performance.now();
     if (currentTime > updateTime) {
       updateValues();
-      updateTime = currentTime + 3000;
+      updateTime = currentTime + 2000;
     }
 
     // Add search icon to table search input
@@ -467,6 +467,20 @@
     <h1 class="view-title text-gradient">
       {dictionary[$PREFERRED_LANGUAGE].cockpit.title}
     </h1>
+    <div class="connect-wallet-btn flex align-center justify-center">
+      {#if $WALLET?.publicKey}
+        <Button secondary noCaps
+          img={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
+          text={shortenPubkey($WALLET.publicKey.toString(), 4) + ' ' + dictionary[$PREFERRED_LANGUAGE].settings.connected.toLowerCase()}
+          onClick={() => disconnectWallet()}
+        />
+      {:else}
+        <Button small secondary
+          text={dictionary[$PREFERRED_LANGUAGE].settings.connect}
+          onClick={() => CONNECT_WALLET.set(true)}
+        />
+      {/if}
+    </div>
     <div class="cockpit-top flex align-center justify-between">
       <div class="trade-market-tvl flex align-start justify-center column">
         <div class="divider">
@@ -475,7 +489,7 @@
           {dictionary[$PREFERRED_LANGUAGE].cockpit.totalValueLocked}
         </h2>
         <h1 class="view-header text-gradient">
-          {totalAbbrev(marketTVL)} 
+          {totalAbbrev(marketTVL)}
         </h1>
       </div>
       <div class="trade-position-snapshot flex align-center justify-center">
@@ -484,7 +498,7 @@
             <h2 class="view-subheader">
               {dictionary[$PREFERRED_LANGUAGE].cockpit.yourRatio}
             </h2>
-            <i class="info far fa-question-circle"
+            <i class="info fas fa-info-circle"
               on:click={() => COPILOT.set({
                 definition: definitions[$PREFERRED_LANGUAGE].collateralizationRatio
               })}>
@@ -550,7 +564,7 @@
         </th>
         <th data-key="depositRate">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.depositRate}
-          <i class="info far fa-question-circle"
+          <i class="info fas fa-info-circle"
               on:click={() => COPILOT.set({
                 definition: definitions[$PREFERRED_LANGUAGE].depositRate
               })}>
@@ -558,7 +572,7 @@
         </th>
         <th data-key="borrowRate" class="datatable-border-right">
           {dictionary[$PREFERRED_LANGUAGE].cockpit.borrowRate}
-          <i class="info far fa-question-circle"
+          <i class="info fas fa-info-circle"
               on:click={() => COPILOT.set({
                 definition: definitions[$PREFERRED_LANGUAGE].borrowRate
               })}>
@@ -710,7 +724,7 @@
             class="trade-action-select flex justify-center align-center"
             class:active={$TRADE_ACTION === action}>
             <p class="bicyclette">
-              {dictionary[$PREFERRED_LANGUAGE].cockpit[action].toUpperCase()}
+              {dictionary[$PREFERRED_LANGUAGE].cockpit[action]}
             </p>
           </div>
         {/each}
@@ -775,9 +789,17 @@
         </div>
         <div class="trade-action-section flex align-center justify-center column"
           class:disabled={disabledInput}>
-          <span>
-            {dictionary[$PREFERRED_LANGUAGE].cockpit.adjustedCollateralization.toUpperCase()}
-          </span>
+          <div class="flex align-center justify-center">
+            <span>
+              {dictionary[$PREFERRED_LANGUAGE].cockpit.adjustedCollateralization.toUpperCase()}
+            </span>
+            <i class="info fas fa-info-circle" 
+              style="color: var(--white);"
+              on:click={() => COPILOT.set({
+                definition: definitions[$PREFERRED_LANGUAGE].adjustedCollateralizationRatio
+              })}>
+            </i>
+          </div>
           <p class="bicyclette">
             {#if $WALLET_INIT}
               {#if (obligation?.borrowedValue || ($TRADE_ACTION === 'borrow' && inputAmount)) && adjustedRatio > 10}
@@ -790,12 +812,6 @@
             {:else}
               --
             {/if}
-            <i class="info far fa-question-circle"
-              style="position: absolute; color: var(--white); top: 5px; margin-left: 5px;" 
-              on:click={() => COPILOT.set({
-                definition: definitions[$PREFERRED_LANGUAGE].adjustedCollateralizationRatio
-              })}>
-            </i>
           </p>
         </div>
       {/if}
@@ -817,7 +833,13 @@
         </div>
         <div class="submit-input flex align-center justify-center"
           class:active={inputAmount} class:disabled={disabledInput}>
-          <input on:keyup={() => adjustCollateralizationRatio()}
+          <input on:keyup={() => {
+              // If input is negative, reset to zero
+              if (inputAmount && inputAmount < 0) {
+                inputAmount = 0;
+              }
+              adjustCollateralizationRatio();
+            }}
             on:keypress={(e) => {
               if (e.key === "Enter"){
                 return checkSubmit()
@@ -860,12 +882,10 @@
       </div>
     </div>
   </div>
-  {#if !$ASSETS}
-    <ConnectWallet />
-  {:else if reserveDetail}
+  {#if reserveDetail}
     <ReserveDetail {reserveDetail}
       {updateValues}
-      closeReserveDetail={() => {
+      closeModal={() => {
         if (reserveDetail?.abbrev !== $CURRENT_RESERVE?.abbrev) {
           inputAmount = null;
         }
@@ -879,6 +899,9 @@
 {/if}
 
 <style>
+  .view-container {
+    position: relative;
+  }
   .cockpit-top {
     flex-wrap: wrap;
     padding: var(--spacing-xs) 0 var(--spacing-lg) 0;
@@ -886,11 +909,17 @@
   .trade-market-tvl .divider {
     margin: 0 0 var(--spacing-lg) 0;
   }
+  .connect-wallet-btn {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-sm);
+  }
   .trade-position-snapshot {
     min-width: 275px;
     border-radius: var(--border-radius);
-    box-shadow: var(--neu-shadow-inset-low);
+    box-shadow: var(--neu-shadow-inset);
     padding: var(--spacing-sm) var(--spacing-lg);
+    background: var(--light-grey);
   }
   .trade-position-snapshot p {
     font-size: 25px;
@@ -920,11 +949,15 @@
     z-index: 11;
   }
   .trade-action-select {
-    width: calc(25% - 1px);
+    width: 25%;
+    border-right: 1px solid var(--white);
     padding: var(--spacing-sm) 0;
-    background: rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     opacity: var(--disabled-opacity);
     cursor: pointer;
+  }
+  .trade-action-select:last-of-type {
+    border-right: unset;
   }
   .trade-action-select.active {
     background: unset;
@@ -932,23 +965,10 @@
   }
   .trade-action-select p {
     position: relative;
-    font-size: 13px;
+    font-size: 16px;
     letter-spacing: 0.5px;
-    line-height: 13px;
+    line-height: 17px;
     color: var(--white);
-  }
-  .trade-action-select p::after {
-    position: absolute;
-    content: '';
-    width: 100%;
-    height: 0px;
-    bottom: -1px;
-    left: 0;
-    background: var(--white);
-    opacity: 0.5;
-  }
-  .trade-action-select.active p::after {
-    height: 1px;
   }
   .trade-action-section {
     position: relative;
@@ -994,7 +1014,6 @@
     -webkit-background-clip: unset !important;
     -webkit-text-fill-color: unset !important;
   }
-
   .trade-disabled-message {
     width: calc(50% - (var(--spacing-sm) * 2))
   }
@@ -1025,9 +1044,12 @@
       flex-direction: column;
       justify-content: center;
     }
+    .trade-action-select p {
+      font-size: 14px;
+    }
     .trade-action-section {
       width: 100% !important;
-      padding: var(--spacing-md) 0;
+      padding: var(--spacing-lg) 0 var(--spacing-md) 0;
     }
     .trade-action-section p {
       font-size: 25px;

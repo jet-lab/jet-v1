@@ -1,27 +1,7 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { timeout } from "../scripts/utils";
-
-
-  export let text: string = '';
   export let button: boolean = false;
   export let fullview: boolean = false;
   export let fullscreen: boolean = false;
-
-  let dots: string = '.';
-
-  onMount(async () => {
-    if (text) {
-      while (true) {
-        await timeout(250);
-        if (dots.length > 2) {
-          dots = '';
-        } else {
-          dots += '.';
-        }
-      }
-    }
-  });
 </script>
 
 <div class="loader flex align-center justify-center column"
@@ -33,11 +13,6 @@
       <img src="img/jet/jet_logomark_gradient.png" alt="Jet Logomark" />
     </div>
   </div>
-  {#if text}
-    <span class="bicyclette">
-      {@html text}{dots}
-    </span>
-  {/if}
 </div>
 
 <style>
@@ -88,12 +63,6 @@
     width: 100%;
     height: auto;
     animation: rotate 1.15s ease-in-out infinite;
-  }
-  span {
-    position: absolute;
-    top: calc(50% + 60px);
-    left: calc(50% - 65px);
-    font-size: 12px;
   }
   @keyframes rotate {
     100% {
