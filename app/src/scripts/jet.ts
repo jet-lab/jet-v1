@@ -70,10 +70,10 @@ export const getMarketAndIDL = async (): Promise<void> => {
   idl = await resp.json();
   IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
+  PREFERRED_NODE.set(localStorage.getItem('jetPreferredNode'));
 
   // Establish web3 connection
   const idlMetadata = parseIdlMetadata(idl.metadata);
-  PREFERRED_NODE.set(localStorage.getItem('jetPreferredNode'));
   coder = new anchor.Coder(idl);
 
   // Establish and test web3 connection
@@ -85,12 +85,13 @@ export const getMarketAndIDL = async (): Promise<void> => {
     );
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
   } catch {
-    localStorage.removeItem('jetPreferredNode');
     const anchorConnection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    PREFERRED_NODE.set(null);
+    localStorage.removeItem('jetPreferredNode');
   }
+  
   ANCHOR_CODER.set(new anchor.Coder(idl));
-
   try {
     await connection.getVersion();
     INIT_FAILED.set(null);

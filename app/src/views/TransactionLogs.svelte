@@ -101,7 +101,8 @@
 
 <style>
   .transaction-logs {
-    width: 600px;
+    width: 100%;
+    max-width: 600px;
     padding: var(--spacing-lg);
     margin: var(--spacing-lg) 0;
     box-shadow: var(--neu-shadow);
@@ -126,7 +127,6 @@
   @media screen and (max-width: 1100px) {
     .transaction-logs {
       display: block;
-      width: 100%;
       padding: unset;
       margin: unset;
       box-shadow: unset;
