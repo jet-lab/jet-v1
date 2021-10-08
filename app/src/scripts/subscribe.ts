@@ -19,7 +19,7 @@ MARKET.subscribe(data => market = data);
 export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor.web3.Connection, coder: anchor.Coder) => {
   let promise: Promise<number>;
   const promises: Promise<number>[] = [];
-  
+
   // Market subscription 
   let timeStart = Date.now();
   promise = getAccountInfoAndSubscribe(connection, idlMeta.market.market, account => {
@@ -64,16 +64,13 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
 
           const reserve = market.reserves[reserveMeta.abbrev];
 
-          deriveValues(reserve, assetStore?.tokens[reserveMeta.abbrev]);
-
-          const ccRate = getCcRate(decoded.config, reserve.utilizationRate);
-
           reserve.maximumLTV = decoded.config.minCollateralRatio;
           reserve.liquidationPremium = decoded.config.liquidationPremium;
           reserve.outstandingDebt = new TokenAmount(decoded.state.outstandingDebt, reserveMeta.decimals).divb(new BN(Math.pow(10, 15)));
           reserve.accruedUntil = decoded.state.accruedUntil;
-          reserve.borrowRate = getBorrowRate(ccRate, decoded.config.manageFeeRate);
-          reserve.depositRate = getDepositRate(ccRate, reserve.utilizationRate);
+          reserve.config = decoded.config;
+
+          deriveValues(reserve, assetStore?.tokens[reserveMeta.abbrev]);
 
           return market;
         })
@@ -276,9 +273,13 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
 
 const deriveValues = (reserve: Reserve, asset: Asset | undefined) => {
   reserve.marketSize = reserve.outstandingDebt.add(reserve.availableLiquidity);
-    reserve.utilizationRate = !reserve.marketSize.amount.isZero() 
-      ? reserve.outstandingDebt.uiAmountFloat / reserve.marketSize.uiAmountFloat
-        : 0;
+  reserve.utilizationRate = reserve.marketSize.amount.isZero()
+    ? 0
+    : reserve.outstandingDebt.uiAmountFloat / reserve.marketSize.uiAmountFloat;
+
+  const ccRate = getCcRate(reserve.config, reserve.utilizationRate);
+  reserve.borrowRate = getBorrowRate(ccRate, reserve.config.manageFeeRate);
+  reserve.depositRate = getDepositRate(ccRate, reserve.utilizationRate);
 
   if (asset) {
     asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
