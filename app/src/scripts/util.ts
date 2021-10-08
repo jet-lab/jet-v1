@@ -61,7 +61,6 @@ export const disconnectWallet = () => {
     wallet.forgetAccounts();
   }
 
-  CONNECT_WALLET.set(true);
   WALLET.set(null);
   ASSETS.set(null);
   WALLET_INIT.set(false);
