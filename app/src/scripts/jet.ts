@@ -290,6 +290,13 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
                 if (pre.mint === post.mint && pre.uiTokenAmount.amount !== post.uiTokenAmount.amount) {
                   for (let reserve of idl.metadata.reserves) {
                     if (reserve.accounts.tokenMint === pre.mint) {
+                      // For withdraw and borrow SOL,
+                      // Skip last account (pre-token balance is 0)
+                      if (reserve.abbrev === 'SOL'
+                        && (progInst === 'withdraw' || progInst === 'borrow')
+                        && pre.uiTokenAmount.amount === '0') {
+                        break;
+                      }
                       log.tokenAbbrev = reserve.abbrev;
                       log.tokenDecimals = reserve.decimals;
                       log.tokenPrice = reserve.price;
@@ -335,7 +342,7 @@ export let addTransactionLog = async (signature: string) => {
   // Get UI details and add to logs store
   const logDetail = await getLogDetails(log, signature);
   if (logDetail) {
-    txLogs.push(logDetail);
+    txLogs.unshift(logDetail);
     TRANSACTION_LOGS.set(txLogs);
   }
 };

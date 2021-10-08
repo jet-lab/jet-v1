@@ -1054,5 +1054,8 @@
     .trade-action-section p {
       font-size: 25px;
     }
+    .max-input {
+      margin-right: var(--spacing-xs);
+    }
   }
 </style>
