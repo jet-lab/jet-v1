@@ -28,12 +28,12 @@ use crate::utils;
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
 pub struct InitReserveBumpSeeds {
-    vault: u8,
-    fee_note_vault: u8,
-    dex_open_orders: u8,
-    dex_swap_tokens: u8,
-    deposit_note_mint: u8,
-    loan_note_mint: u8,
+    pub vault: u8,
+    pub fee_note_vault: u8,
+    pub dex_open_orders: u8,
+    pub dex_swap_tokens: u8,
+    pub deposit_note_mint: u8,
+    pub loan_note_mint: u8,
 }
 
 #[derive(Accounts)]
