@@ -104,7 +104,7 @@ pub struct ReserveConfig {
     /// liquidating assetr from this reserve as collateral.
     pub liquidation_dex_trade_max: u64,
 
-    _reserved1: [u8; 24],
+    pub _reserved1: [u8; 24],
 }
 
 #[assert_size(2048)]
