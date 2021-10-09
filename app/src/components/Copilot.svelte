@@ -108,6 +108,7 @@
           />
         {/if}
       {/if}
+      <!-- Prevents user from clicking away to avoid disclaimer -->
       {#if acceptJetDisclaimer}
       <i on:click={() => COPILOT.set(null)} class="jet-icons close">
         ✕
