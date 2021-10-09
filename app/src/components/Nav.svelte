@@ -100,10 +100,6 @@
         <span>
           {shortenPubkey($WALLET.publicKey.toString(), 4)}
         </span>
-        <span class="bicyclette-bold text-gradient"
-          on:click={() => CONNECT_WALLET.set(true)}>
-          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
-        </span>
       {:else}
         <span class="bicyclette-bold text-gradient"
           on:click={() => CONNECT_WALLET.set(true)}>

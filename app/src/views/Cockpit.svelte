@@ -3,6 +3,7 @@
 </svelte:head>
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
+  import RangeSlider from "svelte-range-slider-pips";
   import { NATIVE_MINT } from '@solana/spl-token';
   import type { Reserve, Obligation } from '../models/JetTypes';
   import { TRADE_ACTION, MARKET, WALLET, ASSETS, CURRENT_RESERVE, NATIVE, COPILOT, PREFERRED_LANGUAGE, WALLET_INIT, INIT_FAILED, LIQUIDATION_WARNED, CONNECT_WALLET } from '../store';
@@ -28,7 +29,7 @@
   let adjustedRatio: number;
   let belowMinCRatio: boolean = false;
   let noDeposits: boolean = true;
-  let inputAmount: number | null;
+  let inputAmount: number | null = null;
   let maxInputValue: number;
   let inputError: string;
   let disabledInput: boolean = true;
@@ -195,6 +196,12 @@
     }
   };
 
+  // Update input and adjusted ratio on slider change
+  const sliderUpdate = (e: any) => {
+    inputAmount = maxInputValue * (e.detail.value / 100);
+    adjustCollateralizationRatio();
+  };
+
   // Update all market/user data
   const updateValues = (): void => {
     marketTVL = 0;
@@ -235,7 +242,7 @@
       if (maxBorrowAmounts[r] > $MARKET.reserves[r].availableLiquidity?.uiAmountFloat) {
         maxBorrowAmounts[r] = $MARKET.reserves[r].availableLiquidity?.uiAmountFloat;
       }
-    };
+    }
 
     // Set adjusted ratio to current ratio
     if (!adjustedRatio && obligation?.colRatio) {
@@ -815,70 +822,65 @@
           </p>
         </div>
       {/if}
-      <div class="trade-action-section flex align-center justify-center">
-        <div class="max-input"
-          class:active={maxInputValue 
-            ? inputAmount === maxInputValue
-              : false}
-          class:disabled={disabledInput}
-          on:click={() => {
-            if (!disabledInput) {
-              inputAmount = maxInputValue;
-              adjustCollateralizationRatio();
-            }
-          }}>
-          <span>
-            {dictionary[$PREFERRED_LANGUAGE].cockpit.max.toUpperCase()}
-          </span>
-        </div>
-        <div class="submit-input flex align-center justify-center"
-          class:active={inputAmount} class:disabled={disabledInput}>
-          <input on:keyup={() => {
-              // If input is negative, reset to zero
-              if (inputAmount && inputAmount < 0) {
-                inputAmount = 0;
-              }
-              adjustCollateralizationRatio();
-            }}
-            on:keypress={(e) => {
-              if (e.key === "Enter"){
-                return checkSubmit()
-              }
-            }}
-            on:click={() => inputError = ''}
-            bind:value={inputAmount}
-            placeholder={inputError ?? ''}
-            class={inputError ? 'input-error' : ''}
-            type="number" max={maxInputValue}
-            disabled={disabledInput} 
-          />
-          <img src={`img/cryptos/${$CURRENT_RESERVE?.abbrev}.png`} alt={`${$CURRENT_RESERVE?.name} Logo`} />
-          <div class="asset-abbrev-usd flex align-end justify-center column">
-            <span>
-              {$CURRENT_RESERVE?.abbrev}
-            </span>
-            <span>
-              ≈ {currencyFormatter(
-                  (inputAmount ?? 0) * $CURRENT_RESERVE.price,
-                  true,
-                  2
-                )}
-            </span>
+      <div class="trade-action-section flex align-center justify-center column">
+        <div class="flex align-center justify-center">
+          <div class="submit-input flex align-center justify-center"
+            class:active={inputAmount} class:disabled={disabledInput}>
+            <input on:keyup={() => {
+                // If input is negative, reset to zero
+                if (inputAmount && inputAmount < 0) {
+                  inputAmount = 0;
+                }
+                adjustCollateralizationRatio();
+              }}
+              on:keypress={(e) => {
+                if (e.key === "Enter"){
+                  return checkSubmit()
+                }
+              }}
+              on:click={() => inputError = ''}
+              bind:value={inputAmount}
+              placeholder={inputError ?? ''}
+              class={inputError ? 'input-error' : ''}
+              type="number" max={maxInputValue}
+              disabled={disabledInput} 
+            />
+            <img src={`img/cryptos/${$CURRENT_RESERVE?.abbrev}.png`} alt={`${$CURRENT_RESERVE?.name} Logo`} />
+            <div class="asset-abbrev-usd flex align-end justify-center column">
+              <span>
+                {$CURRENT_RESERVE?.abbrev}
+              </span>
+              <span>
+                ≈ {currencyFormatter(
+                    (inputAmount ?? 0) * $CURRENT_RESERVE.price,
+                    true,
+                    2
+                  )}
+              </span>
+            </div>
+          </div>
+          <div class="submit-input-btn flex align-center justify-center"
+            class:active={sendingTrade}
+            class:disabled={disabledInput}
+            on:click={() => checkSubmit()}>
+            {#if sendingTrade}
+              <Loader button />
+            {:else}
+              <i class="jet-icons"
+                title="Submit Trade">
+                ➜
+              </i>
+            {/if}
           </div>
         </div>
-        <div class="submit-input-btn flex align-center justify-center"
-          class:active={sendingTrade}
-          class:disabled={disabledInput}
-          on:click={() => checkSubmit()}>
-          {#if sendingTrade}
-            <Loader button />
-          {:else}
-            <i class="jet-icons"
-              title="Submit Trade">
-              ➜
-            </i>
-          {/if}
-        </div>
+        <RangeSlider float 
+          values={[0]}
+          min={0} max={100} 
+          step={25} suffix="%" 
+          disabled={disabledInput}
+          springValues={{stiffness: 1, damping: 1}}
+          on:change={sliderUpdate}
+        />
       </div>
     </div>
   </div>
@@ -973,7 +975,7 @@
   .trade-action-section {
     position: relative;
     width: calc(25% - (var(--spacing-sm) * 2));
-    padding: var(--spacing-lg) var(--spacing-sm);
+    padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-xs) var(--spacing-sm);
   }
   .trade-action-section:last-of-type {
     width: calc(50% - (var(--spacing-sm) * 2));
@@ -990,29 +992,10 @@
   .trade-action-section p {
     font-size: 21px;
   }
-  .trade-action-section .max-input {
-    font-family: 'Bicyclette';
-    padding: 6px var(--spacing-xs);
-    margin-right: var(--spacing-sm);
-    border: 1px solid var(--white);
-    border-radius: 50px;
-    cursor: pointer;
-  }
-  .trade-action-section .max-input:active, .trade-action-section .max-input.active {
-    background: var(--white);
-    box-shadow: var(--neu-shadow-inset-low);
-  }
   .trade-action-section .max-input:active span, .trade-action-section .max-input.active span {
     background-image: var(--gradient) !important;
     -webkit-background-clip: text !important;
     -webkit-text-fill-color: transparent !important;
-  }
-  .trade-action-section .max-input.disabled:active, .trade-action-section .max-input.disabled:active span, .trade-action-section .max-input.active.disabled span {
-    background: unset !important;
-    box-shadow: unset !important;
-    background-image: unset !important;
-    -webkit-background-clip: unset !important;
-    -webkit-text-fill-color: unset !important;
   }
   .trade-disabled-message {
     width: calc(50% - (var(--spacing-sm) * 2))
@@ -1048,6 +1031,7 @@
       padding-right: 20px;
     }
     .trade-action {
+      padding-top: 55px;
       flex-direction: column;
       justify-content: center;
     }
@@ -1056,7 +1040,10 @@
     }
     .trade-action-section {
       width: 100% !important;
-      padding: var(--spacing-lg) 0 var(--spacing-md) 0;
+      padding: var(--spacing-xs) 0;
+    }
+    .trade-action-section:last-of-type {
+      padding-bottom: unset;
     }
     .trade-action-section p {
       font-size: 25px;

@@ -56,6 +56,14 @@
   --btn-radius: 7px;
   --btn-padding: 7px 20px 5px 20px;
   --secondary-btn-padding: 7px 10px 5px 10px;
+
+  /* Slider variables */
+  --range-slider: var(--white);
+  --range-handle-inactive: var(--white);
+  --range-handle: var(--white);
+  --range-handle-focus: var(--white);
+  --range-handle-border: var(--jet-green);
+  --range-float-text: var(--black);
 }
 ::-webkit-scrollbar {
   display: none !important;
@@ -358,6 +366,15 @@ input[type=number] {
   font-size: 12px;
 }
 
+/* Divider */
+.divider {
+  width: 98%;
+  height: 3px;
+  margin: var(--spacing-sm) 0;
+  border-radius: var(--border-radius);
+  box-shadow: var(--neu-shadow-inset-low);
+}
+
 /* Dropdown Select component overrides */
 .dropdown-select {
   position: relative;
@@ -410,13 +427,16 @@ input[type=number] {
   opacity: var(--disabled-opacity);
 }
 
-/* Divider */
-.divider {
-  width: 98%;
-  height: 3px;
-  margin: var(--spacing-sm) 0;
-  border-radius: var(--border-radius);
-  box-shadow: var(--neu-shadow-inset-low);
+/* Slider component overrides */
+.rangeSlider {
+  width: 375px;
+}
+.rangeFloat-suffix {
+  opacity: 1;
+}
+.rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider .rangeHandle:before {
+  opacity: 1;
+  transition: unset !important;
 }
 
 /* Datatable component overrides */
@@ -669,7 +689,7 @@ input[type=number] {
     padding: var(--spacing-xs) 0;
   }
   .submit-input input {
-    width: 160px;
+    width: 150px;
     padding-left: 30px;
     padding-right: 35px;
     font-size: 15px;
@@ -732,6 +752,9 @@ input[type=number] {
   .modal span {
     font-size: 10px;
     margin: var(--spacing-sm) 0;
+  }
+  .rangeSlider {
+    width: 225px;
   }
   .dt-table {
     padding: unset !important;

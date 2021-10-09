@@ -51,6 +51,7 @@
     "superstruct": "^0.15.2",
     "svelte-i18n": "^3.3.9",
     "svelte-navigator": "^3.1.5",
+    "svelte-range-slider-pips": "^1.8.0",
     "svelte-select": "^4.4.3",
     "svelte-simple-datatables": "^0.1.25",
     "toml": "^3.0.0",
