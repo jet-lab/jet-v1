@@ -54,22 +54,24 @@
             {@html $COPILOT.suggestion.solution}
           </span>
         {/if}
-        {#if $COPILOT.suggestion.action}
-          <Button text={$COPILOT.suggestion.action.text ?? dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
-            onClick={() => {
-              $COPILOT?.suggestion?.action?.onClick();
-              COPILOT.set(null);
-            }}
-            error={!$COPILOT.suggestion?.good}
-            small
-          />
-        {:else}
-          <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
-            onClick={() => COPILOT.set(null)}
-            error={!$COPILOT.suggestion?.good}
-            small
-          />
-        {/if}
+        <div class="button flex align-center justify-center">
+          {#if $COPILOT.suggestion.action}
+            <Button text={$COPILOT.suggestion.action.text ?? dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+              onClick={() => {
+                $COPILOT?.suggestion?.action?.onClick();
+                COPILOT.set(null);
+              }}
+              error={!$COPILOT.suggestion?.good}
+              small
+            />
+          {:else}
+            <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+              onClick={() => COPILOT.set(null)}
+              error={!$COPILOT.suggestion?.good}
+              small
+            />
+          {/if}
+        </div>
       {:else if $COPILOT.definition}
         <h1 class="bicyclette" style="color: var(--jet-blue);">
           {$COPILOT.definition.term}
@@ -77,10 +79,12 @@
         <span class="modal-section">
           {@html $COPILOT.definition.definition}
         </span>
-        <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
-          onClick={() => COPILOT.set(null)}
-          small
-        />
+        <div class="button flex align-center justify-center">
+          <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+            onClick={() => COPILOT.set(null)}
+            small
+          />
+        </div>
       {:else if $COPILOT.alert}
         <h1 class="bicyclette" 
           style={!$COPILOT.alert.good ? 'color: var(--failure);' : 'color: var(--success);'}>
@@ -89,22 +93,24 @@
         <span class="modal-section">
           {@html $COPILOT.alert.text}
         </span>
-        {#if $COPILOT.alert.action}
-          <Button text={$COPILOT.alert.action.text} 
-            onClick={() => {
-              $COPILOT?.alert?.action?.onClick();
-              COPILOT.set(null);
-            }}
-            error={!$COPILOT.alert?.good}
-            small
-          />
-        {:else}
-          <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
-            onClick={() => COPILOT.set(null)}
-            error={!$COPILOT.alert?.good}
-            small
-          />
-        {/if}
+        <div class="button flex align-center justify-center">
+          {#if $COPILOT.alert.action}
+            <Button text={$COPILOT.alert.action.text} 
+              onClick={() => {
+                $COPILOT?.alert?.action?.onClick();
+                COPILOT.set(null);
+              }}
+              error={!$COPILOT.alert?.good}
+              small
+            />
+          {:else}
+            <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+              onClick={() => COPILOT.set(null)}
+              error={!$COPILOT.alert?.good}
+              small
+            />
+          {/if}
+        </div>
       {/if}
       <i on:click={() => COPILOT.set(null)} class="jet-icons close">
         ✕
@@ -136,11 +142,14 @@
   .copilot-body span {
     text-align: left;
   }
+  .button {
+    width: 100%;
+  }
   img {
     width: 70px;
     height: auto;
     margin: var(--spacing-md);
-    padding: 10px;
+    padding: 7px;
     border-radius: 100px;
     background: var(--white);
     box-shadow: var(--neu-shadow-inset);
@@ -161,7 +170,7 @@
 
   @media screen and (max-width: 1100px) {
     img {
-      width: 45px;
+      width: 60px;
     }
     span {
       font-size: 11px;

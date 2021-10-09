@@ -47,6 +47,9 @@
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
     cursor: pointer;
   }
+  .notification:active {
+    opacity: 0.9;
+  }
   .notification.success {
     background: var(--success);
   }
@@ -67,7 +70,7 @@
   }
   p {
     font-size: 14px;
-    max-width: 300px;
+    max-width: 270px;
     padding: var(--spacing-sm);
     color: var(--white);
     opacity: 1;

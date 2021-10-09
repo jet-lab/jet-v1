@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { useLocation } from 'svelte-navigator';
-  import { WALLET, ASSETS, PREFERRED_LANGUAGE } from '../store';
+  import { WALLET, ASSETS, PREFERRED_LANGUAGE, CONNECT_WALLET } from '../store';
   import { disconnectWallet, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Logo from './Logo.svelte';
@@ -90,9 +90,9 @@
     />
   </div>
   <div class="bottom flex align-center justify-evenly">
-    {#if $WALLET && $ASSETS}
-      <div class="wallet flex align-center justify-center"
-        on:click={() => disconnectWallet()}>
+    <div class="wallet flex align-center justify-center"
+      on:click={() => disconnectWallet()}>
+      {#if $WALLET && $ASSETS}
         <img width="100%" height="auto" 
           src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
           alt={`${$WALLET.name} Logo`}
@@ -100,8 +100,17 @@
         <span>
           {shortenPubkey($WALLET.publicKey.toString(), 4)}
         </span>
-      </div>
-    {/if}
+        <span class="bicyclette-bold text-gradient"
+          on:click={() => CONNECT_WALLET.set(true)}>
+          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
+        </span>
+      {:else}
+        <span class="bicyclette-bold text-gradient"
+          on:click={() => CONNECT_WALLET.set(true)}>
+          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
+        </span>
+      {/if}
+    </div>
   </div>
 </nav>
 <!--Mobile-->
@@ -119,9 +128,9 @@
     />
   </div>
   <div class="bottom flex align-center justify-evenly">
-    {#if $WALLET && $ASSETS}
-      <div class="wallet flex align-center justify-center"
-        on:click={() => disconnectWallet()}>
+    <div class="wallet flex align-center justify-center"
+      on:click={() => disconnectWallet()}>
+      {#if $WALLET && $ASSETS}
         <img width="100%" height="auto" 
           src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
           alt={`${$WALLET.name} Logo`}
@@ -129,8 +138,13 @@
         <span>
           {shortenPubkey($WALLET.publicKey.toString(), 4)}
         </span>
-      </div>
-    {/if}
+      {:else}
+        <span class="bicyclette-bold text-gradient"
+          on:click={() => CONNECT_WALLET.set(true)}>
+          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
+        </span>
+      {/if}
+    </div>
   </div>
 </nav>
 
@@ -161,7 +175,7 @@
     cursor: pointer;
   }
   .wallet {
-    width: 100%;
+    width: 25px;
     cursor: pointer;
     margin: var(--spacing-sm) auto;
   }
@@ -169,6 +183,8 @@
     margin: 0 var(--spacing-xs);
   }
   .wallet span {
+    font-size: 11px;
+    font-weight: 500;
     margin: 0 2px;
   }
   .top, .bottom {
@@ -187,9 +203,6 @@
     }
     .tablet {
       display: flex;
-    }
-    .wallet {
-      width: 35px;
     }
     .top, .bottom {
       width: 50%;

@@ -1029,7 +1029,11 @@
       align-items: flex-start;
       padding-top: unset;
     }
+    .connect-wallet-btn {
+      display: none;
+    }
     .trade-market-tvl, .trade-position-snapshot {
+      min-width: unset;
       margin: var(--spacing-xs) 0;
     }
     .trade-position-snapshot h1 {
@@ -1040,12 +1044,15 @@
       font-size: 20px;
       line-height: 20px;
     }
+    .trade-position-ratio {
+      padding-right: 20px;
+    }
     .trade-action {
       flex-direction: column;
       justify-content: center;
     }
     .trade-action-select p {
-      font-size: 14px;
+      font-size: 12px;
     }
     .trade-action-section {
       width: 100% !important;
@@ -1054,8 +1061,8 @@
     .trade-action-section p {
       font-size: 25px;
     }
-    .max-input {
-      margin-right: var(--spacing-xs);
+    .trade-disabled-message span {
+      max-width: 200px;
     }
   }
 </style>

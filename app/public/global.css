@@ -46,8 +46,6 @@
   --nav-width: 60px;
   --mobile-nav-height: 60px;
 
-  --transition: all 0.1s;
-
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
@@ -105,7 +103,6 @@ span {
   opacity: var(--disabled-opacity);
   font-size: 9px !important;
   cursor: pointer;
-  transition: var(--transition);
 }
 .info:hover {
   opacity: 1;
@@ -326,7 +323,7 @@ input[type=number] {
   top: 50%;
   left: calc(50% + var(--nav-width)/2);
   transform: translate(-50%, -50%);
-  min-width: 300px;
+  min-width: 275px;
   max-width: 700px;
   box-shadow: var(--neu-shadow);
   background: var(--white);
@@ -719,6 +716,9 @@ input[type=number] {
     position: fixed;
     left: 50%;
   }
+  .modal .close {
+    right: var(--spacing-lg);
+  }
   .modal-section {
     flex-direction: column;
   }
@@ -748,7 +748,13 @@ input[type=number] {
   .datatable td {
     font-size: 11px !important;
   }
-  .transaction-logs .datatable td {
-    min-width: 70px !important;
+  .transaction-logs .dt-table td, .transaction-logs .dt-table th, .transaction-logs .dt-table td:last-of-type, .transaction-logs .dt-table th:last-of-type, .transaction-logs .dt-table td.asset, .transaction-logs .dt-table th.asset {
+    min-width: unset !important;
+  }
+  .transaction-logs td {
+    font-weight: 11px !important;
+  }
+  .transaction-logs .dt-pagination-rowcount {
+    min-width: 50px !important;
   }
 }

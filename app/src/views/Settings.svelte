@@ -244,5 +244,8 @@
       margin: unset;
       box-shadow: unset;
     }
+    input {
+      width: 180px;
+    }
   }
 </style>

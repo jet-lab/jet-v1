@@ -105,15 +105,15 @@
       height: 106px;
       margin: var(--spacing-mg) 0;
     }
-    .chart-info, .inset-chart-shadow, svg {
+    .chart-info, .inset-chart-shadow {
       width: 106px;
     }
     .inset-chart-shadow {
-      width: 96px;
-      height: 96px
+      width: 100px;
+      height: 100px
     }
     svg {
-      width: 116px;
+      width: 122px;
       stroke: var(--failure);
     }
     span {

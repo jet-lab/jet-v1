@@ -47,7 +47,7 @@
     </div>
     <div class="wallets flex align-center justify-center column">
       {#each providers as p}
-        <div class="wallet flex align-center justify-between" 
+        <div class={`${p.name.toLowerCase()} wallet flex align-center justify-between`}
           class:active={walletChoice === p.name} 
           on:click={() => {
             walletChoice = p.name;
@@ -114,5 +114,14 @@
   p {
     font-size: 14px;
     text-align: center;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .wallet {
+      display: none;
+    }
+    .sollet {
+      display: flex;
+    }
   }
 </style>

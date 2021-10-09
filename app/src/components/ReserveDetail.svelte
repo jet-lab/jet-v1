@@ -91,7 +91,7 @@
                 2
               )}
               {#if $NATIVE}
-                &nbsp;{reserveDetail.abbrev}
+                {reserveDetail.abbrev}
               {/if}
             </p>
           </span>
@@ -112,7 +112,7 @@
                 2
               )}
               {#if $NATIVE}
-                &nbsp;{reserveDetail.abbrev}
+                {reserveDetail.abbrev}
               {/if}
             </p>
           </span>
@@ -212,7 +212,6 @@
 
   @media screen and (max-width: 1100px) {
     .modal, .reserve-detail {
-      width: 100%;
       max-width: unset;
       height: calc((var(--vh, 1vh) * 95) - var(--mobile-nav-height));
       position: fixed;
@@ -224,6 +223,12 @@
       border-radius: unset;
       background: var(--white);
       overflow-y: scroll;
+    }
+    .divider {
+      margin: var(--spacing-lg) 0;
+    }
+    .info {
+      position: relative;
     }
     .asset-info-color {
       width: 6px;
