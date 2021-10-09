@@ -437,6 +437,7 @@ input[type=number] {
 .rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider .rangeHandle:before {
   opacity: 1;
   transition: unset !important;
+  cursor: pointer;
 }
 
 /* Datatable component overrides */
