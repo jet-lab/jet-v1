@@ -69,7 +69,9 @@ const INSTRUCTION_BYTES: Record<string, number[]> = {
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
   // Fetch IDL and preferred RPC Node
-  const resp = await fetch('idl/jet.json');
+  const idlPath = "idl/" + jetIdl + "/jet.json";
+  console.log(`Loading IDL from ${idlPath}`)
+  const resp = await fetch(idlPath);
   idl = await resp.json();
   IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);

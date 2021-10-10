@@ -45,11 +45,13 @@ anchor test
 
 ## Run Frontend
 
-First startup a local validator
+First startup a local validator and deploy
 
 ```
 npm install
+cd scripts
 ./localnet-start.sh
+vi app/.env # Set IDL = localnet
 ```
 
 Install any other NPM dependencies

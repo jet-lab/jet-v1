@@ -4,4 +4,4 @@ solana-test-validator -r --bpf-program 9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusV
 
 anchor build &&\
 anchor deploy &&\
-ts-node scripts/localnet-migrate.ts
+ts-node localnet-migrate.ts

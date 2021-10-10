@@ -53,10 +53,12 @@ export default {
       }
     }),
     replace({
+      preventAssignment: true,
+
       // The following variables will be available in
       // the svelte app.
       jetDev: development,
-      preventAssignment: true,
+      jetIdl: JSON.stringify(process.env.IDL),
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance

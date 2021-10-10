@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { PREFERRED_LANGUAGE } from "../store";
+  import { PREFERRED_LANGUAGE, WALLET_INIT } from "../store";
   import { dictionary } from "../scripts/localization";
 
   export let text: string;

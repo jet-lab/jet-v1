@@ -18,7 +18,7 @@ const main = async () => {
 
   // add pubkeys to the idl
   const idlPath = path.resolve("target/idl/jet.json");
-  const idlWebPath = path.resolve("app/public/idl/jet.json");
+  const idlWebPath = path.resolve("app/public/idl/localnet/jet.json");
   const idl = JSON.parse(fs.readFileSync(idlPath, "utf-8")) as any;
 
   const program = new anchor.Program(idl, idl.metadata.address);
