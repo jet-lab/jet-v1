@@ -1,2 +1,2 @@
 const fs = require('fs')
-fs.writeFileSync('../../.env', `API_KEY=${process.env.IDL}\n`)
+fs.writeFileSync('../../.env', `IDL=${process.env.IDL}\n`)
