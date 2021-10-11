@@ -165,8 +165,8 @@
       <a href="https://github.com/jet-lab/jet-v1" target="_blank"><i class="text-gradient fab fa-github"></i></a>
     </div>
     <div class="socials flex column justify-start">
-      <a href="https://www.jetprotocol.io/terms-of-use" target="_blank"><i class="text-gradient fas fa-file-contract"></i> <span>Terms of Use</span></a>
-      <a href="https://www.jetprotocol.io/privacy-policy" target="_blank"><i class="text-gradient fas fa-user-secret"></i> <span>Privacy Policy</span></a>
+      <a href="https://www.jetprotocol.io/terms-of-use" target="_blank"><span>Terms of Use</span></a>
+      <a href="https://www.jetprotocol.io/privacy-policy" target="_blank"><span>Privacy Policy</span></a>
     </div>
   </div>
 </div>
