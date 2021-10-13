@@ -3,11 +3,16 @@
 </svelte:head>
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
-  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE } from '../store';
+  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading } from '../store';
   import { getTransactionLogs } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
+
+
+  let txnsHistoryLoading: boolean;
+  TxnsHistoryLoading.subscribe(data => txnsHistoryLoading = data)
+  // $: console.log('txn history loading', txnsHistoryLoading);
 
   // Datatable Settings
   const tableSettings: any = {
@@ -27,13 +32,15 @@
   };
 </script>
 
+<button>add txns</button>
+<br/>
 <div class="view-container flex justify-center column">
   <h1 class="view-title text-gradient">
     {dictionary[$PREFERRED_LANGUAGE].transactions.title}
   </h1>
   <div class="divider">
   </div>
-  {#if $TRANSACTION_LOGS}
+  {#if !txnsHistoryLoading}
     <div class="transaction-logs flex">
       <Datatable settings={tableSettings} data={$TRANSACTION_LOGS}>
         <thead>
