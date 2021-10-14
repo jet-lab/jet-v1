@@ -33,7 +33,7 @@ let transactionLogConnection: anchor.web3.Connection;
 let coder: anchor.Coder;
 let preferredLanguage: string;
 let preferredNode: string | null;
-let transactionLogs: TransactionLog[] | null;
+let transactionLogs: TransactionLog[];
 let signaturesFromAddress: anchor.web3.ConfirmedSignatureInfo[];
 let sigIndex: number;
 let txnCount: number;
@@ -216,8 +216,11 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
-    // getAllConfirmedSigs();
-    getTransactionLogs();
+    getAllConfirmedSigs()
+    .then(() => {
+      getMoreJetTxnsDetails(8, true);
+    });
+    // getTransactionLogs();
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
     await getMarketAndIDL();
@@ -246,33 +249,39 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   await wallet.connect();
 };
 
-// Get Jet transaction logs and associated UI data on wallet init
-export const getTransactionLogs = async (): Promise<void> => {
+const txnLogsConnection = () => {
+  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
+    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com')  : new anchor.web3.Connection('https://api.mainnet-beta.solana.com'));
+}
 
+// Get ALL Jet transaction logs and associated UI data on wallet init
+export const getTransactionLogs = async (): Promise<void> => {
   TxnsHistoryLoading.set(true);
-  console.log('tx loading', txnsHistoryLoading);
+  console.log('tx loading', txnsHistoryLoading);  
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
-    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
+
+  //open connection
+  txnLogsConnection();
+
   const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
-  console.log(sigs.length);
-  for (let sig of sigs) {
-    //Reset global variable for load
-    TRANSACTION_LOGS.set(null);
-    // Get confirmed transaction from each signature
-    const log = await transactionLogConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
-    const detailedLog = log ? await getLogDetails(log, sig.signature) : null;
+  console.log('sigs.length', sigs.length);
+  const sigsLen = sigs.length;
+  let index = 0;
+
+  while(index < sigsLen) {
+    const log = await transactionLogConnection.getConfirmedTransaction(sigs[index].signature, 'confirmed') as unknown as TransactionLog;
+    const detailedLog = log ? await getLogDetails(log, sigs[index].signature) : null;
     if (detailedLog) {
       txLogs.push(detailedLog);
     }
   }
 
   // Check if user has submitted new trades before all were loaded    
-  // Update global store
   const newerLogs = transactionLogs ?? [];
-  newerLogs.forEach(l => txLogs.push(l));
+  newerLogs.forEach(l => txLogs.unshift(l));
+  // Update global store
   TRANSACTION_LOGS.set(txLogs);
   TxnsHistoryLoading.set(false);
   console.log('tx loading', txnsHistoryLoading);
@@ -281,53 +290,66 @@ export const getTransactionLogs = async (): Promise<void> => {
 
 export const getAllConfirmedSigs = async (): Promise<void>  => {
   TxnsHistoryLoading.set(true);
-  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
-    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
+  console.log('sigs txnsHistoryLoading', txnsHistoryLoading)
+  //open connection
+  txnLogsConnection();
   const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed');
+  console.log('sigs length', sigs.length)
   //store all the signatures
   SignaturesFromAddress.set(sigs);
   TxnsHistoryLoading.set(false);
+  console.log('sigs txnsHistoryLoading', txnsHistoryLoading)
 };
 
-//defualt to 8 txns
-export const getJetTxnsDetails = async (maxTxnsToGet: number = 8): Promise<void> => {
-  TxnsHistoryLoading.set(true);
+//Ge the next txn logs - defualt to 8 txns
+export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn = false): Promise<void> => {
+  if(loadingOn) {
+    TxnsHistoryLoading.set(true);
+  }
+
+  console.log('getmore txnsHistoryLoading', txnsHistoryLoading)
   const sigsLen = signaturesFromAddress.length;
-  let txLogs: TransactionLog[] = [];
+  let currentTxLogs = transactionLogs;
+  let moreTxLogs: TransactionLog[] = [];
   let sigsIndex = sigIndex
   let txnsCount = 0;
-
-  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
-    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
-
+  console.log('start','sigIndex', sigIndex, 'txnsCount', txnsCount)
+  //open connection
+  txnLogsConnection();
   //iterate until get hit the last sig or we hit the max txn count we want to get
   while (sigsIndex < sigsLen && txnsCount < maxTxnsToGet) {
     // Get confirmed transaction from each signature
     const log = await transactionLogConnection.getConfirmedTransaction(signaturesFromAddress[sigsIndex].signature, 'confirmed') as unknown as TransactionLog;
+
     const detailedLog = log ? await getLogDetails(log, signaturesFromAddress[sigsIndex].signature) : null;
     if (detailedLog) {
-      txLogs.push(detailedLog);
+      moreTxLogs.push(detailedLog);
+      txnsCount += 1;
     }
+    //keep track of itereated sigs and prevent infinite loop if no JET txn
     sigsIndex += 1;
-    txnsCount += 1;
   }
-  
   // Check if user has submitted new trades before all were loaded    
-  const newerLogs = transactionLogs ?? [];
-  newerLogs.forEach(l => txLogs.unshift(l));
+  //probably won't need this because it loads really fast or user can just refresh it. 
+  // const newerLogs = transactionLogs ?? [];
+  // newerLogs.forEach(l => txLogs.unshift(l));
 
   //update and keep track of our current signature index and txn log count
   CountOfSigsAndHistoricTxns.update((data) => {
+    console.log('CountOfSigsAndHistoricTxns', [sigsIndex, data[1] + txnsCount]);
     return [sigsIndex, data[1] + txnsCount];
   })
+  
+  console.log('how many txn pushed in', moreTxLogs.length)
   //set global set
-  TRANSACTION_LOGS.set(txLogs)
-  TxnsHistoryLoading.set(false);
+  TRANSACTION_LOGS.set([...currentTxLogs,...moreTxLogs])
+  console.log('txnCount', txnCount);
+  if(loadingOn) {
+    TxnsHistoryLoading.set(false);
+  }
+  console.log('getmore txnsHistoryLoading', txnsHistoryLoading)
 };
 
-export const getEightTxnLogs = async () => {
-
-};
 
 // Get UI data of a transaction log
 export let getLogDetails = async (log: TransactionLog, signature: string): Promise<TransactionLog | undefined> => {
@@ -396,8 +418,6 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
 // Add new transaction log on trade submit
 export let addTransactionLog = async (signature: string) => {
   const txLogs = transactionLogs ?? [];
-  //Reset global variable for load
-  TxnsHistoryLoading.set(true);
 
   // Keep trying to get confirmed log (may take a few seconds for validation)
   let log: TransactionLog | null = null;
@@ -412,7 +432,6 @@ export let addTransactionLog = async (signature: string) => {
     txLogs.unshift(logDetail);
     TRANSACTION_LOGS.set(txLogs);
   }
-  TxnsHistoryLoading.set(false);
 };
 
 // Get user token accounts

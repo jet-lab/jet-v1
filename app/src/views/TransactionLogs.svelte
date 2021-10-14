@@ -4,10 +4,11 @@
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading } from '../store';
-  import { getTransactionLogs } from '../scripts/jet'; 
+  import { getTransactionLogs, getMoreJetTxnsDetails } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
+import { onMount } from 'svelte';
 
 
   let txnsHistoryLoading: boolean;
@@ -30,9 +31,13 @@
       next: '>'
     }
   };
+  onMount(() => {
+    //sneak in 8 more txns
+    getMoreJetTxnsDetails(20, false);
+  })
 </script>
 
-<button>add txns</button>
+<button on:click={() =>getMoreJetTxnsDetails()}>add txns</button>
 <br/>
 <div class="view-container flex justify-center column">
   <h1 class="view-title text-gradient">
@@ -40,7 +45,7 @@
   </h1>
   <div class="divider">
   </div>
-  {#if !txnsHistoryLoading}
+  {#if !$TxnsHistoryLoading}
     <div class="transaction-logs flex">
       <Datatable settings={tableSettings} data={$TRANSACTION_LOGS}>
         <thead>

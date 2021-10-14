@@ -39,7 +39,7 @@ export const PREFERRED_NODE = writable<string | null> (null);
 export const PING = writable<number> (0);
 
 //txn logs
-export const TRANSACTION_LOGS = writable<TransactionLog[] | null> ([]);
+export const TRANSACTION_LOGS = writable<TransactionLog[]> ([]);
 export const SignaturesFromAddress = writable<anchor.web3.ConfirmedSignatureInfo[]> ([]);
 export const TxnsHistoryLoading = writable<boolean> (false);
-export const CountOfSigsAndHistoricTxns = writable<[number, number]> (undefined);
+export const CountOfSigsAndHistoricTxns = writable<[number, number]> ([0, 0]);
