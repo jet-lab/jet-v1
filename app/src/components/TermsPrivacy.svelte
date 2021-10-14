@@ -956,6 +956,7 @@
     width: 55%;
     padding: 2.5em;
     z-index: 150;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
   }
 
   .close {
