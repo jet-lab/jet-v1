@@ -994,4 +994,8 @@
     left: 2em;
     line-height: 150%;
   }
+
+  b {
+    font-family: Bicyclette-Bold, sans-serif;
+  }
 </style>
