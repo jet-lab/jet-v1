@@ -3,17 +3,12 @@
 </svelte:head>
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
-  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading } from '../store';
+  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading, CountOfSigsAndHistoricTxns, SignaturesFromAddress } from '../store';
   import { getTransactionLogs, getMoreJetTxnsDetails } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
-import { onMount } from 'svelte';
-
-
-  let txnsHistoryLoading: boolean;
-  TxnsHistoryLoading.subscribe(data => txnsHistoryLoading = data)
-  // $: console.log('txn history loading', txnsHistoryLoading);
+  import { onMount } from 'svelte';
 
   // Datatable Settings
   const tableSettings: any = {

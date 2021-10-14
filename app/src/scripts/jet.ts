@@ -257,8 +257,6 @@ const txnLogsConnection = () => {
 // Get ALL Jet transaction logs and associated UI data on wallet init
 export const getTransactionLogs = async (): Promise<void> => {
   TxnsHistoryLoading.set(true);
-  console.log('tx loading', txnsHistoryLoading);  
-  // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
 
@@ -276,6 +274,7 @@ export const getTransactionLogs = async (): Promise<void> => {
     if (detailedLog) {
       txLogs.push(detailedLog);
     }
+    index += 1;
   }
 
   // Check if user has submitted new trades before all were loaded    
@@ -284,13 +283,10 @@ export const getTransactionLogs = async (): Promise<void> => {
   // Update global store
   TRANSACTION_LOGS.set(txLogs);
   TxnsHistoryLoading.set(false);
-  console.log('tx loading', txnsHistoryLoading);
-  console.log(txLogs.length)
 };
 
 export const getAllConfirmedSigs = async (): Promise<void>  => {
   TxnsHistoryLoading.set(true);
-  console.log('sigs txnsHistoryLoading', txnsHistoryLoading)
   //open connection
   txnLogsConnection();
   const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed');
@@ -298,7 +294,6 @@ export const getAllConfirmedSigs = async (): Promise<void>  => {
   //store all the signatures
   SignaturesFromAddress.set(sigs);
   TxnsHistoryLoading.set(false);
-  console.log('sigs txnsHistoryLoading', txnsHistoryLoading)
 };
 
 //Ge the next txn logs - defualt to 8 txns
@@ -306,8 +301,7 @@ export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn 
   if(loadingOn) {
     TxnsHistoryLoading.set(true);
   }
-
-  console.log('getmore txnsHistoryLoading', txnsHistoryLoading)
+  console.log('getMoreJetTxnsDetails called')
   const sigsLen = signaturesFromAddress.length;
   let currentTxLogs = transactionLogs;
   let moreTxLogs: TransactionLog[] = [];
@@ -347,9 +341,7 @@ export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn 
   if(loadingOn) {
     TxnsHistoryLoading.set(false);
   }
-  console.log('getmore txnsHistoryLoading', txnsHistoryLoading)
 };
-
 
 // Get UI data of a transaction log
 export let getLogDetails = async (log: TransactionLog, signature: string): Promise<TransactionLog | undefined> => {
