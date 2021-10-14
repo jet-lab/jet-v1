@@ -138,7 +138,7 @@
     overflow: hidden;
     flex-wrap: nowrap;
     z-index: 103;
-    padding: var(--spacing-md);
+    padding: 0 var(--spacing-md);
   }
   .copilot-body {
     max-width: 250px;

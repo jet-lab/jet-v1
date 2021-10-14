@@ -7,8 +7,6 @@
   import NavLink from './NavLink.svelte';
   import ConnectWalletButton from './ConnectWalletButton.svelte';
 
-  export let launchUI: boolean;
-
   let expanded: boolean = false;
   const location = useLocation();
   
@@ -34,12 +32,11 @@
 
 <!--Desktop-->
 <nav class="desktop flex flex align-center justify-between column" 
-  class:expanded
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+  class:expanded>
 	<div class="top flex align-center column">
     <div class="nav-logo-container flex align-center justify-center"
       on:click={() => window.open('https://jetprotocol.io/', '_blank')}>
-      <Logo width={!expanded ? 50 : 100} logoMark={!expanded} />
+      <Logo width={!expanded ? 50 : 105} logoMark={!expanded} />
     </div>
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'}
@@ -73,8 +70,7 @@
 	</div>
 </nav>
 <!--Tablet-->
-<nav class="tablet flex flex align-center justify-between" 
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+<nav class="tablet flex flex align-center justify-between">
 	<div class="top flex align-center justify-evenly">
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'} 
@@ -94,8 +90,7 @@
   </div>
 </nav>
 <!--Mobile-->
-<nav class="mobile flex flex align-center justify-between" 
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+<nav class="mobile flex flex align-center justify-between">
 	<div class="top flex align-center justify-evenly">
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'} 

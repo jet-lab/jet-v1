@@ -1,11 +1,12 @@
 import { BN } from '@project-serum/anchor';
 import type { AccountInfo as TokenAccountInfo, MintInfo, u64 } from '@solana/spl-token';
-import type { Market, User, Obligation, Notification } from '../models/JetTypes';
-import { MARKET, USER } from '../store';
+import { NATIVE_MINT } from '@solana/spl-token'; 
+import type { Reserve, User, Notification } from '../models/JetTypes';
+import { USER } from '../store';
+import { dictionary } from './localization';
+import { airdrop } from './jet';
 
-let market: Market | null;
 let user: User;
-MARKET.subscribe(data => market = data);
 USER.subscribe(data => user = data);
 
 const NOTIFICATION_TIMEOUT = 4000;
@@ -31,6 +32,7 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 0.8)');
     document.documentElement.style.setProperty('--input-color', 'rgba(255, 255, 255, 0.8)');
+    document.documentElement.style.setProperty('--range-slider-bg', 'rgba(0, 0, 0, 0.25)');
   } else {
     document.documentElement.style.setProperty('--jet-green', '#3d9e83');
     document.documentElement.style.setProperty('--jet-blue', '#278db6');
@@ -42,6 +44,7 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(175, 186, 214, 0.8)');
     document.documentElement.style.setProperty('--input-color', 'rgba(26, 73, 94, 0.8)');
+    document.documentElement.style.setProperty('--range-slider-bg', 'rgba(255, 255, 255, 0.25)');
   }
 
   localStorage.setItem('jetDark', JSON.stringify(darkTheme));
@@ -141,41 +144,26 @@ export const clearNotification = (index: number): void => {
   })
 };
 
-// Calculate total value of deposits and borrowings, as well as c-ratio
-export const getObligationData = (): Obligation => {
-  let depositedValue: number = 0;
-  let borrowedValue: number = 0;
-  let colRatio = 0;
-  let utilizationRate = 0;
-
-  if (!user.assets || !market) {
-    return {
-      depositedValue,
-      borrowedValue,
-      colRatio,
-      utilizationRate
-    }
+// If in development, can request airdrop for testing
+export const doAirdrop = async (reserve: Reserve): Promise<void> => {
+  let amount = TokenAmount.tokens("100", reserve.decimals);
+  if(reserve.tokenMintPubkey.equals(NATIVE_MINT)) {
+    amount = TokenAmount.tokens("1", reserve.decimals);
   }
 
-  for (let t in user.assets.tokens) {
-    depositedValue += new TokenAmount(
-      user.assets.tokens[t].collateralBalance.amount,
-      market.reserves[t].decimals
-    ).uiAmountFloat * market.reserves[t].price;
-    borrowedValue += new TokenAmount(
-      user.assets.tokens[t].loanBalance.amount,
-      market.reserves[t].decimals
-    ).uiAmountFloat * market.reserves[t].price;
-
-    colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
-    utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
-  }
-
-  return {
-    depositedValue,
-    borrowedValue,
-    colRatio,
-    utilizationRate
+  const [ok, txid] = await airdrop(reserve.abbrev, amount.amount);
+  if (ok && txid) {
+    addNotification({
+      success: true,
+      text: dictionary[user.preferredLanguage].copilot.alert.airdropSuccess
+        .replaceAll('{{UI AMOUNT}}', amount.uiAmount)
+        .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev)
+    });
+  } else if (!ok && !txid) {
+    addNotification({
+      success: false,
+      text: dictionary[user.preferredLanguage].cockpit.txFailed
+    });
   }
 };
 

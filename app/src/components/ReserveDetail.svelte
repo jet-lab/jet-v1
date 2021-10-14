@@ -154,7 +154,7 @@
     <div class="divider">
     </div>
     <div class="modal-section flex align-center justify-center">
-      {#if $USER.wallet}
+      {#if $USER.walletInit}
         <Button text={dictionary[$USER.preferredLanguage].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
           onClick={() => {
             closeModal();

@@ -60,18 +60,16 @@ export const getLocale = async (): Promise<void> => {
         }
       }
     });
-
-    // Set language and user locale
-    USER.update(user => {
-      user.location = locale ?? null;
-      user.preferredLanguage = language;
-      return user;
-    });
   } catch (err) {
     console.log(err);
   }
 
-  return;
+  // Set language and user locale
+  USER.update(user => {
+    user.location = locale ?? null;
+    user.preferredLanguage = language;
+    return user;
+  });
 };
 
 // Banned countries

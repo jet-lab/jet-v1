@@ -50,6 +50,7 @@
   --spacing-sm: 8px;
   --spacing-md: 12px;
   --spacing-lg: 18px;
+  --spacing-xl: 24px;
 
   --border-radius: 20px;
   --round-radius: 50px;
@@ -58,6 +59,7 @@
   --secondary-btn-padding: 7px 10px 5px 10px;
 
   /* Slider variables */
+  --range-slider-bg: rgba(255, 255, 255, 0.25);
   --range-slider: var(--white);
   --range-handle-inactive: var(--white);
   --range-handle: var(--white);
@@ -263,6 +265,9 @@ input[type=number] {
 .submit-input-btn:active, .submit-input-btn.active {
   background: var(--white);
 }
+.submit-input-btn.disabled {
+  opacity: 0.5;
+}
 .submit-input-btn.disabled:active {
   background: unset;
 }
@@ -429,15 +434,44 @@ input[type=number] {
 
 /* Slider component overrides */
 .rangeSlider {
-  width: 375px;
+  position: relative !important;
+  width: 400px !important;
+  height: 5px !important;
+  margin-top: var(--spacing-sm) !important;
+  margin-bottom: 35px !important;
+  background: var(--range-slider-bg) !important;
+  transition: unset !important;
+}
+.rangeBar {
+  height: 5px !important;
+  background: var(--white) !important;
 }
 .rangeFloat-suffix {
-  opacity: 1;
+  opacity: 1 !important;
+}
+.rangeSlider .rangeHandle {
+  width: 12px !important;
+  height: 12px !important;
+}
+.rangeSlider .rangeHandle, .rangeSlider .rangeNub {
+  opacity: 1 !important;
 }
 .rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider .rangeHandle:before {
-  opacity: 1;
   transition: unset !important;
-  cursor: pointer;
+  cursor: pointer !important;
+}
+.rangeSlider .pip {
+  top: 0px !important;
+  width: 0px !important;
+}
+.rangeSlider .pipVal, .rangeSlider .pipVal-suffix {
+  opacity: 1 !important;
+  color: var(--white) !important;
+  font-size: 10px !important;
+  font-weight: unset !important;
+}
+.rangeSlider .pipVal {
+  top: 2px !important;
 }
 
 /* Datatable component overrides */
@@ -755,7 +789,10 @@ input[type=number] {
     margin: var(--spacing-sm) 0;
   }
   .rangeSlider {
-    width: 225px;
+    width: 225px !important;
+  }
+  .rangeHandle {
+    top: 3px !important;
   }
   .dt-table {
     padding: unset !important;

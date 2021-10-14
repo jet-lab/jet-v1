@@ -9,7 +9,7 @@ import type { Market, Asset, Reserve, AssetStore, SolWindow, User, WalletProvide
 import { MARKET, USER, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, COPILOT } from '../store';
 import { subscribeToAssets, subscribeToMarket } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
-import { Amount, getObligationData, timeout, TokenAmount } from './util';
+import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
 import { Buffer } from 'buffer';
 
@@ -157,8 +157,15 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves[reserveMeta.abbrev] = reserve;
   }
 
-  // Set market
+  // Init global market object
   MARKET.set({
+    minColRatio: 0,
+    accountPubkey: idlMetadata.market.market,
+    authorityPubkey: idlMetadata.market.marketAuthority,
+    reserves: reserves,
+    currentReserve: reserves.SOL,
+    nativeValues: true,
+    // Get TVL of all reserves
     totalValueLocked: () => {
       let tvl = 0;
       for (let r in reserves) {
@@ -167,23 +174,10 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
       return tvl;
     },
-    minColRatio: 0,
-    accountPubkey: idlMetadata.market.market,
-    authorityPubkey: idlMetadata.market.marketAuthority,
-    reserves: reserves,
-    currentReserve: market.reserves.SOL,
-    nativeValues: true
   });
 
   // Subscribe to market 
   await subscribeToMarket(idlMetadata, connection, coder);
-
-  // Set user initial state and prompt to connect wallet
-  USER.set({
-    connectingWallet: true,
-    tradeAction: 'deposit',
-    transactionLogs: [],
-  } as unknown as User);
 };
 
 // Connect to user's wallet
@@ -221,7 +215,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   // Connect and begin fetching account data
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
-    // Set wallet name and update user store
+    // Set wallet
     wallet.name = provider.name;
     USER.update(user => {
       user.wallet = wallet;
@@ -234,12 +228,50 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     await subscribeToAssets(connection, coder, wallet.publicKey);
     await getMarketAndIDL();
 
-    // Get obligation, set remaining user properties
+    // Set user global getters and state
     // and init wallet to display balances
     USER.update(user => {
-      user.obligation = getObligationData();
-      user.noDeposits = !user.obligation.depositedValue;
-      user.belowMinCRatio = (user.obligation.depositedValue / user.obligation.borrowedValue) <= market.minColRatio;
+      // Get value of deposits and borrowings, as well as c-ratio
+      user.obligation = () => {
+        let depositedValue: number = 0;
+        let borrowedValue: number = 0;
+        let colRatio = 0;
+        let utilizationRate = 0;
+
+        if (!user.assets || !market) {
+          return {
+            depositedValue,
+            borrowedValue,
+            colRatio,
+            utilizationRate
+          }
+        }
+
+        for (let t in user.assets.tokens) {
+          depositedValue += new TokenAmount(
+            user.assets.tokens[t].collateralBalance.amount,
+            market.reserves[t].decimals
+          ).uiAmountFloat * market.reserves[t].price;
+          borrowedValue += new TokenAmount(
+            user.assets.tokens[t].loanBalance.amount,
+            market.reserves[t].decimals
+          ).uiAmountFloat * market.reserves[t].price;
+
+          colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
+          utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
+        }
+
+        return {
+          depositedValue,
+          borrowedValue,
+          colRatio,
+          utilizationRate
+        }
+      };
+      user.belowMinCRatio = () => (user.obligation().depositedValue / user.obligation().borrowedValue) <= market.minColRatio;
+      // Check if user has no current collateral
+      user.noDeposits = () => !user.obligation().depositedValue;
+      // Check if user is below minimum c-ratio
       // Check to see if user has a deposited/borrowed value for asset
       user.assetIsCurrentDeposit = () => {
         return market.currentReserve
@@ -253,27 +285,27 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       };
       // Get user's wallet balance of asset
       user.walletBalance = (r?: Reserve) => {
-        let balance = TokenAmount.zero(0);
+        let balance = 0;
         if (market.currentReserve && user.assets) {
-          balance = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].tokenMintPubkey.equals(NATIVE_MINT) 
-            ? user.assets.sol
-              : user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].walletTokenBalance;
+          balance = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.tokenMintPubkey.equals(NATIVE_MINT) 
+            ? user.assets.sol.uiAmountFloat
+              : user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].walletTokenBalance.uiAmountFloat;
         }
         return balance;
       };
       // Get user's collateral balance of asset
       user.collateralBalance = (r?: Reserve) => {
-        let collateral = TokenAmount.zero(0);
+        let collateral = 0;
         if (market.currentReserve && user.assets) {
-          collateral = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].collateralBalance;
+          collateral = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].collateralBalance.uiAmountFloat;
         }
         return collateral;
       };
       // Get user's loan balance of asset
       user.loanBalance = (r?: Reserve) => {
-        let loan = TokenAmount.zero(0);
+        let loan = 0;
         if (market.currentReserve && user.assets) {
-          loan = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].loanBalance;
+          loan = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].loanBalance.uiAmountFloat;
         }
         return loan;
       };
@@ -281,10 +313,10 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       user.maxWithdraw = () => {
         let collateralBalance = 0;
         let maxWithdraw = 0;
-        if (market.currentReserve && user.assets && user.obligation) {
+        if (market.currentReserve && user.assets) {
           collateralBalance = user.assets.tokens[market.currentReserve.abbrev].collateralBalance.uiAmountFloat;
-          maxWithdraw = user.obligation.borrowedValue
-            ? (user.obligation.depositedValue - (market.minColRatio * user.obligation.borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
+          maxWithdraw = user.obligation().borrowedValue
+            ? (user.obligation().depositedValue - (market.minColRatio * user.obligation().borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
               : collateralBalance;
           if (maxWithdraw > collateralBalance) {
             maxWithdraw = collateralBalance;
@@ -295,9 +327,9 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       // Get maximum borrow a user can submit for asset
       user.maxBorrow = () => {
         let maxBorrow = 0;
-        if (market.currentReserve && user.assets && user.obligation) {
+        if (market.currentReserve && user.assets) {
           const availableLiquidity = market.reserves[market.currentReserve.abbrev].availableLiquidity?.uiAmountFloat;
-          maxBorrow = ((user.obligation.depositedValue / market.minColRatio) - user.obligation.borrowedValue) / market.reserves[market.currentReserve.abbrev].price;
+          maxBorrow = ((user.obligation().depositedValue / market.minColRatio) - user.obligation().borrowedValue) / market.reserves[market.currentReserve.abbrev].price;
           if (maxBorrow > availableLiquidity) {
             maxBorrow = availableLiquidity;
           }
@@ -309,18 +341,17 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
         let max = 0;
         if (market.currentReserve && user.assets) {
           if (user.tradeAction === 'deposit') {
-            max = user.walletBalance().uiAmountFloat;
+            max = user.walletBalance();
           } else if (user.tradeAction === 'withdraw') {
             max = user.maxWithdraw();
           } else if (user.tradeAction === 'borrow') {
             max = user.maxBorrow();
           } else {
-            max = user.loanBalance().uiAmountFloat;
+            max = user.loanBalance();
           }
         }
         return max;
       };
-      user.warnedOfLiquidation = false;
       user.walletInit = true;
       return user;
     });

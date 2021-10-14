@@ -17,21 +17,18 @@
   onMount(async () => {
     // Initialize dark theme
     initDarkTheme();
-
     // Get user's locale and check for banned region
     await getLocale();
-
     // get IDL whith market reserve data
     await getMarketAndIDL();
-
     // Display Interface
     launchUI = true;
   });
 </script>
 
 <Router primary={false}>
-  <Nav {launchUI} />
   {#if launchUI}
+    <Nav />
     <Route path="/">
       <Cockpit />
     </Route>
@@ -41,10 +38,10 @@
     <Route path="/settings">
       <Settings />
     </Route>
+    <ConnectWalletModal />
+    <Copilot />
+    <Notifications />
   {:else}
     <Loader fullscreen />
   {/if}
-  <ConnectWalletModal />
-  <Copilot />
-  <Notifications />
 </Router>
