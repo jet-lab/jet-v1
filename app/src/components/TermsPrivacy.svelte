@@ -941,6 +941,7 @@
     padding: 10px;
     font-size: 12px;
     color: var(--dark-grey);
+    width: 100px;
   }
 
   .modal-bg {
@@ -960,19 +961,23 @@
   .close {
     display: flex;
     justify-content: flex-end;
+    font-size: 1.25em;
   }
 
   .modal-body {
     text-align: left;
     overflow-y: scroll;
     height: 95%;
-    font-family: Bicyclette, sans-serif !important;
+    font-family: Montserrat, sans-serif !important;
+    font-weight: 300;
+    color: #000000;
   }
 
   h3,
   h4 {
-    font-family: "Bicyclette-Bold", sans-serif;
+    font-family: "Montserrat", sans-serif;
     margin-bottom: 0;
+    font-weight: 600;
   }
 
   h3 {
@@ -983,6 +988,7 @@
     padding-top: 0;
     margin-bottom: 1em;
     font-size: 14px;
+    color: #000000;
   }
 
   ul {
@@ -996,6 +1002,6 @@
   }
 
   b {
-    font-family: Bicyclette-Bold, sans-serif;
+    font-weight: 400 !important;
   }
 </style>
