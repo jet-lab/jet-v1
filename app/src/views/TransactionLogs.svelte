@@ -33,7 +33,7 @@ import { onMount } from 'svelte';
   };
   onMount(() => {
     //sneak in 8 more txns
-    getMoreJetTxnsDetails(20, false);
+    getMoreJetTxnsDetails(8, false);
   })
 </script>
 
