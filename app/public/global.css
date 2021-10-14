@@ -176,7 +176,9 @@ span {
 .column {
 	flex-direction: column;
 }
-
+.body-container {
+  height: 100vh !important;
+}
 /* Inputs */
 input {
   padding: var(--spacing-md) var(--spacing-lg);

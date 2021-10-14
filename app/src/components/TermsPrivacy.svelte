@@ -1,5 +1,4 @@
 <script lang="ts">
-  export let launchUI: boolean;
   let termsOfUse = false;
   let privacyPolicy = false;
 
@@ -923,8 +922,7 @@
 {/if}
 
 <div
-  class="flex justify-end terms-footer"
-  style={launchUI ? "opacity: 1;" : "opacity: 0;"}>
+  class="flex terms-footer">
   <span on:click={() => {termsOfUse = true;}}>Terms of Use</span>
   <span on:click={() => {privacyPolicy = true;}}>Privacy Policy</span>
 </div>
@@ -932,16 +930,20 @@
 <style>
   .terms-footer {
     bottom: 7px;
-    width: 94%;
-    position: absolute;
+    width: 100%;
+    position: relative;
+    height: 50px;
+    justify-content: flex-end;
+    align-items: flex-end;
   }
 
   .terms-footer span {
     cursor: pointer;
     padding: 10px;
-    font-size: 12px;
     color: var(--dark-grey);
     width: 100px;
+    font-size: 10px;
+    text-align: left;
   }
 
   .modal-bg {
@@ -1004,5 +1006,16 @@
 
   b {
     font-weight: 400 !important;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .terms-footer {
+    bottom: var(--mobile-nav-height);
+    width: 100%;
+    position: relative;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+  }
   }
 </style>

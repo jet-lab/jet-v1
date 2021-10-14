@@ -8,6 +8,7 @@
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
+  import TermsPrivacy from '../components/TermsPrivacy.svelte'
 
   // Datatable Settings
   const tableSettings: any = {
@@ -27,6 +28,7 @@
   };
 </script>
 
+<div class="flex column justify-between body-container">
 <div class="view-container flex justify-center column">
   <h1 class="view-title text-gradient">
     {dictionary[$PREFERRED_LANGUAGE].transactions.title}
@@ -97,6 +99,8 @@
   {:else}
     <Loader fullview />
   {/if}
+</div>
+<TermsPrivacy />
 </div>
 
 <style>

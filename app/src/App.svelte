@@ -12,7 +12,6 @@
   import ConnectWallet from './components/ConnectWallet.svelte';
   import Copilot from './components/Copilot.svelte';
   import Notifications from './components/Notifications.svelte';
-  import TermsPrivacy from './components/TermsPrivacy.svelte'
 
   let launchUI: boolean = false;
   onMount(async () => {
@@ -48,5 +47,4 @@
   <ConnectWallet />
   <Copilot />
   <Notifications />
-  <TermsPrivacy {launchUI} />
 </Router>

@@ -16,6 +16,7 @@
   import Toggle from '../components/Toggle.svelte';
   import InitFailed from '../components/InitFailed.svelte';
   import Button from '../components/Button.svelte';
+  import TermsPrivacy from '../components/TermsPrivacy.svelte'
 
   let marketTVL: number = 0;
   let walletBalances: Record<string, TokenAmount> = {};
@@ -469,6 +470,7 @@
   }
 </script>
 
+<div class="flex column justify-between body-container">
 {#if $MARKET && $CURRENT_RESERVE && !$INIT_FAILED}
   <div class="view-container flex justify-center column">
     <h1 class="view-title text-gradient">
@@ -899,6 +901,8 @@
 {:else}
   <Loader fullview />
 {/if}
+<TermsPrivacy />
+</div>
 
 <style>
   .view-container {
