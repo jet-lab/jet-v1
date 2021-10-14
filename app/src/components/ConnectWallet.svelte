@@ -27,6 +27,11 @@
       name: "Math Wallet",
       logo: "img/wallets/math_wallet.png",
       url: "https://mathwallet.org/en-us/"
+    },
+    {
+      name: "Solflare",
+      logo: "img/wallets/solflare.png",
+      url: "https://solflare.com/"
     }
   ];
 </script>

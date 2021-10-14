@@ -367,9 +367,12 @@ export interface SolWindow extends Window {
     isPhantom?: boolean,
     isMathWallet?: boolean,
     getAccount: () => Promise<string>,
-  }
+  },
   solong: {
     selectAccount: () => Promise<string>,
+  },
+  solflare: {
+    isSolflare?: boolean
   }
 };
 
