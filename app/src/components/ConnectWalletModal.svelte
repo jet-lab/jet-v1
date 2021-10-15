@@ -39,7 +39,7 @@
       return user;
     })}>
   </div>
-  <div class="modal flex align-center justify-center column"
+  <div class="modal flex-centered column"
     in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
     <Logo width={120} />
@@ -48,16 +48,16 @@
     </span>
     <div class="divider">
     </div>
-    <div class="wallets flex align-center justify-center column">
+    <div class="wallets flex-centered column">
       {#each providers as p}
-        <div class={`${p.name.toLowerCase()} wallet flex align-center justify-between`}
+        <div class="{p.name.toLowerCase()} wallet flex align-center justify-between"
           class:active={walletChoice === p.name} 
           on:click={() => {
             walletChoice = p.name;
             getWalletAndAnchor(p);
           }}>
-          <div class="flex align-center justify-center">
-            <img src={p.logo} alt={`${p.name} Logo`} />
+          <div class="flex-centered">
+            <img src={p.logo} alt="{p.name} Logo" />
             <p>
               {p.name}
             </p>

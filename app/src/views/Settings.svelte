@@ -4,11 +4,12 @@
 <script lang="ts">
   import Select from 'svelte-select';
   import { USER } from '../store';
-  import { getMarketAndIDL, getTransactionLogs } from '../scripts/jet';
-  import { disconnectWallet, setDark, shortenPubkey } from '../scripts/util';
+  import { getMarketAndIDL, getTransactionLogs, disconnectWallet } from '../scripts/jet';
+  import { setDark, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
   import Toggle from '../components/Toggle.svelte';
+  import Input from '../components/Input.svelte';
 
   let rpcNodeInput: string | null = null;
   let inputError: string | null = null;
@@ -80,30 +81,12 @@
           </p>
         {/if}
       </div>
-      <div class="submit-input flex align-center justify-center">
-        <input
-          bind:value={rpcNodeInput}
-          placeholder={inputError ?? 'ex: https://api.devnet.solana.com/'}
-          class={inputError ? 'input-error' : ''}
-          class:active={rpcNodeInput}
-          type="text"
-          on:keypress={(e) => {
-            if (e.code === 'Enter') {
-              checkRPC();
-            }
-          }}
-          on:click={() => {
-            inputError = null;
-          }}
-        />
-        <div class="submit-input-btn flex align-center justify-center"
-          on:click={() => checkRPC()}>
-          <i class="jet-icons"
-            title="Save">
-            ➜
-          </i>
-        </div>
-      </div>
+      <Input type="text"
+        placeholder="ex: https://api.devnet.solana.com/"
+        value={rpcNodeInput} 
+        submit={checkRPC}
+        error={inputError}
+      />
     </div>
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
@@ -111,11 +94,11 @@
         {dictionary[$USER.preferredLanguage].settings.wallet.toUpperCase()}
       </span>
       {#if $USER.wallet}
-        <div class="wallet flex align-center justify-center">
+        <div class="wallet flex-centered">
           <img width="28px" height="auto" 
             style="margin-right: var(--spacing-xs);"
-            src={`img/wallets/${$USER.wallet.name.replace(' ', '_').toLowerCase()}.png`} 
-            alt={`${$USER.wallet.name} Logo`}
+            src="img/wallets/{$USER.wallet.name.replace(' ', '_').toLowerCase()}.png"
+            alt="{$USER.wallet.name} Logo"
           />
           <p style="margin: 0 var(--spacing-lg) 0 var(--spacing-xs);">
             {shortenPubkey($USER.wallet.publicKey.toString(), 4)}
@@ -211,20 +194,6 @@
   .divider {
     margin: var(--spacing-md) 0;
   }
-  .submit-input-btn {
-    height: 39px;
-    margin-left: -2px;
-    background: var(--gradient);
-    border-left: none;
-    cursor: pointer;
-  }
-  .submit-input-btn:active {
-    opacity: 0.8;
-  }
-  .submit-input-btn:active i {
-    -webkit-background-clip: unset !important;
-    -webkit-text-fill-color: unset !important;
-  }
   .ping-indicator {
     width: 8px;
     height: 8px;
@@ -235,12 +204,6 @@
   .reset-rpc {
     margin: var(--spacing-xs) 0 0 var(--spacing-sm);
     cursor: pointer;
-  }
-  input {
-    width: 250px;
-    padding-left: var(--spacing-lg);
-    padding-right: var(--spacing-lg);
-    font-size: 13px;
   }
   span {
     font-weight: bold;
@@ -261,9 +224,6 @@
       padding: unset;
       margin: unset;
       box-shadow: unset;
-    }
-    input {
-      width: 180px;
     }
   }
 </style>

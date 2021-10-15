@@ -1,16 +1,17 @@
 <script lang="ts">
   import { USER } from '../store';
-  import { disconnectWallet, shortenPubkey } from '../scripts/util';
+  import { shortenPubkey } from '../scripts/util';
+  import { disconnectWallet } from '../scripts/jet';
   import { dictionary } from '../scripts/localization'; 
   import Button from './Button.svelte';
 
   export let mobile: boolean = false;
 </script>
 
-<div class="flex align-center justify-center">
+<div class="flex-centered">
   {#if $USER.wallet}
     <Button secondary noCaps bicyclette={false}
-      img={`img/wallets/${$USER.wallet.name.replace(' ', '_').toLowerCase()}.png`} 
+      img="img/wallets/{$USER.wallet.name.replace(' ', '_').toLowerCase()}.png"
       text={shortenPubkey($USER.wallet.publicKey.toString(), 4) + ' ' + 
         (!mobile
           ? dictionary[$USER.preferredLanguage].settings.connected.toLowerCase()

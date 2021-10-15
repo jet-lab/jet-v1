@@ -5,7 +5,7 @@
   import Button from './Button.svelte';
 </script>
 
-<div class="view-container flex align-center justify-center column">
+<div class="view-container flex-centered column">
   <img src="img/ui/failed_init.gif" alt="Failed To Init App" />
   <h1 class="bicyclette">
     {dictionary[$USER.preferredLanguage].copilot.alert.failed}

@@ -9,16 +9,6 @@ import { airdrop } from './jet';
 let user: User;
 USER.subscribe(data => user = data);
 
-const NOTIFICATION_TIMEOUT = 4000;
-
-// If user's browser has dark theme preference, set app to dark theme right on init
-export const initDarkTheme = () => {
-  let darkTheme: boolean = localStorage.getItem('jetDark') === 'true';
-  if (darkTheme) {
-    setDark(true);
-  }
-};
-
 // Toggle dark theme root CSS attributes
 export const setDark = (darkTheme: boolean): void => {
   if (darkTheme) {
@@ -52,23 +42,6 @@ export const setDark = (darkTheme: boolean): void => {
     user.darkTheme = darkTheme;
     return user;
   });
-};
-
-// Disconnect user wallet
-export const disconnectWallet = () => {
-  if (user.wallet?.disconnect) {
-    user.wallet.disconnect();
-  }
-  if (user.wallet?.forgetAccounts) {
-    user.wallet.forgetAccounts();
-  }
-
-  USER.update(user => {
-    user.wallet = null;
-    user.assets = null;
-    user.transactionLogs = [];
-    return user;
-  })
 };
 
 // Format USD or crypto with default or desired decimals
@@ -122,6 +95,7 @@ export const timeout = (ms: number): Promise<boolean> => {
 
 // Notification store
 export const addNotification = (notification: Notification) => {
+  const NOTIFICATION_TIMEOUT = 4000;
   const notifs = user.notifications ?? [];
   notifs.push(notification);
   const index = notifs.indexOf(notification);

@@ -17,11 +17,11 @@
 </script>
 
 {#if $COPILOT}
-  <div class="modal-bg flex align-center justify-center"
+  <div class="modal-bg flex-centered"
     on:click={() => acceptJetDisclaimer ? COPILOT.set(null) : null}
     transition:fade={{duration: 50}}>
   </div>
-  <div class="copilot modal flex align-center justify-center column"
+  <div class="copilot modal flex-centered column"
     in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
     {#if $COPILOT.alert || $COPILOT.suggestion}
@@ -56,7 +56,7 @@
             {@html $COPILOT.suggestion.solution}
           </span>
         {/if}
-        <div class="button flex align-center justify-center">
+        <div class="button flex-centered">
           {#if $COPILOT.suggestion.action}
             <Button text={$COPILOT.suggestion.action.text ?? dictionary[$USER.preferredLanguage].copilot.okay} 
               onClick={() => {
@@ -81,7 +81,7 @@
         <span class="modal-section">
           {@html $COPILOT.definition.definition}
         </span>
-        <div class="button flex align-center justify-center">
+        <div class="button flex-centered">
           <Button text={dictionary[$USER.preferredLanguage].copilot.okay} 
             onClick={() => COPILOT.set(null)}
             small
@@ -95,7 +95,7 @@
         <span class="modal-section">
           {@html $COPILOT.alert.text}
         </span>
-        <div class="button flex align-center justify-center">
+        <div class="button flex-centered">
           {#if $COPILOT.alert.action}
             <Button text={$COPILOT.alert.action.text} 
               onClick={() => {

@@ -7,7 +7,7 @@
   export let active: boolean;
 </script>
 
-<a class="flex align-center justify-center" 
+<a class="flex-centered" 
   class:active class:text class:justify-start={text}
   href={path} use:link>
   <i class="text-gradient jet-icons"

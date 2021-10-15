@@ -4,7 +4,7 @@
   export let fullscreen: boolean = false;
 </script>
 
-<div class="loader flex align-center justify-center column"
+<div class="loader flex-centered column"
   class:button
   class:fullview
   class:fullscreen>

@@ -379,6 +379,23 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   await wallet.connect();
 };
 
+// Disconnect user wallet
+export const disconnectWallet = () => {
+  if (user.wallet?.disconnect) {
+    user.wallet.disconnect();
+  }
+  if (user.wallet?.forgetAccounts) {
+    user.wallet.forgetAccounts();
+  }
+
+  USER.update(user => {
+    user.wallet = null;
+    user.assets = null;
+    user.transactionLogs = [];
+    return user;
+  })
+};
+
 // Get Jet transaction logs and associated UI data on wallet init
 export const getTransactionLogs = async (): Promise<void> => {
   if (!user.wallet) {

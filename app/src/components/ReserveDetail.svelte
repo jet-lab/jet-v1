@@ -8,6 +8,7 @@
   import Button from './Button.svelte';
   import PercentageChart from './PercentageChart.svelte';
   import Toggle from './Toggle.svelte';
+  import Info from './Info.svelte';
 
   export let reserveDetail: Reserve;
   export let closeModal: Function;
@@ -22,17 +23,17 @@
 </script>
 
 {#if reserveDetail}
-  <div class="modal-bg flex align-center justify-center"
+  <div class="modal-bg flex-centered"
     transition:fade={{duration: 50}}
     on:click={() => closeModal()}>
   </div>
-  <div class="reserve-detail modal flex align-center justify-center column"
+  <div class="reserve-detail modal flex-centered column"
     in:fly={{y: 50, duration: 500}}
     out:fade={{duration: 50}}>
-    <div class="modal-section flex align-center justify-center column">
+    <div class="modal-section flex-centered column">
       <div class="flex align-center-justify-center">
-        <img src={`img/cryptos/${reserveDetail.abbrev}.png`} 
-          alt={`${reserveDetail.abbrev} Logo`}
+        <img src="img/cryptos/{reserveDetail.abbrev}.png" 
+          alt="{reserveDetail.abbrev} Logo"
         />
         <h1 class="modal-header">
           {reserveDetail.name.toUpperCase()}
@@ -55,8 +56,8 @@
         />
       </div>
     </div>
-    <div class="modal-section flex align-center justify-center column">
-      <span class="flex align-center justify-center">
+    <div class="modal-section flex-centered column">
+      <span class="flex-centered">
         {dictionary[$USER.preferredLanguage].reserveDetail.reserveSize.toUpperCase()}
       </span>
       <h2 class="modal-subheader text-gradient">
@@ -74,7 +75,7 @@
     <div class="modal-section flex align-center justify-evenly">
       <PercentageChart percentage={reserveDetail.utilizationRate * 100} 
         text={dictionary[$USER.preferredLanguage].reserveDetail.utilisationRate.toUpperCase()} 
-        percentageDefinition={definitions[$USER.preferredLanguage].utilisationRate}
+        term="utilisationRate"
       />
       <div class="flex align-start justify-center column">
         <div class="flex align-start justify-center" style="margin: var(--spacing-sm);">
@@ -123,28 +124,24 @@
     </div>
     <div class="divider">
     </div>
-    <div class="modal-section flex align-center justify-center">
-      <div class="modal-detail flex align-center justify-center column">
+    <div class="modal-section flex-centered">
+      <div class="modal-detail flex-centered column">
         <span>
           {dictionary[$USER.preferredLanguage].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
-          <i class="info fas fa-info-circle"
-            on:click={() => COPILOT.set({
-              definition: definitions[$USER.preferredLanguage].collateralizationRatio
-            })}>
-          </i>
+          <Info term="collateralizationRatio" 
+            style="margin: unset;" 
+          />
         </span>
         <p>
           {reserveDetail.maximumLTV / 100}%
         </p>
       </div>
-      <div class="modal-detail flex align-center justify-center column">
+      <div class="modal-detail flex-centered column">
         <span>
           {dictionary[$USER.preferredLanguage].reserveDetail.liquidationPremium.toUpperCase()}
-          <i on:click={() => COPILOT.set({
-            definition: definitions[$USER.preferredLanguage].liquidationPremium
-          })} 
-            class="info fas fa-info-circle">
-          </i>
+          <Info term="liquidationPremium" 
+            style="margin: unset;" 
+          />
         </span>
         <p>
           {reserveDetail.liquidationPremium / 100}%
@@ -153,7 +150,7 @@
     </div>
     <div class="divider">
     </div>
-    <div class="modal-section flex align-center justify-center">
+    <div class="modal-section flex-centered">
       {#if $USER.walletInit}
         <Button text={dictionary[$USER.preferredLanguage].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
           onClick={() => {
@@ -194,10 +191,6 @@
     height: 12px;
     margin: 2.5px var(--spacing-sm);
   }
-  .info {
-    position: absolute;
-    top: -2px;
-  }
   .native-toggle {
     position: relative;
     width: 100%;
@@ -231,9 +224,6 @@
     }
     .divider {
       margin: var(--spacing-lg) 0;
-    }
-    .info {
-      position: relative;
     }
     .asset-info-color {
       width: 6px;

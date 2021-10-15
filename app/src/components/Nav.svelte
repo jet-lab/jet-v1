@@ -34,7 +34,7 @@
 <nav class="desktop flex flex align-center justify-between column" 
   class:expanded>
 	<div class="top flex align-center column">
-    <div class="nav-logo-container flex align-center justify-center"
+    <div class="nav-logo-container flex-centered"
       on:click={() => window.open('https://jetprotocol.io/', '_blank')}>
       <Logo width={!expanded ? 50 : 105} logoMark={!expanded} />
     </div>
@@ -52,7 +52,7 @@
     />
 	</div>
   <div class="bottom flex align-center justify-end column">
-    <div on:click={() => toggleNav()} class="bottom-expand flex align-center justify-center">
+    <div on:click={() => toggleNav()} class="bottom-expand flex-centered">
       <i class="text-gradient jet-icons">
         {#if expanded}
           ➧

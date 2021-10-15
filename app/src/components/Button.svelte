@@ -10,7 +10,7 @@
   export let onClick: Function;
 </script>
 
-<button class="flex align-center justify-center" class:bicyclette
+<button class="flex-centered" class:bicyclette
   class:secondary class:small class:disabled class:error class:noCaps
   title={text}
   on:click={() => {if(!disabled) onClick()}}>

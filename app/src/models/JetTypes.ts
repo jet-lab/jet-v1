@@ -45,7 +45,7 @@ export interface Market {
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
-  currentReserve: Reserve | null,
+  currentReserve: Reserve,
   nativeValues: boolean
 };
 export interface MarketAccount {

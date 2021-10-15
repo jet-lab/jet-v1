@@ -108,15 +108,6 @@ span {
   text-align: center;
   max-width: 400px;
 }
-.info {
-  color: var(--black);
-  opacity: var(--disabled-opacity);
-  font-size: 9px !important;
-  cursor: pointer;
-}
-.info:hover {
-  opacity: 1;
-}
 *:focus-visible {
   outline: unset;
 }
@@ -144,6 +135,11 @@ span {
 /* Flexbox */
 .flex {
 	display: flex;
+}
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .align-center {
 	align-items: center;
@@ -181,14 +177,15 @@ span {
 
 /* Inputs */
 input {
+  width: 250px;
   padding: var(--spacing-md) var(--spacing-lg);
   margin: var(--spacing-xs) 0;
-  box-shadow: var(--neu-shadow-inset);
-  background: var(--grey);
+  box-shadow: var(--neu-shadow-inset-low);
+  background: var(--white);
   color: var(--input-color);
-  border-radius: 50px;
-  font-size: 20px;
+  font-size: 13px;
   border: none;
+  border-radius: 50px;
 }
 input::placeholder {
   opacity: var(--disabled-opacity);
@@ -203,85 +200,6 @@ input::-webkit-inner-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield;
-}
-.submit-input {
-  position: relative;
-}
-.submit-input input {
-  width: 250px;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  padding-left: 50px;
-  padding-right: 80px;
-}
-.submit-input.disabled input{
-  cursor: not-allowed !important;
-}
-.submit-input img {
-  width: 25px;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: var(--spacing-md);
-  opacity: var(--disabled-opacity);
-}
-.submit-input .asset-abbrev-usd {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: var(--spacing-md);
-  padding: unset;
-}
-.submit-input span {
-  font-weight: 400 !important;
-  font-size: 15px !important;
-  color: var(--black) !important;
-}
-.submit-input .asset-abbrev-usd span:last-of-type {
-  font-size: 10px !important;
-}
-.submit-input input:focus + img, .submit-input.active img {
-  opacity: 1;
-}
-.submit-input.active input {
-  box-shadow: var(--neu-shadow-inset-low);
-}
-.input-error {
-  border-color: var(--failure);
-}
-.input-error::placeholder {
-  color: var(--failure);
-}
-.submit-input-btn {
-  height: 43px;
-  border: 2px solid var(--white);
-  border-left: none;
-  border-top-right-radius: 50px;
-  border-bottom-right-radius: 50px;
-  padding: 0 var(--spacing-md);
-  cursor: pointer;
-}
-.submit-input-btn:active, .submit-input-btn.active {
-  background: var(--white);
-}
-.submit-input-btn.disabled {
-  opacity: 0.5;
-}
-.submit-input-btn.disabled:active {
-  background: unset;
-}
-.submit-input-btn i {
-  color: var(--white);
-}
-.submit-input-btn:active i, .submit-input-btn.active i {
-  background-image: var(--gradient) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
-.submit-input-btn.disabled:active i {
-  color: var(--white);
-  -webkit-text-fill-color: unset !important;
 }
 
 /* Views */
@@ -453,12 +371,13 @@ input[type=number] {
   width: 12px !important;
   height: 12px !important;
 }
-.rangeSlider .rangeHandle, .rangeSlider .rangeNub {
+.rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider {
   opacity: 1 !important;
-}
-.rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider .rangeHandle:before {
   transition: unset !important;
   cursor: pointer !important;
+}
+.rangeHandle:before {
+  display: none !important;
 }
 .rangeSlider .pip {
   top: 0px !important;
@@ -587,7 +506,7 @@ input[type=number] {
 }
 .dt-table .dt-asset span:last-of-type {
   opacity: var(--disabled-opacity) !important;
-  font-size: 11px !important;
+  font-size: 10px !important;
   top: 34px !important;
 }
 .datatable-spacer td {
@@ -610,7 +529,12 @@ input[type=number] {
   opacity: 1 !important;
 }
 .dt-table .info {
+  opacity: var(--disabled-opacity) !important;
+  cursor: pointer !important;
   margin-left: 0px !important;
+}
+.dt-table .info:hover {
+  opacity: 1 !important;
 }
 .dt-table .dt-balance {
   opacity: 1 !important;
@@ -720,23 +644,20 @@ input[type=number] {
     height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
 	  margin-left: 0;
   }
-  .submit-input-container {
-    padding: var(--spacing-xs) 0;
-  }
-  .submit-input input {
+  .input input {
     width: 150px;
     padding-left: 30px;
     padding-right: 35px;
     font-size: 15px;
   }
-  .submit-input img {
+  .input img {
     width: 18px;
     left: var(--spacing-sm);
   }
-  .submit-input span {
+  .input span {
     font-size: 10px !important;
   }
-  .submit-input-btn {
+  .input-btn {
     height: 37px;
   }
   .view-container {
