@@ -2,13 +2,14 @@
   <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
-  import { Datatable, rows } from 'svelte-simple-datatables';
+  import { Datatable, rows, PaginationButtons } from 'svelte-simple-datatables';
   import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading, CountOfSigsAndHistoricTxns, SignaturesFromAddress } from '../store';
   import { getTransactionLogs, getMoreJetTxnsDetails } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
   import { onMount } from 'svelte';
+
 
   // Datatable Settings
   const tableSettings: any = {
@@ -26,6 +27,21 @@
       next: '>'
     }
   };
+
+ $: if(!$TxnsHistoryLoading) {
+     console.log('loading?')
+      document.querySelectorAll('.dt-pagination-buttons button').forEach((e) => {
+          console.log('e clicked')
+          if(e.innerHTML === '❯') {
+            console.log('e innerhtml clicked')
+            e.addEventListener('click', () => {
+              console.log('clicked')
+              getMoreJetTxnsDetails();
+            })
+          }
+        })
+    }
+  
   onMount(() => {
     //sneak in 8 more txns
     getMoreJetTxnsDetails(8, false);
@@ -105,6 +121,7 @@
     <Loader fullview />
   {/if}
 </div>
+
 
 <style>
   .transaction-logs {
