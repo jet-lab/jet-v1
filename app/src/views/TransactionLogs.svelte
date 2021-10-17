@@ -51,10 +51,7 @@
             {dictionary[$USER.preferredLanguage].transactions.tradeAmount} 
           </th>
           <th>
-          <i class="refresh-logs fas fa-sync"
-            style="color: var(--jet-blue); font-size: 15px;"
-            on:click={() => getTransactionLogs()}>
-          </i>
+            <!--Empty column for arrow-->
           </th>
         </thead>
         <div class="datatable-divider">

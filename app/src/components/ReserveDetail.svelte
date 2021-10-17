@@ -28,7 +28,7 @@
     on:click={() => closeModal()}>
   </div>
   <div class="reserve-detail modal flex-centered column"
-    in:fly={{y: 50, duration: 500}}
+    in:fly={{y: 25, duration: 500}}
     out:fade={{duration: 50}}>
     <div class="modal-section flex-centered column">
       <div class="flex align-center-justify-center">
@@ -151,7 +151,7 @@
     <div class="divider">
     </div>
     <div class="modal-section flex-centered">
-      {#if $USER.walletInit}
+      {#if $USER.wallet}
         <Button text={dictionary[$USER.preferredLanguage].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
           onClick={() => {
             closeModal();

@@ -337,7 +337,7 @@
         min={0} max={100} 
         step={25} suffix="%" 
         disabled={disabledInput}
-        springValues={{stiffness: 1, damping: 1}}
+        springValues={{stiffness: 0.4, damping: 1}}
         on:change={sliderHandler}
       />
     </div>

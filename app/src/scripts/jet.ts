@@ -165,13 +165,12 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves: reserves,
     currentReserve: reserves.SOL,
     nativeValues: true,
-    // Get TVL of all reserves
+    // Get total value of all reserves
     totalValueLocked: () => {
       let tvl = 0;
       for (let r in reserves) {
         tvl += reserves[r].marketSize.muln(reserves[r].price)?.uiAmountFloat;
       }
-
       return tvl;
     },
   });
@@ -289,7 +288,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
         if (market.currentReserve && user.assets) {
           balance = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.tokenMintPubkey.equals(NATIVE_MINT) 
             ? user.assets.sol.uiAmountFloat
-              : user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].walletTokenBalance.uiAmountFloat;
+              : user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.walletTokenBalance.uiAmountFloat;
         }
         return balance;
       };
@@ -297,7 +296,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       user.collateralBalance = (r?: Reserve) => {
         let collateral = 0;
         if (market.currentReserve && user.assets) {
-          collateral = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].collateralBalance.uiAmountFloat;
+          collateral = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.collateralBalance.uiAmountFloat;
         }
         return collateral;
       };
@@ -305,7 +304,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       user.loanBalance = (r?: Reserve) => {
         let loan = 0;
         if (market.currentReserve && user.assets) {
-          loan = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev].loanBalance.uiAmountFloat;
+          loan = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.loanBalance.uiAmountFloat;
         }
         return loan;
       };
@@ -314,7 +313,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
         let collateralBalance = 0;
         let maxWithdraw = 0;
         if (market.currentReserve && user.assets) {
-          collateralBalance = user.assets.tokens[market.currentReserve.abbrev].collateralBalance.uiAmountFloat;
+          collateralBalance = user.assets.tokens[market.currentReserve.abbrev]?.collateralBalance.uiAmountFloat;
           maxWithdraw = user.obligation().borrowedValue
             ? (user.obligation().depositedValue - (market.minColRatio * user.obligation().borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
               : collateralBalance;
@@ -345,9 +344,21 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
           } else if (user.tradeAction === 'withdraw') {
             max = user.maxWithdraw();
           } else if (user.tradeAction === 'borrow') {
-            max = user.maxBorrow();
-          } else {
-            max = user.loanBalance();
+            // Check if available liquidity of a reserve is
+            // less than the most a user can borrow
+            const availableLiquidity = market.currentReserve.availableLiquidity.uiAmountFloat;
+            if (availableLiquidity < user.maxBorrow()) {
+              max = availableLiquidity;
+            } else {
+              max = user.maxBorrow();
+            }
+          } else if (user.tradeAction === 'repay') {
+            // Check if wallet balance is less than the user owes
+            if (user.walletBalance() < user.loanBalance()) {
+              max = user.walletBalance()
+            } else {
+              max = user.loanBalance();
+            }
           }
         }
         return max;
@@ -390,6 +401,7 @@ export const disconnectWallet = () => {
 
   USER.update(user => {
     user.wallet = null;
+    user.walletInit = false;
     user.assets = null;
     user.transactionLogs = [];
     return user;

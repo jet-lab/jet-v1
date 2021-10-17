@@ -10,7 +10,7 @@
     {#each $USER.notifications as n, i}
       <div class="notification flex-centered"
         class:success={n.success}
-        in:fly={{y: 50, duration: 500}}
+        in:fly={{y: 25, duration: 500}}
         out:fade={{duration: 50}}>
         <div class="copilot-img flex-centered"
           on:click={() => {if (n.success) navigate("/transactions")}}>

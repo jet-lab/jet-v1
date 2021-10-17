@@ -40,7 +40,7 @@
     })}>
   </div>
   <div class="modal flex-centered column"
-    in:fly={{y: 50, duration: 500}}
+    in:fly={{y: 25, duration: 500}}
     out:fade={{duration: 50}}>
     <Logo width={120} />
     <span>

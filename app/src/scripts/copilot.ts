@@ -10,50 +10,47 @@ USER.subscribe(data => user = data);
 
 // Check user's trade and offer Copilot warning
 export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, submitTrade: Function): void => {
-  // If user is bettering their position, submit trade either way
-  if (adjustedRatio < user.obligation().colRatio) {
-    // Depositing
-    if (user.tradeAction === 'deposit') {
-      // Depositing all SOL leaving no lamports for fees, reject
-      const lamportPadding = 0.02;
-      if (market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
-        && (user.walletBalance() - lamportPadding) <= inputAmount) {
-        COPILOT.set({
-          suggestion: {
-            good: false,
-            detail: dictionary[user.preferredLanguage].cockpit.insufficientLamports
-          }
-        });
-      }
-    // Borrowing
-    } else if (user.tradeAction === 'borrow') {
-      // and within danger of liquidation
-      if (adjustedRatio >= market.minColRatio && adjustedRatio <= market.minColRatio + 0.2) {
-        COPILOT.set({
-          suggestion: {
-            good: false,
-            detail: dictionary[user.preferredLanguage].cockpit.subjectToLiquidation
-              .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1)),                        
-            action: {
-              text: dictionary[user.preferredLanguage].cockpit.confirm,
-              onClick: () => submitTrade()
-            }
-          }
-        });
-      }
-      // and below minimum ratio
-      if (adjustedRatio < market.minColRatio 
-        && adjustedRatio < user.obligation().colRatio) {
-        COPILOT.set({
-          suggestion: {
+  // Depositing all SOL leaving no lamports for fees, inform and reject
+  if (user.tradeAction === 'deposit' && market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
+    && (user.walletBalance() - 0.02) <= inputAmount) {
+    if (market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
+      && (user.walletBalance() - 0.02) <= inputAmount) {
+      COPILOT.set({
+        suggestion: {
           good: false,
-          detail: dictionary[user.preferredLanguage].cockpit.rejectTrade
-            .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
-            .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
-          }
-        });
-      }
+          detail: dictionary[user.preferredLanguage].cockpit.insufficientLamports
+        }
+      });
     }
+  // Borrowing and within danger of liquidation
+  } else if (user.tradeAction === 'borrow' && adjustedRatio <= market.minColRatio + 0.2) {
+    // not below min-ratio, warn and allow trade
+    if (adjustedRatio >= market.minColRatio) {
+      COPILOT.set({
+        suggestion: {
+          good: false,
+          detail: dictionary[user.preferredLanguage].cockpit.subjectToLiquidation
+            .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1)),                        
+          action: {
+            text: dictionary[user.preferredLanguage].cockpit.confirm,
+            onClick: () => submitTrade()
+          }
+        }
+      });
+    }
+    // below minimum ratio, inform and reject
+    if (adjustedRatio < market.minColRatio 
+      && adjustedRatio < user.obligation().colRatio) {
+      COPILOT.set({
+        suggestion: {
+        good: false,
+        detail: dictionary[user.preferredLanguage].cockpit.rejectTrade
+          .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
+          .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
+        }
+      });
+    }
+  // Otherwise, submit trade
   } else {
     submitTrade();
   }

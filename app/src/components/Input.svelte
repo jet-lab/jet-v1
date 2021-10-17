@@ -33,7 +33,7 @@
 
 <div class="flex-centered" class:disabled>
   <div class="flex-centered" class:currency>
-    <input
+    <input {disabled}
       bind:value={value}
       placeholder={error ?? placeholder}
       class:error
@@ -160,6 +160,9 @@
     -webkit-text-fill-color: transparent !important;
   }
   .disabled .currency + .input-btn:active {
-    background: unset;
+    background: unset !important;
+  }
+  .disabled .currency + .input-btn:active i {
+    -webkit-text-fill-color: unset !important;
   }
 </style>

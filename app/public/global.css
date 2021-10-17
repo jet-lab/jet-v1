@@ -119,7 +119,7 @@ span {
 }
 .disabled {
   cursor: not-allowed !important;
-  opacity: var(--disabled-opacity);
+  opacity: var(--disabled-opacity) !important;
 }
 .bicyclette {
   font-family: 'Bicyclette', 'Roboto', sans-serif;
@@ -391,6 +391,10 @@ input[type=number] {
 }
 .rangeSlider .pipVal {
   top: 2px !important;
+}
+.rangeSlider.disabled, .rangeSlider.disabled .rangeNub {
+  opacity: var(--disabled-opacity) !important;
+  cursor: not-allowed !important;
 }
 
 /* Datatable component overrides */

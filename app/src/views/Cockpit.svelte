@@ -65,7 +65,9 @@
   };
 </script>
 
-{#if $MARKET && $MARKET.currentReserve && !$INIT_FAILED}
+{#if $INIT_FAILED || $USER.isGeobanned}
+  <InitFailed />
+{:else if $MARKET}
   <div class="view-container flex justify-center column">
     <h1 class="view-title text-gradient">
       {dictionary[$USER.preferredLanguage].cockpit.title}
@@ -106,13 +108,13 @@
               {:else}
                 ∞
               {/if}
+              {#if $USER.obligation().borrowedValue}
+                <span style="color: inherit; padding-left: 2px;">
+                  %
+                </span>
+              {/if}
             {:else}
               --
-            {/if}
-            {#if $USER.obligation().borrowedValue}
-              <span style="color: inherit; padding-left: 2px;">
-                %
-              </span>
             {/if}
           </h1>
         </div>
@@ -301,8 +303,6 @@
       closeModal={() => reserveDetail = null} 
     />
   {/if}
-{:else if $INIT_FAILED || $USER.isGeobanned}
-  <InitFailed />
 {:else}
   <Loader fullview />
 {/if}
