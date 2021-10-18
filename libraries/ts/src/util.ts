@@ -42,10 +42,34 @@ export class PubkeyField extends BL.Layout {
   }
 }
 
+export class U64Field extends BL.Layout {
+  constructor(property?: string) {
+    super(8, property);
+  }
+
+  decode(b: Uint8Array, offset?: number): BN {
+    const start = offset == undefined ? 0 : offset;
+    const data = b.slice(start, start + this.span);
+
+    return new BN(data);
+  }
+
+  encode(src: BN, b: Uint8Array, offset?: number): number {
+    const start = offset == undefined ? 0 : offset;
+    b.set(src.toArray(), start);
+
+    return this.span;
+  }
+}
+
 export function numberField(property?: string): NumberField {
     return new NumberField(property);
 }
 
 export function pubkeyField(property? :string): PubkeyField {
     return new PubkeyField(property);
+}
+
+export function u64Field(property?: string): U64Field {
+  return new U64Field(property);
 }

@@ -77,10 +77,26 @@ struct DexClient<'a, 'info> {
 }
 
 impl<'a, 'info> DexClient<'a, 'info> {
+    fn price_lots(
+        &self,
+        price: Number,
+        quote_expo: i32,
+        coin_expo: i32,
+    ) -> Result<u64, ProgramError> {
+        let quote_decimals = (quote_expo * -1) as u32;
+        let coin_decimals = (coin_expo * -1) as u32;
+        let dex_market = DexMarketState::load(&self.dex_market.market, &dex::ID)?;
+
+        Ok(
+            (price * Number::ten_pow(quote_decimals) * dex_market.coin_lot_size
+                / (Number::ten_pow(coin_decimals) * dex_market.pc_lot_size))
+                .as_u64_rounded(0),
+        )
+    }
+
     /// Buy as much of the base currency as possible with the given amount
     /// of quote tokens.
-    fn _buy(&self, quote_amount: u64) -> ProgramResult {
-        let limit_price = u64::MAX;
+    fn buy(&self, limit_price: u64, quote_amount: u64) -> ProgramResult {
         let max_coin_qty = u64::MAX;
         let max_pc_qty = quote_amount;
 
@@ -88,8 +104,7 @@ impl<'a, 'info> DexClient<'a, 'info> {
     }
 
     /// Sell as much of the given base currency as possible.
-    fn sell(&self, base_amount: u64) -> ProgramResult {
-        let limit_price = 1;
+    fn sell(&self, limit_price: u64, base_amount: u64) -> ProgramResult {
         let max_pc_qty = u64::MAX;
         let max_coin_qty = {
             let dex_market = DexMarketState::load(&self.dex_market.market, &dex::ID)?;
@@ -255,7 +270,7 @@ impl<'info> LiquidateDex<'info> {
         )
     }
 
-    fn transfer_swapped_token_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
+    fn _transfer_swapped_token_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
         CpiContext::new(
             self.token_program.clone(),
             Transfer {
@@ -297,14 +312,98 @@ impl<'info> LiquidateDex<'info> {
     }
 }
 
+#[derive(Debug)]
+enum SwapKind {
+    Buy,
+    Sell,
+}
+
+#[derive(Debug)]
 struct SwapPlan {
     /// The total value of collateral that can be sold to bring the
     /// loan back into a healthy position.
-    sellable_value: Number,
+    collateral_sellable_value: Number,
 
     /// The total value that would be repaid to cover the loan position,
     /// which may be less than the total collateral sold due to fees.
     loan_repay_value: Number,
+
+    /// The worst price to accept for the trade
+    limit_price: Number,
+
+    /// The kind of trade that should be executed
+    kind: SwapKind,
+}
+
+struct SwapCalculator<'a> {
+    market: &'a Market,
+    loan_reserve: &'a Reserve,
+    collateral_reserve: &'a Reserve,
+    obligation: &'a Obligation,
+}
+
+impl<'a> SwapCalculator<'a> {
+    /// Calculate the plan for swapping the collateral for debt
+    fn plan(&self) -> Result<SwapPlan, ProgramError> {
+        let clock = Clock::get()?;
+        let min_c_ratio = Number::from_bps(self.loan_reserve.config.min_collateral_ratio);
+        let liquidation_fee = Number::from_bps(self.collateral_reserve.config.liquidation_premium);
+        let slippage = Number::from_bps(self.collateral_reserve.config.liquidation_slippage);
+
+        let collateral_reserve_info = self
+            .market
+            .reserves()
+            .get_cached(self.collateral_reserve.index, clock.slot);
+        let loan_reserve_info = self
+            .market
+            .reserves()
+            .get_cached(self.loan_reserve.index, clock.slot);
+
+        let collateral_value = self
+            .obligation
+            .collateral_value(self.market.reserves(), clock.slot);
+        let loan_value = self
+            .obligation
+            .loan_value(self.market.reserves(), clock.slot);
+
+        let loan_to_value = loan_value / collateral_value;
+        let c_ratio_ltv = min_c_ratio * loan_to_value;
+
+        if c_ratio_ltv <= Number::ONE {
+            // This means the loan is over-collateralized, so we shouldn't allow
+            // any liquidation for it.
+            msg!("c_ratio_ltv < 1 implies this cannot be liquidated");
+            return Err(ErrorCode::ObligationHealthy.into());
+        } else if c_ratio_ltv > min_c_ratio {
+            // This means the loan is underwater, so for now we just disallow
+            // liquidations on underwater loans using the DEX.
+            return Err(ErrorCode::Disallowed.into());
+        }
+
+        let limit_fraction = (c_ratio_ltv - Number::ONE)
+            / (min_c_ratio * (Number::ONE - liquidation_fee) - Number::ONE);
+
+        let collateral_sellable_value = limit_fraction * collateral_value;
+        let loan_repay_value = collateral_sellable_value / (Number::ONE + liquidation_fee);
+        let normal_limit_price =
+            (Number::ONE - slippage) * (collateral_reserve_info.price / loan_reserve_info.price);
+
+        let (kind, limit_price) = if self.loan_reserve.token_mint == self.market.quote_token_mint {
+            (SwapKind::Sell, normal_limit_price)
+        } else if self.collateral_reserve.token_mint == self.market.quote_token_mint {
+            (SwapKind::Buy, Number::ONE / normal_limit_price)
+        } else {
+            msg!("cannot liquidate these pairs");
+            return Err(ErrorCode::Disallowed.into());
+        };
+
+        Ok(SwapPlan {
+            collateral_sellable_value,
+            loan_repay_value,
+            limit_price,
+            kind,
+        })
+    }
 }
 
 /// Calculate the estimates for swap values
@@ -313,56 +412,51 @@ fn calculate_collateral_swap_plan(internal: &LiquidateDex) -> Result<SwapPlan, P
     let collateral_reserve = internal.collateral_reserve.load()?;
     let obligation = internal.obligation.load()?;
     let market = internal.market.load()?;
-    let clock = Clock::get()?;
 
-    let min_c_ratio = Number::from_bps(loan_reserve.config.min_collateral_ratio);
-    let liquidation_fee = Number::from_bps(collateral_reserve.config.liquidation_premium);
-    let slippage = Number::from_bps(collateral_reserve.config.liquidation_slippage);
+    let calculator = SwapCalculator {
+        market: &market,
+        loan_reserve: &loan_reserve,
+        collateral_reserve: &collateral_reserve,
+        obligation: &obligation,
+    };
 
-    let collateral_value = obligation.collateral_value(market.reserves(), clock.slot);
-    let loan_value = obligation.loan_value(market.reserves(), clock.slot);
-
-    let loan_to_value = loan_value / collateral_value;
-    let c_ratio_ltv = min_c_ratio * loan_to_value;
-
-    if c_ratio_ltv <= Number::ONE {
-        // This means the loan is over-collateralized, so we shouldn't allow
-        // any liquidation for it.
-        msg!("c_ratio_ltv < 1 implies this cannot be liquidated");
-        return Err(ErrorCode::ObligationHealthy.into());
-    } else if c_ratio_ltv > min_c_ratio {
-        // This means the loan is underwater, so for now we just disallow
-        // liquidations on underwater loans using the DEX.
-        return Err(ErrorCode::Disallowed.into());
-    }
-
-    let fee_plus_slippage = liquidation_fee + slippage;
-
-    // This bound ensures that the plan will actually improve the c-ratio.
-    assert!(fee_plus_slippage < (min_c_ratio - Number::ONE));
-
-    let loan_repay_value = (min_c_ratio * loan_value - collateral_value)
-        / (min_c_ratio - fee_plus_slippage - Number::ONE);
-    let sellable_value = loan_repay_value * (Number::ONE + fee_plus_slippage);
-
-    Ok(SwapPlan {
-        sellable_value,
-        loan_repay_value,
-    })
+    calculator.plan()
 }
 
-/// Sell the collateral by trading on the DEX
-fn sell_collateral<'info>(
+/// Execute the calculated plan to swap the collateral.
+///
+/// Returns the number of collateral tokens swapped.
+fn execute_plan<'info>(
     internal: &LiquidateDex<'info>,
-    dex_market: &DexMarketAccounts<'info>,
-    collateral_value: Number,
+    source_dex_market: &DexMarketAccounts<'info>,
+    target_dex_market: &DexMarketAccounts<'info>,
+    plan: &SwapPlan,
 ) -> Result<Number, ProgramError> {
     let clock = Clock::get()?;
     let market = internal.market.load()?;
-    let reserve = internal.collateral_reserve.load()?;
-    let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
+    let collateral_reserve = internal.collateral_reserve.load()?;
+    let loan_reserve = internal.loan_reserve.load()?;
+    let collateral_reserve_info = market
+        .reserves()
+        .get_cached(collateral_reserve.index, clock.slot);
 
-    let dex_client = DexClient {
+    let max_collateral_tokens = plan.collateral_sellable_value / collateral_reserve_info.price;
+    let cur_collateral_tokens = collateral_reserve
+        .amount(token::accessor::amount(&internal.collateral_account)?)
+        * collateral_reserve_info.deposit_note_exchange_rate;
+
+    // Limit the amount of tokens sold to the lesser of either:
+    //  * the total value of the collateral allowed to be sold to cover this debt position
+    //  * the total collateral tokens available to the position being liquidated
+    //  * the hard limit of token amounts to execute in a single trade, as configured in the reserve
+    let reserve_sell_limit = match collateral_reserve.config.liquidation_dex_trade_max {
+        0 => collateral_reserve.amount(std::u64::MAX),
+        n => Number::from(n),
+    };
+    let cur_sellable_tokens = std::cmp::min(max_collateral_tokens, cur_collateral_tokens);
+    let max_tradable_tokens = std::cmp::min(cur_sellable_tokens, reserve_sell_limit);
+
+    let get_dex_client = |dex_market, coin_wallet, pc_wallet| DexClient {
         market: &market,
         market_authority: &internal.market_authority,
         dex_program: &internal.dex_program,
@@ -371,58 +465,55 @@ fn sell_collateral<'info>(
         token_program: &internal.token_program,
         rent: &internal.rent,
 
-        coin_wallet: &internal.collateral_reserve_vault,
-        pc_wallet: &internal.dex_swap_tokens,
+        coin_wallet,
+        pc_wallet,
     };
 
-    let max_collateral_tokens = collateral_value / reserve_info.price;
-    let cur_collateral_tokens = reserve
-        .amount(token::accessor::amount(&internal.collateral_account)?)
-        * reserve_info.deposit_note_exchange_rate;
+    match plan.kind {
+        SwapKind::Sell => {
+            // Sell the collateral on the DEX
+            let dex_client = get_dex_client(
+                source_dex_market,
+                &internal.collateral_reserve_vault,
+                &internal.loan_reserve_vault,
+            );
+            let limit_price = dex_client.price_lots(
+                plan.limit_price,
+                loan_reserve.exponent,
+                collateral_reserve.exponent,
+            )?;
 
-    // Limit the amount of tokens sold to the lesser of either:
-    //  * the total value of the collateral allowed to be sold to cover this debt position
-    //  * the total collateral tokens available to the position being liquidated
-    //  * the hard limit of token amounts to execute in a single trade, as configured in the reserve
-    let reserve_sell_limit = match reserve.config.liquidation_dex_trade_max {
-        0 => reserve.amount(std::u64::MAX),
-        n => reserve.amount(n),
-    };
-    let tokens_to_sell = std::cmp::min(max_collateral_tokens, cur_collateral_tokens);
-    let tokens_to_sell = std::cmp::min(tokens_to_sell, reserve_sell_limit);
+            dex_client.sell(
+                limit_price,
+                max_tradable_tokens.as_u64(collateral_reserve.exponent),
+            )?;
+            dex_client.settle()?;
 
-    dex_client.sell(tokens_to_sell.as_u64(reserve.exponent))?;
-    dex_client.settle()?;
+            Ok(max_tradable_tokens)
+        }
 
-    Ok(tokens_to_sell)
-}
+        SwapKind::Buy => {
+            // Use the collateral to buy the debt asset on the DEX
+            let dex_client = get_dex_client(
+                target_dex_market,
+                &internal.loan_reserve_vault,
+                &internal.collateral_reserve_vault,
+            );
+            let limit_price = dex_client.price_lots(
+                plan.limit_price,
+                collateral_reserve.exponent,
+                loan_reserve.exponent,
+            )?;
 
-/// Buy back the loaned asset by trading on the DEX
-fn buy_debt<'info>(
-    internal: &LiquidateDex<'info>,
-    _dex_market: &DexMarketAccounts<'info>,
-) -> Result<(), ProgramError> {
-    let market = internal.market.load()?;
-    let reserve = internal.loan_reserve.load()?;
+            dex_client.buy(
+                limit_price,
+                max_tradable_tokens.as_u64(collateral_reserve.exponent),
+            )?;
+            dex_client.settle()?;
 
-    let quote_tokens = token::accessor::amount(&internal.dex_swap_tokens)?;
-
-    if reserve.token_mint == market.quote_token_mint {
-        // The reserve's assets is the same as the quote token,
-        // so we can just transfer the tokens from the intermediate
-        // account into the reserve.
-        token::transfer(
-            internal
-                .transfer_swapped_token_context()
-                .with_signer(&[&market.authority_seeds()]),
-            quote_tokens,
-        )?;
-    } else {
-        // FIXME: eventually support another swap once tx size permits
-        return Err(ErrorCode::NotSupported.into());
+            Ok(max_tradable_tokens)
+        }
     }
-
-    Ok(())
 }
 
 /// Verify that the amount of tokens we received for selling some collateral is acceptable
@@ -450,6 +541,7 @@ fn verify_proceeds(
     if proceeds_value < min_value {
         // The difference in value is beyond the range of the configured slippage,
         // so reject this result.
+        msg!("proceeds = {}, minimum = {}", proceeds_value, min_value);
         return Err(ErrorCode::LiquidationSwapSlipped.into());
     }
 
@@ -475,7 +567,7 @@ fn update_accounting(
         .reserves()
         .get_cached(collateral_reserve.index, clock.slot);
 
-    let collateral_sell_expected = plan.sellable_value / collateral_info.price;
+    let collateral_sell_expected = plan.collateral_sellable_value / collateral_info.price;
     let collateral_repaid_ratio_actual = collateral_tokens_sold / collateral_sell_expected;
 
     let loan_repaid_value = collateral_repaid_ratio_actual * plan.loan_repay_value;
@@ -539,17 +631,10 @@ fn handler<'info>(
     // Calculate the quote value of collateral that needs to be sold
     let plan = calculate_collateral_swap_plan(internal)?;
 
-    msg!("calculated plan to swap");
-
     // Sell the collateral
-    let collateral_tokens_sold = sell_collateral(internal, source_market, plan.sellable_value)?;
+    let collateral_tokens_sold = execute_plan(internal, source_market, target_market, &plan)?;
 
     msg!("collateral sold");
-
-    // Buy the loaned token
-    buy_debt(internal, target_market)?;
-
-    msg!("debt bought");
 
     let loan_reserve_proceeds =
         token::accessor::amount(&internal.loan_reserve_vault)?.saturating_sub(loan_reserve_tokens);

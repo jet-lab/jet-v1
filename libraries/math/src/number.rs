@@ -138,7 +138,7 @@ impl Number {
         Number(self.0.saturating_mul(n.0))
     }
 
-    fn ten_pow(exponent: u32) -> U192 {
+    pub fn ten_pow(exponent: u32) -> U192 {
         let value: u64 = match exponent {
             16 => 10_000_000_000_000_000,
             15 => 1_000_000_000_000_000,

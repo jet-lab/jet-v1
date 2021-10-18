@@ -362,7 +362,7 @@ describe("jet", async () => {
   it("halts borrows", async () => {
     await jetMarket.setFlags(new splToken.u64(MarketFlags.HaltBorrows));
 
-    await wsol.reserve.refresh();
+    await wsol.reserve.sendRefreshTx();
     await expect(
       userB.client.borrow(
         usdc.reserve,
@@ -441,7 +441,7 @@ describe("jet", async () => {
     ).address;
 
     await jetMarket.refresh();
-    await wsol.reserve.refresh();
+    await wsol.reserve.sendRefreshTx();
     const txId = await user.client.borrow(
       asset.reserve,
       tokenAccountKey,
@@ -476,7 +476,7 @@ describe("jet", async () => {
     const amount = Amount.tokens(usdcDeposit * 0.1001);
     const tokenAccount = user.tokenAccounts[usdc.token.publicKey.toBase58()];
 
-    await wsol.reserve.refresh();
+    await wsol.reserve.sendRefreshTx();
 
     const tx = await user.client.makeBorrowTx(
       usdc.reserve,
@@ -499,7 +499,7 @@ describe("jet", async () => {
     // Give it some seconds for interest to accrue
     await new Promise((r) => setTimeout(r, 2000));
 
-    await usdc.reserve.refresh();
+    await usdc.reserve.sendRefreshTx();
 
     const tx = await user.client.makeWithdrawCollateralTx(wsol.reserve, amount);
     let result = await client.program.provider.simulate(tx, [user.wallet]);
@@ -516,7 +516,7 @@ describe("jet", async () => {
     const amount = Amount.tokens(wsolWithdrawal);
     const tokenAccountKey = user.tokenAccounts[wsol.token.publicKey.toBase58()];
 
-    await usdc.reserve.refresh();
+    await usdc.reserve.sendRefreshTx();
 
     await user.client.withdrawCollateral(wsol.reserve, amount);
     await user.client.withdraw(wsol.reserve, tokenAccountKey, amount);
@@ -567,14 +567,14 @@ describe("jet", async () => {
   it("interest accrues", async () => {
     const asset = usdc;
 
-    await asset.reserve.refresh();
+    await asset.reserve.sendRefreshTx();
     let _reserve = await loadReserve(asset.reserve.address);
     const _debt0 = _reserve.state.outstandingDebt;
     const t0 = _reserve.state.accruedUntil;
 
     await new Promise((r) => setTimeout(r, 2000));
 
-    await asset.reserve.refresh();
+    await asset.reserve.sendRefreshTx();
     _reserve = await loadReserve(asset.reserve.address);
     const debt1 = _reserve.state.outstandingDebt;
     const t1 = _reserve.state.accruedUntil;
@@ -644,7 +644,7 @@ describe("jet", async () => {
     const amount = Amount.depositNotes(usdcDeposit * 0.2);
     const tokenAccountKey = user.tokenAccounts[usdc.token.publicKey.toBase58()];
 
-    await wsol.reserve.refresh();
+    await wsol.reserve.sendRefreshTx();
 
     await user.client.withdrawCollateral(usdc.reserve, amount);
     await user.client.withdraw(usdc.reserve, tokenAccountKey, amount);
@@ -722,7 +722,7 @@ describe("jet", async () => {
     const amount = Amount.tokens(wsolDeposit * 0.95);
     const tokenAccountKey = user.tokenAccounts[wsol.token.publicKey.toBase58()];
 
-    await usdc.reserve.refresh();
+    await usdc.reserve.sendRefreshTx();
 
     await user.client.withdrawCollateral(wsol.reserve, amount);
     await user.client.withdraw(wsol.reserve, tokenAccountKey, amount);
@@ -767,7 +767,7 @@ describe("jet", async () => {
     const amount = Amount.depositNotes(usdcDeposit * 0.8);
     const tokenAccountKey = user.tokenAccounts[usdc.token.publicKey.toBase58()];
 
-    await wsol.reserve.refresh();
+    await wsol.reserve.sendRefreshTx();
 
     await user.client.withdrawCollateral(usdc.reserve, amount);
     await user.client.withdraw(usdc.reserve, tokenAccountKey, amount);

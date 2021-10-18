@@ -8,10 +8,12 @@ import {
   Transaction,
   TransactionInstruction,
 } from "@solana/web3.js";
+import * as BL from "@solana/buffer-layout";
 
 import { DEX_ID, DEX_ID_DEVNET } from ".";
 import { JetClient, DerivedAccount } from "./client";
 import { JetMarket } from "./market";
+import * as util from "./util";
 
 export interface ReserveConfig {
   utilizationRate1: number;
@@ -89,6 +91,15 @@ export interface ReserveData {
   dexMarket: PublicKey;
 }
 
+export interface ReserveStateData {
+  accruedUntil: anchor.BN,
+  outstandingDebt: anchor.BN,
+  uncollectedFees: anchor.BN,
+  totalDeposits: anchor.BN,
+  totalDepositNotes: anchor.BN,
+  totalLoanNotes: anchor.BN,
+}
+
 export interface ReserveDexMarketAccounts {
   market: PublicKey;
   openOrders: PublicKey;
@@ -115,12 +126,24 @@ export class JetReserve {
     private client: JetClient,
     private market: JetMarket,
     public address: PublicKey,
-    public data: ReserveData
+    public data: ReserveData,
+    public state?: ReserveStateData
   ) {
     this.conn = this.client.program.provider.connection;
   }
 
-  async refresh(): Promise<string> {
+  async refresh(): Promise<void> {
+    await this.market.refresh();
+
+    const data: any = (await this.client.program.account.reserve.fetch(
+      this.address
+    ));
+    const stateData = new Uint8Array(data.state);
+    this.state = ReserveStateStruct.decode(stateData) as ReserveStateData;
+    this.data = data as ReserveData;
+  }
+
+  async sendRefreshTx(): Promise<string> {
     let tx = new Transaction().add(this.makeRefreshIx());
     return await this.client.program.provider.send(tx);
   }
@@ -245,3 +268,13 @@ export class JetReserve {
     };
   }
 }
+
+const ReserveStateStruct = BL.struct([
+  util.u64Field("accruedUntil"),
+  util.numberField("outstandingDebt"),
+  util.numberField("uncollectedFees"),
+  util.u64Field("totalDeposits"),
+  util.u64Field("totalDepositNotes"),
+  util.u64Field("totalLoanNotes"),
+  BL.blob(416 + 16, "_RESERVED_")
+]);

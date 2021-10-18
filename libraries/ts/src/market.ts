@@ -10,12 +10,15 @@ import * as util from "./util";
 const MAX_RESERVES = 32;
 
 const ReserveInfoStruct = BL.struct([
-  util.pubkeyField("reserve"),
+  util.pubkeyField("address"),
   BL.blob(80, "_UNUSED_0_"),
   util.numberField("price"),
   util.numberField("depositNoteExchangeRate"),
   util.numberField("loanNoteExchangeRate"),
-  BL.blob(72, "_UNUSED_1_"),
+  util.numberField("minCollateralRatio"),
+  BL.u16("liquidationBonus"),
+  BL.blob(158, "_UNUSED_1_"),
+  BL.blob(16, "_CACHE_TAIL")
 ]);
 
 const MarketReserveInfoList = BL.seq(ReserveInfoStruct, MAX_RESERVES);

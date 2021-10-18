@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Market as SerumMarket } from "@project-serum/serum";
 import {
+  Connection,
   Keypair,
   LAMPORTS_PER_SOL,
   PublicKey,
@@ -24,8 +25,7 @@ import BN from "bn.js";
 import { u64 } from "@solana/spl-token";
 import * as util from "util";
 import { initTransactionLogs } from "app/src/scripts/jet";
-import { expect } from "chai";
-
+import { assert, expect } from "chai";
 
 const TEST_CURRENCY = "LTD";
 
@@ -244,7 +244,7 @@ describe("jet-serum", () => {
         liquidationPremium: 100,
         manageFeeRate: 50,
         manageFeeCollectionThreshold: new BN(10),
-        loanOriginationFee: 10,
+        loanOriginationFee: 0,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
         confidenceThreshold: 500,
@@ -338,8 +338,8 @@ describe("jet-serum", () => {
     );
     await placeMarketOrders(
       wsol,
-      MarketMaker.makeOrders([[19.5, 100]]),
-      MarketMaker.makeOrders([[21.5, 100]])
+      MarketMaker.makeOrders([[84.95, 100]]),
+      MarketMaker.makeOrders([[85.15, 100]])
     );
     await placeMarketOrders(
       wbtc,
@@ -351,6 +351,8 @@ describe("jet-serum", () => {
       MarketMaker.makeOrders([[200.08, 100]]),
       MarketMaker.makeOrders([[199.04, 100]])
     );
+
+    await jetMarket.refresh();
   });
 
   it("user deposits", async () => {
@@ -426,7 +428,7 @@ describe("jet-serum", () => {
     ]);
   });
 
-  it("allow basic dex liquidation", async () => {
+  it("allow basic dex sell liquidation", async () => {
     await utils.pyth.updatePriceAccount(wbtc.pythPrice, {
       exponent: -9,
       aggregatePriceInfo: {
@@ -434,7 +436,77 @@ describe("jet-serum", () => {
       },
     });
 
+    await users[3].client.refresh();
+    let collateralBalance = users[3].client
+      .collateral()
+      .find(
+        (a) => a.mint.toBase58() == wbtc.reserve.data.depositNoteMint.toBase58()
+      ).amount;
+    let loanBalance = users[3].client
+      .loans()
+      .find(
+        (a) => a.mint.toBase58() == usdc.reserve.data.loanNoteMint.toBase58()
+      ).amount;
+    assert.equal(collateralBalance.toString(), wbtc.token.amount(1).toString());
+    assert.equal(loanBalance.toString(), usdc.token.amount(870).toString());
+
     await users[3].client.liquidateDex(usdc.reserve, wbtc.reserve);
+
+    await users[3].client.refresh();
+    collateralBalance = users[3].client
+      .collateral()
+      .find(
+        (a) => a.mint.toBase58() == wbtc.reserve.data.depositNoteMint.toBase58()
+      ).amount;
+    loanBalance = users[3].client
+      .loans()
+      .find(
+        (a) => a.mint.toBase58() == usdc.reserve.data.loanNoteMint.toBase58()
+      ).amount;
+    expect(collateralBalance.toNumber()).to.be.closeTo(631578948, 1);
+    expect(loanBalance.toNumber()).to.be.closeTo(505226681, 1);
+  });
+
+  it("allow basic dex buy liquidation", async () => {
+    await utils.pyth.updatePriceAccount(wsol.pythPrice, {
+      exponent: -9,
+      aggregatePriceInfo: {
+        price: 85n * 1000000000n,
+      },
+    });
+
+    await users[0].client.refresh();
+    let collateralBalance = users[0].client
+      .collateral()
+      .find(
+        (a) => a.mint.toBase58() == usdc.reserve.data.depositNoteMint.toBase58()
+      ).amount;
+    let loanBalance = users[0].client
+      .loans()
+      .find(
+        (a) => a.mint.toBase58() == wsol.reserve.data.loanNoteMint.toBase58()
+      ).amount;
+    assert.equal(
+      collateralBalance.toString(),
+      usdc.token.amount(1000).toString()
+    );
+    assert.equal(loanBalance.toString(), "10010000000".toString());
+
+    await users[0].client.liquidateDex(wsol.reserve, usdc.reserve);
+
+    await users[0].client.refresh();
+    collateralBalance = users[0].client
+      .collateral()
+      .find(
+        (a) => a.mint.toBase58() == usdc.reserve.data.depositNoteMint.toBase58()
+      ).amount;
+    loanBalance = users[0].client
+      .loans()
+      .find(
+        (a) => a.mint.toBase58() == wsol.reserve.data.loanNoteMint.toBase58()
+      ).amount;
+    expect(collateralBalance.toNumber()).to.be.closeTo(732368421, 1);
+    expect(loanBalance.toNumber()).to.be.closeTo(6892567506, 1);
   });
 
   it("dex liquidation with 10 collaterals", async () => {
@@ -521,10 +593,10 @@ describe("jet-serum", () => {
       ].flat()
     );
 
-    await Promise.all(assets.map((asset) => asset.reserve.refresh()));
+    await Promise.all(assets.map((asset) => asset.reserve.sendRefreshTx()));
     await Promise.all(
       [
-        assets.map((asset) => asset.reserve.refresh()),
+        assets.map((asset) => asset.reserve.sendRefreshTx()),
         user.client.borrow(
           usdc.reserve,
           lenderTokenAccount,
@@ -544,12 +616,12 @@ describe("jet-serum", () => {
       )
     );
 
-    await Promise.all(assets.map((asset) => asset.reserve.refresh()));
+    await Promise.all(assets.map((asset) => asset.reserve.sendRefreshTx()));
     await Promise.all(
       [
         user.client.liquidateDex(usdc.reserve, assets[0].reserve),
         user.client.liquidateDex(usdc.reserve, assets[1].reserve),
-        assets.map((asset) => asset.reserve.refresh()),
+        assets.map((asset) => asset.reserve.sendRefreshTx()),
       ].flat()
     );
   });
