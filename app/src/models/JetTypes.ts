@@ -34,17 +34,18 @@ export interface IdlMetadata {
 export interface CustomProgramError {
   code: number;
   name: string;
-  msg: string;  
+  msg: string;
 };
 
 // Market
 export interface Market {
-  totalValueLocked: () => number,
-  minColRatio: number,
-  reserves: Record<string, Reserve>,
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
+  totalValueLocked: number,
+  minColRatio: number,
+  reserves: Record<string, Reserve>,
+  reservesArray: Reserve[],
   currentReserve: Reserve,
   nativeValues: boolean
 };
@@ -246,39 +247,42 @@ export interface ReserveMetadata {
 // User
 export interface User {
   // Location
-  location: Locale | null,
-  isGeobanned: boolean,
+  locale: Locale | null,
+  geobanned: boolean,
 
-  // Assets and position
+  // Wallet
   connectingWallet: boolean,
   wallet: Wallet | MathWallet | SolongWallet | null,
-  walletInit: boolean,
+
+  // Assets and position
   assets: AssetStore | null,
-  warnedOfLiquidation: boolean,
+  walletBalances: Record<string, number>,
+  collateralBalances: Record<string, number>,
+  loanBalances: Record<string, number>,
+  obligation: Obligation,
   tradeAction: string,
-  obligation: () => Obligation,
+
   belowMinCRatio: () => boolean,
   noDeposits: () => boolean,
-  walletBalance: (r?: Reserve) => number,
-  collateralBalance: (r?: Reserve) => number,
-  loanBalance: (r?: Reserve) => number,
-  maxWithdraw: () => number,
-  maxBorrow: () => number,
-  maxInput: () => number,
   assetIsCurrentDeposit: () => boolean,
   assetIsCurrentBorrow: () => boolean,
+  maxInput: () => number,
 
   // Transaction logs
   transactionLogs: TransactionLog[] | null,
-
-  // Preferences
-  darkTheme: boolean,
-  preferredNode: string | null,
-  preferredLanguage: string,
-  ping: number
   
   // Notifications
-  notifications: Notification[]
+  notifications: Notification[],
+
+  addNotification: (n: Notification) => void,
+  clearNotification: (i: number) => void,
+
+  // Preferences
+  language: string,
+  darkTheme: boolean,
+  navExpanded: boolean,
+  rpcNode: string | null,
+  rpcPing: number
 };
 
 // Wallet

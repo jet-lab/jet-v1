@@ -9,7 +9,7 @@
 <i class="info fas fa-info-circle"
   style={style}
   on:click={() => COPILOT.set({
-    definition: definitions[$USER.preferredLanguage][term]
+    definition: definitions[$USER.language][term]
   })}>
 </i>
 

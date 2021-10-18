@@ -2,9 +2,9 @@
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { Reserve } from '../models/JetTypes';
-  import { MARKET, USER, COPILOT } from '../store';
+  import { MARKET, USER } from '../store';
   import { currencyFormatter, } from '../scripts/util';
-  import { dictionary, definitions } from '../scripts/localization';
+  import { dictionary } from '../scripts/localization';
   import Button from './Button.svelte';
   import PercentageChart from './PercentageChart.svelte';
   import Toggle from './Toggle.svelte';
@@ -48,7 +48,7 @@
       </div>
       <div class="toggler">
         <Toggle onClick={() => MARKET.update(market => {
-          market.nativeValues = !$MARKET.nativeValues;
+          market.nativeValues = !market.nativeValues;
           return market;
         })}
           active={!$MARKET.nativeValues} 
@@ -58,7 +58,7 @@
     </div>
     <div class="modal-section flex-centered column">
       <span class="flex-centered">
-        {dictionary[$USER.preferredLanguage].reserveDetail.reserveSize.toUpperCase()}
+        {dictionary[$USER.language].reserveDetail.reserveSize.toUpperCase()}
       </span>
       <h2 class="modal-subheader text-gradient">
         {currencyFormatter(
@@ -74,7 +74,7 @@
     </div>
     <div class="modal-section flex align-center justify-evenly">
       <PercentageChart percentage={reserveDetail.utilizationRate * 100} 
-        text={dictionary[$USER.preferredLanguage].reserveDetail.utilisationRate.toUpperCase()} 
+        text={dictionary[$USER.language].reserveDetail.utilisationRate.toUpperCase()} 
         term="utilisationRate"
       />
       <div class="flex align-start justify-center column">
@@ -83,7 +83,7 @@
             style="background: var(--failure); box-shadow: var(--neu-shadow-inset-failure);">
           </div>
           <span style="text-align: start;">
-            {dictionary[$USER.preferredLanguage].reserveDetail.totalBorrowed.toUpperCase()}
+            {dictionary[$USER.language].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
               {currencyFormatter(
@@ -104,7 +104,7 @@
             style="background: var(--success); box-shadow: var(--neu-shadow-inset-success);">
           </div>
           <span style="text-align: start;">
-            {dictionary[$USER.preferredLanguage].reserveDetail.availableLiquidity.toUpperCase()}
+            {dictionary[$USER.language].reserveDetail.availableLiquidity.toUpperCase()}
             <br>
             <p>
               {currencyFormatter(
@@ -127,7 +127,7 @@
     <div class="modal-section flex-centered">
       <div class="modal-detail flex-centered column">
         <span>
-          {dictionary[$USER.preferredLanguage].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
+          {dictionary[$USER.language].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
           <Info term="collateralizationRatio" 
             style="margin: unset;" 
           />
@@ -138,7 +138,7 @@
       </div>
       <div class="modal-detail flex-centered column">
         <span>
-          {dictionary[$USER.preferredLanguage].reserveDetail.liquidationPremium.toUpperCase()}
+          {dictionary[$USER.language].reserveDetail.liquidationPremium.toUpperCase()}
           <Info term="liquidationPremium" 
             style="margin: unset;" 
           />
@@ -152,21 +152,17 @@
     </div>
     <div class="modal-section flex-centered">
       {#if $USER.wallet}
-        <Button text={dictionary[$USER.preferredLanguage].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
+        <Button text={dictionary[$USER.language].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
           onClick={() => {
             closeModal();
-            USER.update(user => {
-              $MARKET.currentReserve = reserveDetail;
-              return user;
-            });
           }} 
         />
       {:else}
-        <Button text={dictionary[$USER.preferredLanguage].settings.connect} 
+        <Button text={dictionary[$USER.language].settings.connect} 
           onClick={() => USER.update(user => {
             user.connectingWallet = true;
             return user;
-          })} 
+          })}
         />
       {/if}
     </div>

@@ -1,11 +1,11 @@
 // Subscribe to solana accounts
 // Todo: keep subscription IDs and unsubscribe at end of lifetime
-
 import type { Connection } from "@solana/web3.js";
+import { NATIVE_MINT } from "@solana/spl-token";
 import type * as anchor from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
 import { parsePriceData } from "@pythnetwork/client";
-import type { Asset, IdlMetadata, Market, Reserve, User } from "../models/JetTypes";
+import type { Market, User, Asset, IdlMetadata, Reserve } from "../models/JetTypes";
 import { MARKET, USER } from "../store";
 import { getAccountInfoAndSubscribe, getMintInfoAndSubscribe, getTokenAccountAndSubscribe, parseMarketAccount, parseObligationAccount, parseReserveAccount, SOL_DECIMALS, getCcRate, getBorrowRate, getDepositRate } from "./programUtil";
 import { TokenAmount } from "./util";
@@ -36,8 +36,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
               reserve.depositNoteExchangeRate = reserveStruct.depositNoteExchangeRate;
               reserve.loanNoteExchangeRate = reserveStruct.loanNoteExchangeRate;
 
-              deriveValues(reserve, user.assets.tokens[abbrev]);
-
+              deriveMarketValues(reserve);
               break;
             }
           }
@@ -50,7 +49,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
   promise.then(() => {
     let timeEnd = Date.now();
     USER.update(user => {
-      user.ping = timeEnd - timeStart;
+      user.rpcPing = timeEnd - timeStart;
       return user;
     });
   });
@@ -63,7 +62,9 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
       if (account != null) {
         MARKET.update(market => {
           const decoded = parseReserveAccount(account.data, coder);
-          market.minColRatio = decoded.config.minCollateralRatio / 10000;
+
+          // Hardcoding min c-ratio to 130% for now
+          // market.minColRatio = decoded.config.minCollateralRatio / 10000;
 
           const reserve = market.reserves[reserveMeta.abbrev];
 
@@ -73,8 +74,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           reserve.accruedUntil = decoded.state.accruedUntil;
           reserve.config = decoded.config;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         })
       }
@@ -88,8 +88,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.depositNoteMint = amount;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         });
       }
@@ -103,8 +102,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.loanNoteMint = amount;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         });
       }
@@ -118,8 +116,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.availableLiquidity = amount;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         });
       }
@@ -133,8 +130,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.tokenMint = amount;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         });
       }
@@ -148,8 +144,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.price = parsePriceData(account.data).price;
 
-          deriveValues(reserve, user.assets?.tokens[reserveMeta.abbrev]);
-
+          deriveMarketValues(reserve);
           return market;
         });
       }
@@ -206,7 +201,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].walletTokenBalance = amount ?? new TokenAmount(new BN(0), reserve.decimals);
           user.assets.tokens[reserve.abbrev].walletTokenExists = !!amount;
-          deriveValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -219,7 +214,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].depositNoteDestBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].depositNoteDestExists = !!amount;
-          deriveValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -232,7 +227,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].depositNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].depositNoteExists = !!amount;
-          deriveValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -245,7 +240,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].loanNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].loanNoteExists = !!amount;
-          deriveValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -258,7 +253,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].collateralNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].collateralNoteExists = !!amount;
-          deriveValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -269,19 +264,72 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
   return await Promise.all(promises);
 };
 
-const deriveValues = (reserve: Reserve, asset: Asset | undefined) => {
+// Derive market reserve values and update global object
+const deriveMarketValues = (reserve: Reserve) => {
   reserve.marketSize = reserve.outstandingDebt.add(reserve.availableLiquidity);
-  reserve.utilizationRate = reserve.marketSize.amount.isZero()
-    ? 0
-    : reserve.outstandingDebt.uiAmountFloat / reserve.marketSize.uiAmountFloat;
-
+  reserve.utilizationRate = reserve.marketSize.amount.isZero() ? 0
+      : reserve.outstandingDebt.uiAmountFloat / reserve.marketSize.uiAmountFloat;
   const ccRate = getCcRate(reserve.config, reserve.utilizationRate);
   reserve.borrowRate = getBorrowRate(ccRate, reserve.config.manageFeeRate);
   reserve.depositRate = getDepositRate(ccRate, reserve.utilizationRate);
 
-  if (asset) {
-    asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
-    asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
-    asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+  // Update market total value locked and reserve array from new values
+  let tvl: number = 0;
+  let reservesArray: Reserve[] = [];
+  for (let r in market.reserves) {
+    tvl += market.reserves[r].marketSize.muln(market.reserves[r].price)?.uiAmountFloat;
+    reservesArray.push(market.reserves[r]);
+  }
+  MARKET.update(market => {
+    market.totalValueLocked = tvl;
+    market.reservesArray = reservesArray;
+    return market;
+  });
+};
+// Derive user asset values and update global object
+const deriveAssetValues = (reserve: Reserve, asset: Asset) => {
+  asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+  asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+  asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
+
+  // Update user balances and position from new values
+  for (let reserve of Object.keys(market.reserves)) {
+    USER.update(user => {
+      if (user.assets) {
+        // balances
+        user.walletBalances[reserve] = user.assets.tokens[reserve]?.tokenMintPubkey.equals(NATIVE_MINT) 
+            ? user.assets.sol.uiAmountFloat
+              : user.assets.tokens[reserve]?.walletTokenBalance.uiAmountFloat;
+        user.collateralBalances[reserve] = user.assets.tokens[reserve]?.collateralBalance.uiAmountFloat;
+        user.loanBalances[reserve] = user.assets.tokens[reserve]?.loanBalance.uiAmountFloat;
+
+        // obligation
+        let depositedValue: number = 0;
+        let borrowedValue: number = 0;
+        let colRatio = 0;
+        let utilizationRate = 0;
+        for (let t in user.assets.tokens) {
+          depositedValue += new TokenAmount(
+            user.assets.tokens[t].collateralBalance.amount,
+            market.reserves[t].decimals
+          ).uiAmountFloat * market.reserves[t].price;
+          borrowedValue += new TokenAmount(
+            user.assets.tokens[t].loanBalance.amount,
+            market.reserves[t].decimals
+          ).uiAmountFloat * market.reserves[t].price;
+
+          colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
+          utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
+        }
+
+        user.obligation = {
+          depositedValue,
+          borrowedValue,
+          colRatio,
+          utilizationRate
+        }
+      }
+      return user;
+    });
   }
 };

@@ -1,10 +1,9 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$USER.preferredLanguage].transactions.title}</title>
+  <title>Jet Protocol | {dictionary[$USER.language].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { USER } from '../store';
-  import { getTransactionLogs } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
@@ -19,8 +18,8 @@
       searchInput: false
     },
     labels: {
-      noRows: dictionary[$USER.preferredLanguage].transactions.noTrades,
-      info: dictionary[$USER.preferredLanguage].transactions.entries,
+      noRows: dictionary[$USER.language].transactions.noTrades,
+      info: dictionary[$USER.language].transactions.entries,
       previous: '<',
       next: '>'
     }
@@ -29,7 +28,7 @@
 
 <div class="view-container flex justify-center column">
   <h1 class="view-title text-gradient">
-    {dictionary[$USER.preferredLanguage].transactions.title}
+    {dictionary[$USER.language].transactions.title}
   </h1>
   <div class="divider">
   </div>
@@ -38,17 +37,17 @@
       <Datatable settings={tableSettings} data={$USER.transactionLogs}>
         <thead>
           <th data-key="blockDate">
-            {dictionary[$USER.preferredLanguage].transactions.date} 
+            {dictionary[$USER.language].transactions.date} 
           </th>
           <th data-key="signature">
-            {dictionary[$USER.preferredLanguage].transactions.signature} 
+            {dictionary[$USER.language].transactions.signature} 
           </th>
           <th data-key="tradeAction"
             style="text-align: center !important;">
-            {dictionary[$USER.preferredLanguage].transactions.tradeAction} 
+            {dictionary[$USER.language].transactions.tradeAction} 
           </th>
           <th data-key="tradeAmount" class="asset">
-            {dictionary[$USER.preferredLanguage].transactions.tradeAmount} 
+            {dictionary[$USER.language].transactions.tradeAmount} 
           </th>
           <th>
             <!--Empty column for arrow-->
@@ -116,11 +115,7 @@
   .divider {
     max-width: 400px;
   }
-  .refresh-logs {
-    color: var(--jet-blue);
-    cursor: pointer;
-  }
-
+  
   @media screen and (max-width: 1100px) {
     .transaction-logs {
       display: block;

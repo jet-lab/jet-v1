@@ -1,13 +1,15 @@
 import { BN } from '@project-serum/anchor';
 import type { AccountInfo as TokenAccountInfo, MintInfo, u64 } from '@solana/spl-token';
-import { NATIVE_MINT } from '@solana/spl-token'; 
-import type { Reserve, User, Notification } from '../models/JetTypes';
 import { USER } from '../store';
-import { dictionary } from './localization';
-import { airdrop } from './jet';
 
-let user: User;
-USER.subscribe(data => user = data);
+// Check for localStorage dark theme preference
+// and set if necessary
+export const checkDarkTheme = async () => {
+  const darkTheme = localStorage.getItem('jetDark') === 'true';
+  if (darkTheme) {
+    setDark(darkTheme);
+  }
+};
 
 // Toggle dark theme root CSS attributes
 export const setDark = (darkTheme: boolean): void => {
@@ -91,54 +93,6 @@ export const timeout = (ms: number): Promise<boolean> => {
   return new Promise((res) => {
     setTimeout(() => res(true), ms);
   });
-};
-
-// Notification store
-export const addNotification = (notification: Notification) => {
-  const NOTIFICATION_TIMEOUT = 4000;
-  const notifs = user.notifications ?? [];
-  notifs.push(notification);
-  const index = notifs.indexOf(notification);
-  USER.update(user => {
-    user.notifications = notifs;
-    return user;
-  })
-  setTimeout(() => {
-    if (user.notifications[index] && user.notifications[index].text === notification.text) {
-      clearNotification(index);
-    }
-  }, NOTIFICATION_TIMEOUT);
-};
-export const clearNotification = (index: number): void => {
-  const notifs = user.notifications;
-  notifs.splice(index, 1);
-  USER.update(user => {
-    user.notifications = notifs;
-    return user;
-  })
-};
-
-// If in development, can request airdrop for testing
-export const doAirdrop = async (reserve: Reserve): Promise<void> => {
-  let amount = TokenAmount.tokens("100", reserve.decimals);
-  if(reserve.tokenMintPubkey.equals(NATIVE_MINT)) {
-    amount = TokenAmount.tokens("1", reserve.decimals);
-  }
-
-  const [ok, txid] = await airdrop(reserve.abbrev, amount.amount);
-  if (ok && txid) {
-    addNotification({
-      success: true,
-      text: dictionary[user.preferredLanguage].copilot.alert.airdropSuccess
-        .replaceAll('{{UI AMOUNT}}', amount.uiAmount)
-        .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev)
-    });
-  } else if (!ok && !txid) {
-    addNotification({
-      success: false,
-      text: dictionary[user.preferredLanguage].cockpit.txFailed
-    });
-  }
 };
 
 // Token Amounts

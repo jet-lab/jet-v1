@@ -40,15 +40,15 @@
     </div>
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'}
-      text={expanded ? dictionary[$USER.preferredLanguage].nav.cockpit : ''} 
+      text={expanded ? dictionary[$USER.language].nav.cockpit : ''} 
     />
     <NavLink active={$location.pathname === '/transactions'} 
       path='/transactions' icon={$location.pathname === '/transactions' ? '➺' : '➸'}
-      text={expanded ? dictionary[$USER.preferredLanguage].nav.transactions : ''} 
+      text={expanded ? dictionary[$USER.language].nav.transactions : ''} 
     />
     <NavLink active={$location.pathname === '/settings'} 
       path='/settings' icon={$location.pathname === '/settings' ? '✎' : '✀'}
-      text={expanded ? dictionary[$USER.preferredLanguage].nav.settings : ''} 
+      text={expanded ? dictionary[$USER.language].nav.settings : ''} 
     />
 	</div>
   <div class="bottom flex align-center justify-end column">
@@ -63,7 +63,7 @@
       {#if expanded}
         <span class="bicyclette-bold text-gradient"
           style="font-size: 10.5px;">
-          {dictionary[$USER.preferredLanguage].nav.collapse.toUpperCase()}
+          {dictionary[$USER.language].nav.collapse.toUpperCase()}
         </span>
       {/if}
     </div>
@@ -74,15 +74,15 @@
 	<div class="top flex align-center justify-evenly">
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'} 
-      text={dictionary[$USER.preferredLanguage].nav.cockpit} 
+      text={dictionary[$USER.language].nav.cockpit} 
     />
     <NavLink active={$location.pathname === '/transactions'} 
       path='/transactions' icon={$location.pathname === '/transactions' ? '➺' : '➸'} 
-      text={dictionary[$USER.preferredLanguage].nav.transactions} 
+      text={dictionary[$USER.language].nav.transactions} 
     />
     <NavLink active={$location.pathname === '/settings'} 
       path='/settings' icon={$location.pathname === '/settings' ? '✎' : '✀'} 
-      text={dictionary[$USER.preferredLanguage].nav.settings} 
+      text={dictionary[$USER.language].nav.settings} 
     />
   </div>
   <div class="bottom flex align-center justify-evenly">

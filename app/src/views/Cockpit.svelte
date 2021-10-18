@@ -1,13 +1,14 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$USER.preferredLanguage].cockpit.title}</title>
+  <title>Jet Protocol | {dictionary[$USER.language].cockpit.title}</title>
 </svelte:head>
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Datatable, rows } from 'svelte-simple-datatables';
+  import { NATIVE_MINT } from '@solana/spl-token'; 
   import type { Reserve } from '../models/JetTypes';
   import { INIT_FAILED, MARKET, USER } from '../store';
-  import { inDevelopment } from '../scripts/jet';
-  import { currencyFormatter, totalAbbrev, doAirdrop } from '../scripts/util';
+  import { inDevelopment, airdrop } from '../scripts/jet';
+  import { currencyFormatter, totalAbbrev, TokenAmount } from '../scripts/util';;
   import { generateCopilotSuggestion } from '../scripts/copilot';
   import { dictionary } from '../scripts/localization'; 
   import Loader from '../components/Loader.svelte';
@@ -22,7 +23,6 @@
   let reserveDetail: Reserve | null = null;
 
   // Datatable settings
-  let tableData: Reserve[] = [];
   const tableSettings: any = {
     sortable: false,
     pagination: false,
@@ -31,15 +31,38 @@
       searchInput: true
     },
     labels: {
-        search: dictionary[$USER.preferredLanguage].cockpit.search,    
+        search: dictionary[$USER.language].cockpit.search,    
+    }
+  };
+
+  // If in development, can request airdrop for testing
+  const doAirdrop = async (reserve: Reserve): Promise<void> => {
+    let amount = TokenAmount.tokens("100", reserve.decimals);
+    if(reserve.tokenMintPubkey.equals(NATIVE_MINT)) {
+      amount = TokenAmount.tokens("1", reserve.decimals);
+    }
+
+    const [ok, txid] = await airdrop(reserve.abbrev, amount.amount);
+    if (ok && txid) {
+      $USER.addNotification({
+        success: true,
+        text: dictionary[$USER.language].copilot.alert.airdropSuccess
+          .replaceAll('{{UI AMOUNT}}', amount.uiAmount)
+          .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev)
+      });
+    } else if (!ok && !txid) {
+      $USER.addNotification({
+        success: false,
+        text: dictionary[$USER.language].cockpit.txFailed
+      });
     }
   };
 
   // Init Cockpit
   onMount(() => {
-    // If user is subject to liquidation, warn them once
-    if (!$USER.warnedOfLiquidation && $USER.obligation().borrowedValue &&
-      $USER.obligation().colRatio <= $MARKET.minColRatio) {
+    // If user is subject to liquidation, warn them
+    if ($USER.obligation.borrowedValue &&
+      $USER.obligation.colRatio <= $MARKET.minColRatio) {
       generateCopilotSuggestion();
     }
 
@@ -48,29 +71,14 @@
     searchIcon.classList.add('search', 'text-gradient', 'fas', 'fa-search');
     document.querySelector('.dt-search')?.appendChild(searchIcon);
   });
-
-  // Update market data every 3 seconds
-  let updateTime: number = 0;
-  $: if ($MARKET.reserves) {
-    let currentTime = performance.now()
-    if (currentTime > updateTime) {
-      updateTime = currentTime + 3000;
-      tableData = [];
-      for (let r in $MARKET.reserves) {
-        if ($MARKET.reserves[r]) {
-          tableData.push($MARKET.reserves[r]);
-        }
-      }
-    }
-  };
 </script>
 
-{#if $INIT_FAILED || $USER.isGeobanned}
+{#if $INIT_FAILED || $USER.geobanned}
   <InitFailed />
-{:else if $MARKET}
+{:else if $MARKET && $USER}
   <div class="view-container flex justify-center column">
     <h1 class="view-title text-gradient">
-      {dictionary[$USER.preferredLanguage].cockpit.title}
+      {dictionary[$USER.language].cockpit.title}
     </h1>
     <div class="connect-wallet-btn">
       <ConnectWalletButton />
@@ -80,35 +88,37 @@
         <div class="divider">
         </div>
         <h2 class="view-subheader">
-          {dictionary[$USER.preferredLanguage].cockpit.totalValueLocked}
+          {dictionary[$USER.language].cockpit.totalValueLocked}
         </h2>
-        <h1 class="view-header text-gradient">
-          {totalAbbrev($MARKET.totalValueLocked())}
-        </h1>
+        {#key $MARKET.totalValueLocked}
+          <h1 class="view-header text-gradient">
+            {totalAbbrev($MARKET.totalValueLocked)}
+          </h1>
+        {/key}
       </div>
       <div class="trade-position-snapshot flex-centered">
         <div class="trade-position-ratio flex align-start justify-center column">
           <div class="flex-centered">
             <h2 class="view-subheader">
-              {dictionary[$USER.preferredLanguage].cockpit.yourRatio}
+              {dictionary[$USER.language].cockpit.yourRatio}
             </h2>
             <Info term="collateralizationRatio" />
           </div>
           <h1 class="view-header"
-            style="margin-bottom: -20px; {$USER.walletInit
-              ? ($USER.obligation().borrowedValue && ($USER.obligation().colRatio <= $MARKET.minColRatio) 
+            style="margin-bottom: -20px; {$USER.wallet
+              ? ($USER.obligation.borrowedValue && ($USER.obligation.colRatio <= $MARKET.minColRatio) 
                 ? 'color: var(--failure);' 
                   : 'color: var(--success);')
                 : ''}">
-            {#if $USER.walletInit}
-              {#if $USER.obligation().borrowedValue && $USER.obligation().colRatio > 10}
+            {#if $USER.wallet}
+              {#if $USER.obligation.borrowedValue && $USER.obligation.colRatio > 10}
                 &gt;1000
-              {:else if $USER.obligation().borrowedValue && $USER.obligation().colRatio < 10}
-                {currencyFormatter($USER.obligation().colRatio * 100, false, 1)}
+              {:else if $USER.obligation.borrowedValue && $USER.obligation.colRatio < 10}
+                {currencyFormatter($USER.obligation.colRatio * 100, false, 1)}
               {:else}
                 ∞
               {/if}
-              {#if $USER.obligation().borrowedValue}
+              {#if $USER.obligation.borrowedValue}
                 <span style="color: inherit; padding-left: 2px;">
                   %
                 </span>
@@ -121,32 +131,32 @@
         <div class="flex-centered column">
           <div class="trade-position-value flex-centered column">
             <h2 class="view-subheader">
-              {dictionary[$USER.preferredLanguage].cockpit.totalDepositedValue}
+              {dictionary[$USER.language].cockpit.totalDepositedValue}
             </h2>
             <p class="{$USER.wallet ? 'text-gradient' : ''} bicyclette">
-              {$USER.walletInit ? totalAbbrev($USER.obligation().depositedValue ?? 0) : '--'}
+              {$USER.wallet ? totalAbbrev($USER.obligation.depositedValue ?? 0) : '--'}
             </p>
           </div>
           <div class="trade-position-value flex-centered column">
             <h2 class="view-subheader">
-              {dictionary[$USER.preferredLanguage].cockpit.totalBorrowedValue}
+              {dictionary[$USER.language].cockpit.totalBorrowedValue}
             </h2>
             <p class="{$USER.wallet ? 'text-gradient' : ''} bicyclette">
-              {$USER.walletInit ? totalAbbrev($USER.obligation().borrowedValue ?? 0) : '--'}
+              {$USER.wallet ? totalAbbrev($USER.obligation.borrowedValue ?? 0) : '--'}
             </p>
           </div>
         </div>
       </div>
     </div>
-    <Datatable settings={tableSettings} data={tableData}>
+    <Datatable settings={tableSettings} data={$MARKET.reservesArray}>
       <thead>
         <th data-key="name">
-          {dictionary[$USER.preferredLanguage].cockpit.asset} 
+          {dictionary[$USER.language].cockpit.asset} 
         </th>
         <th data-key="abbrev"
           class="native-toggle">
           <Toggle onClick={() => MARKET.update(market => {
-            market.nativeValues = !$MARKET.nativeValues;
+            market.nativeValues = !market.nativeValues;
             return market;
           })}
             active={!$MARKET.nativeValues} 
@@ -154,24 +164,24 @@
           />
         </th>
         <th data-key="availableLiquidity">
-          {dictionary[$USER.preferredLanguage].cockpit.availableLiquidity}
+          {dictionary[$USER.language].cockpit.availableLiquidity}
         </th>
         <th data-key="depositRate">
-          {dictionary[$USER.preferredLanguage].cockpit.depositRate}
+          {dictionary[$USER.language].cockpit.depositRate}
           <Info term="depositRate" />
         </th>
         <th data-key="borrowRate" class="datatable-border-right">
-          {dictionary[$USER.preferredLanguage].cockpit.borrowRate}
+          {dictionary[$USER.language].cockpit.borrowRate}
           <Info term="borrowRate" />
         </th>
         <th data-key="">
-          {dictionary[$USER.preferredLanguage].cockpit.walletBalance}
+          {dictionary[$USER.language].cockpit.walletBalance}
         </th>
         <th data-key="">
-          {dictionary[$USER.preferredLanguage].cockpit.amountDeposited}
+          {dictionary[$USER.language].cockpit.amountDeposited}
         </th>
         <th data-key="">
-          {dictionary[$USER.preferredLanguage].cockpit.amountBorrowed}
+          {dictionary[$USER.language].cockpit.amountBorrowed}
         </th>
         <th data-key="">
           <!--Empty column for arrow-->
@@ -185,12 +195,10 @@
             <td><!-- Extra Row for spacing --></td>
           </tr>
           <tr class:active={$MARKET.currentReserve.abbrev === $rows[i].abbrev}
-            on:click={() => {
-              MARKET.update(market => {
-                market.currentReserve = $rows[i];
-                return market;
-              });
-            }}>
+            on:click={() => MARKET.update(market => {
+              market.currentReserve = $rows[i];
+              return market;
+            })}>
             <td class="dt-asset">
               <img src="img/cryptos/{$rows[i].abbrev}.png" 
                 alt="{$rows[i].abbrev} Icon"
@@ -204,7 +212,7 @@
             </td>
             <td on:click={() => reserveDetail = $rows[i]} 
               class="reserve-detail">
-              {$rows[i].abbrev} {dictionary[$USER.preferredLanguage].cockpit.detail}
+              {$rows[i].abbrev} {dictionary[$USER.language].cockpit.detail}
             </td>
             <td>
               {totalAbbrev(
@@ -220,14 +228,14 @@
             <td class="datatable-border-right">
               {$rows[i].borrowRate ? ($rows[i].borrowRate * 100).toFixed(2) : 0}%
             </td>
-            <td class:dt-bold={$USER.walletBalance($rows[i])} 
-              class:dt-balance={$USER.walletBalance($rows[i])}>
-              {#if $USER.walletInit}
-                {#if $USER.walletBalance($rows[i]) && $USER.walletBalance($rows[i]) < 0.0005}
+            <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
+              class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
+              {#if $USER.wallet}
+                {#if $USER.walletBalances[$rows[i].abbrev] && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(
-                    $USER.walletBalance($rows[i]) ?? 0,
+                    $USER.walletBalances[$rows[i].abbrev] ?? 0,
                     $rows[i].price,
                     $MARKET.nativeValues,
                     3
@@ -237,15 +245,15 @@
                   --
               {/if}
             </td>
-            <td class:dt-bold={$USER.collateralBalance($rows[i])}
-              style={$USER.collateralBalance($rows[i]) ? 
+            <td class:dt-bold={$USER.collateralBalances[$rows[i].abbrev]}
+              style={$USER.collateralBalances[$rows[i].abbrev] ? 
                 'color: var(--jet-green) !important;' : ''}>
-              {#if $USER.walletInit}
-                {#if $USER.collateralBalance($rows[i]) && $USER.collateralBalance($rows[i]) < 0.0005}
+              {#if $USER.wallet}
+                {#if $USER.collateralBalances[$rows[i].abbrev] && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(
-                    $USER.collateralBalance($rows[i]),
+                    $USER.collateralBalances[$rows[i].abbrev] ?? 0,
                     $rows[i].price,
                     $MARKET.nativeValues,
                     3
@@ -255,15 +263,15 @@
                   --
               {/if}
             </td>
-            <td class:dt-bold={$USER.loanBalance($rows[i])}
-              style={$USER.loanBalance($rows[i]) ? 
+            <td class:dt-bold={$USER.loanBalances[$rows[i].abbrev]}
+              style={$USER.loanBalances[$rows[i].abbrev] ? 
               'color: var(--jet-blue) !important;' : ''}>
-              {#if $USER.walletInit}
-                {#if $USER.loanBalance($rows[i]) && $USER.loanBalance($rows[i]) < 0.0005}
+              {#if $USER.wallet}
+                {#if $USER.loanBalances[$rows[i].abbrev] && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(
-                    $USER.loanBalance($rows[i]),
+                    $USER.loanBalances[$rows[i].abbrev] ?? 0,
                     $rows[i].price,
                     $MARKET.nativeValues,
                     3

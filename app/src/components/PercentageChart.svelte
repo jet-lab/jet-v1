@@ -10,7 +10,7 @@
   const animatePercent = async () => {
     percent = 0;
     while(percent < (percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage))) {
-      await timeout(5);
+      await timeout(7);
       percent++;
     }
   };
@@ -89,9 +89,6 @@
   span {
     font-size: 10px;
     margin-top: -10px;
-  }
-  i {
-    margin: unset;
   }
 
   @media screen and (max-width: 1100px) {

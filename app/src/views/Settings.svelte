@@ -1,5 +1,5 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$USER.preferredLanguage].settings.title}</title>
+  <title>Jet Protocol | {dictionary[$USER.language].settings.title}</title>
 </svelte:head>
 <script lang="ts">
   import Select from 'svelte-select';
@@ -18,10 +18,9 @@
   const resetRPC = () => {
     localStorage.removeItem('jetPreferredNode');
     USER.update(user => {
-      user.ping = 0;
+      user.rpcPing = 0;
       return user;
     });
-
     getMarketAndIDL();
     getTransactionLogs();
   };
@@ -29,55 +28,54 @@
   // Check RPC input and set localStorage, restart app
   const checkRPC = async () => {
     if (!rpcNodeInput) {
-      inputError = dictionary[$USER.preferredLanguage].settings.noUrl;
+      inputError = dictionary[$USER.language].settings.noUrl;
       return;
     }
     
     localStorage.setItem('jetPreferredNode', rpcNodeInput);
-    inputError = null;
-    rpcNodeInput = null;
     USER.update(user => {
-      user.ping = 0;
+      user.rpcPing = 0;
       return user;
     });
-
     getMarketAndIDL();
     getTransactionLogs();
+    inputError = null;
+    rpcNodeInput = null;
   };
 </script>
 
 <div class="view-container flex column">
   <h1 class="view-title text-gradient">
-    {dictionary[$USER.preferredLanguage].settings.title}
+    {dictionary[$USER.language].settings.title}
   </h1>
   <div class="divider">
   </div>
   <div class="settings">
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$USER.preferredLanguage].settings.rpcNode.toUpperCase()}
+        {dictionary[$USER.language].settings.rpcNode.toUpperCase()}
       </span>
       <div class="flex align-center justify-start"
         style="padding: var(--spacing-xs) 0;">
         <p>
-          {$USER.preferredNode ?? dictionary[$USER.preferredLanguage].settings.defaultNode}
+          {$USER.rpcNode ?? dictionary[$USER.language].settings.defaultNode}
         </p>
-        {#if $USER.ping}
+        {#if $USER.rpcPing}
           <div class="ping-indicator"
-            style={$USER.ping < 1000 
+            style={$USER.rpcPing < 1000 
               ? 'background: var(--success);' 
                 : 'background: var(--failure);'}>
           </div>
-          <p style={$USER.ping < 1000 
+          <p style={$USER.rpcPing < 1000 
             ? 'color: var(--success);' 
               : 'color: var(--failure);'}>
-            ({$USER.ping}ms)
+            ({$USER.rpcPing}ms)
           </p>
         {/if}
-        {#if $USER.preferredNode}
+        {#if $USER.rpcNode}
           <p class="reset-rpc bicyclette-bold text-gradient"
             on:click={() => resetRPC()}>
-            {dictionary[$USER.preferredLanguage].settings.reset.toUpperCase()}
+            {dictionary[$USER.language].settings.reset.toUpperCase()}
           </p>
         {/if}
       </div>
@@ -91,7 +89,7 @@
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$USER.preferredLanguage].settings.wallet.toUpperCase()}
+        {dictionary[$USER.language].settings.wallet.toUpperCase()}
       </span>
       {#if $USER.wallet}
         <div class="wallet flex-centered">
@@ -104,13 +102,13 @@
             {shortenPubkey($USER.wallet.publicKey.toString(), 4)}
           </p>
           <Button small secondary
-            text={dictionary[$USER.preferredLanguage].settings.disconnect} 
+            text={dictionary[$USER.language].settings.disconnect} 
             onClick={() => disconnectWallet()} 
           />
         </div>
       {:else}
         <Button small secondary
-          text={dictionary[$USER.preferredLanguage].settings.connect} 
+          text={dictionary[$USER.language].settings.connect} 
           onClick={() => USER.update(user => {
             user.connectingWallet = true;
             return user;
@@ -122,11 +120,11 @@
     </div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$USER.preferredLanguage].settings.theme.toUpperCase()}
+        {dictionary[$USER.language].settings.theme.toUpperCase()}
       </span>
       <div class="theme-toggle-container flex align-center justify-start">
         <Toggle onClick={() => setDark(!$USER.darkTheme)}
-          text={$USER.darkTheme ? dictionary[$USER.preferredLanguage].settings.dark : dictionary[$USER.preferredLanguage].settings.light}
+          text={$USER.darkTheme ? dictionary[$USER.language].settings.dark : dictionary[$USER.language].settings.light}
           icon="❂" 
           active={$USER.darkTheme} 
         />
@@ -135,18 +133,18 @@
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$USER.preferredLanguage].settings.language.toUpperCase()}
+        {dictionary[$USER.language].language.toUpperCase()}
       </span>
       <div class="dropdown-select">
         <Select items={Object.keys(dictionary).map(k => ({value: k, label: dictionary[k].language}))}
-          value={dictionary[$USER.preferredLanguage].language}
+          value={dictionary[$USER.language].language}
           on:select={e => {
             // Fix odd bug where it calls on:select twice
             Object.keys(dictionary).forEach(k => {
               if (k === e.detail.value) {
                 localStorage.setItem('jetPreferredLanguage', e.detail.value);
                 USER.update(user => {
-                  user.preferredLanguage = e.detail.value;
+                  user.language = e.detail.value;
                   return user;
                 });
               }

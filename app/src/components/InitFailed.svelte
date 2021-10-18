@@ -8,30 +8,30 @@
 <div class="view-container flex-centered column">
   <img src="img/ui/failed_init.gif" alt="Failed To Init App" />
   <h1 class="bicyclette">
-    {dictionary[$USER.preferredLanguage].copilot.alert.failed}
+    {dictionary[$USER.language].copilot.alert.failed}
   </h1>
-  {#if $USER.isGeobanned}
+  {#if $USER.geobanned}
     <span>
-      {dictionary[$USER.preferredLanguage].cockpit.geobanned}
+      {dictionary[$USER.language].cockpit.geobanned}
     </span>
   {:else}
     <span>
-      {dictionary[$USER.preferredLanguage].cockpit.noMarket}
+      {dictionary[$USER.language].cockpit.noMarket}
     </span>
   {/if}
-  {#if $USER.preferredNode}
+  {#if $USER.rpcNode}
     <p>
       <i class="fas fa-wifi"></i>
-      {$USER.preferredNode}
+      {$USER.rpcNode}
     </p>
     <Button small
-      text={dictionary[$USER.preferredLanguage].settings.reset}
+      text={dictionary[$USER.language].settings.reset}
       onClick={() => {
         localStorage.removeItem('jetPreferredNode');
         USER.update(user => {
-          user.ping = 0;
+          user.rpcPing = 0;
           return user;
-        })
+        });
         getMarketAndIDL();
       }} />
   {/if}

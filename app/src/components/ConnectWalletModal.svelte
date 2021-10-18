@@ -44,7 +44,7 @@
     out:fade={{duration: 50}}>
     <Logo width={120} />
     <span>
-      {dictionary[$USER.preferredLanguage].settings.worldOfDefi}
+      {dictionary[$USER.language].settings.worldOfDefi}
     </span>
     <div class="divider">
     </div>

@@ -2,7 +2,6 @@
   import { fade, fly } from 'svelte/transition';
   import { navigate } from 'svelte-navigator';
   import { USER } from '../store';
-  import { clearNotification } from '../scripts/util';
 </script>
 
 {#if $USER.notifications?.length}
@@ -22,7 +21,7 @@
           {@html n.text}
         </p>
         <i class="jet-icons close"
-          on:click={() => clearNotification(i)}>
+          on:click={() => $USER.clearNotification(i)}>
           ✕
         </i>
       </div>

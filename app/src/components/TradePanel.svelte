@@ -1,13 +1,12 @@
 <script lang="ts">
   import RangeSlider from "svelte-range-slider-pips";
-  import { USER, MARKET } from '../store';
+  import { MARKET, USER } from '../store';
   import { deposit, withdraw, borrow, repay, addTransactionLog } from '../scripts/jet';
-  import { currencyFormatter, addNotification, TokenAmount, Amount } from '../scripts/util';
+  import { currencyFormatter, TokenAmount, Amount } from '../scripts/util';
   import { checkTradeWarning } from '../scripts/copilot';
   import { dictionary } from '../scripts/localization'; 
   import Input from './Input.svelte';
   import Info from './Info.svelte';
-  import Loader from './Loader.svelte';
 
   let inputAmount: number | null = null;
   let disabledInput: boolean = true;
@@ -29,12 +28,12 @@
     // Depositing
     if ($USER.tradeAction === 'deposit') {
       // No wallet balance to deposit
-      if (!$USER.walletBalance()) {
-        disabledMessage = dictionary[$USER.preferredLanguage].cockpit.noBalanceForDeposit
+      if (!$USER.walletBalances[$MARKET.currentReserve.abbrev]) {
+        disabledMessage = dictionary[$USER.language].cockpit.noBalanceForDeposit
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // User has a loan of this asset
-      } else if ($USER.assetIsCurrentBorrow()) {
-        disabledMessage = dictionary[$USER.preferredLanguage].cockpit.assetIsCurrentBorrow
+      } else if ($USER.loanBalances[$MARKET.currentReserve.abbrev]) {
+        disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentBorrow
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       } else {
         disabledInput = false;
@@ -42,12 +41,12 @@
     // Withdrawing
     } else if ($USER.tradeAction === 'withdraw') {
       // No collateral to withdraw
-      if (!$USER.collateralBalance()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.noDepositsForWithdraw
+      if (!$USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForWithdraw
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // User is below minimum c-ratio
       } else if ($USER.belowMinCRatio()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.belowMinCRatio();
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio();
       } else {
         disabledInput = false;
       }
@@ -55,25 +54,25 @@
     } else if ($USER.tradeAction === 'borrow') {
       // User has not deposited any collateral
       if ($USER.noDeposits()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.noDepositsForBorrow;
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForBorrow;
       // User is below minimum c-ratio
       } else if ($USER.belowMinCRatio()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.belowMinCRatio();
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio();
       // User has a deposit of this asset
-      } else if ($USER.assetIsCurrentDeposit()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.assetIsCurrentDeposit
+      } else if ($USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentDeposit
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // No liquidity in market to borrow from
       } else if ($MARKET.currentReserve.availableLiquidity.amount.isZero()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.noLiquidity;
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noLiquidity;
       } else {
         disabledInput = false;
       }
     // Repaying
     } else if ($USER.tradeAction === 'repay') {
       // User has no loan balance to repay
-      if (!$USER.loanBalance()) {
-        disabledMessage = disabledMessage = dictionary[$USER.preferredLanguage].cockpit.noDebtForRepay
+      if (!$USER.loanBalances[$MARKET.currentReserve.abbrev]) {
+        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDebtForRepay
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       } else {
         disabledInput = false;
@@ -90,30 +89,30 @@
     
     // Depositing
     if ($USER.tradeAction === 'deposit') {
-      adjustedRatio = ($USER.obligation().depositedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
-        $USER.obligation().borrowedValue > 0
-            ? $USER.obligation().borrowedValue
+      adjustedRatio = ($USER.obligation.depositedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
+        $USER.obligation.borrowedValue > 0
+            ? $USER.obligation.borrowedValue
               : 1
         );
     // Withdrawing
     } else if ($USER.tradeAction === 'withdraw') {
-      adjustedRatio = ($USER.obligation().depositedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
-        $USER.obligation().borrowedValue > 0 
-            ? $USER.obligation().borrowedValue
+      adjustedRatio = ($USER.obligation.depositedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
+        $USER.obligation.borrowedValue > 0 
+            ? $USER.obligation.borrowedValue
               : 1
         );
     // Borrowing
     } else if ($USER.tradeAction === 'borrow') {
-      adjustedRatio = $USER.obligation().depositedValue / (
-        ($USER.obligation().borrowedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
-            ? ($USER.obligation().borrowedValue + ((inputAmount ?? 0) * $MARKET.currentReserve.price))
+      adjustedRatio = $USER.obligation.depositedValue / (
+        ($USER.obligation.borrowedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
+            ? ($USER.obligation.borrowedValue + ((inputAmount ?? 0) * $MARKET.currentReserve.price))
               : 1
         );
     // Repaying
     } else if ($USER.tradeAction === 'repay') {
-      adjustedRatio = $USER.obligation().depositedValue / (
-        ($USER.obligation().borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
-            ? ($USER.obligation().borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price)
+      adjustedRatio = $USER.obligation.depositedValue / (
+        ($USER.obligation.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
+            ? ($USER.obligation.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price)
              : 1
       );
     }
@@ -121,8 +120,10 @@
 
   // Update input and adjusted ratio on slider change
   const sliderHandler = (e: any) => {
-    inputAmount = $USER.maxInput() * (e.detail.value / 100);
-    adjustCollateralizationRatio();
+    if ($USER) {
+      inputAmount = $USER.maxInput() * (e.detail.value / 100);
+      adjustCollateralizationRatio();
+    }
   };
 
   // Check user input and for Copilot warning
@@ -139,8 +140,8 @@
     // Depositing
     if (tradeAction === 'deposit') {
       // User is depositing more than they have in their wallet
-      if (tradeAmount.uiAmountFloat > $USER.walletBalance()) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.notEnoughAsset
+      if (tradeAmount.uiAmountFloat > $USER.walletBalances[$MARKET.currentReserve.abbrev]) {
+        inputError = dictionary[$USER.language].cockpit.notEnoughAsset
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // Otherwise, send deposit
       } else {
@@ -151,17 +152,17 @@
     } else if (tradeAction === 'withdraw') {
       // User is withdrawing more than liquidity in market
       if (tradeAmount.amount.gt($MARKET.currentReserve.availableLiquidity.amount)) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.noLiquidity;
+        inputError = dictionary[$USER.language].cockpit.noLiquidity;
       // User is withdrawing more than they've deposited
-      } else if (tradeAmount.uiAmountFloat > $USER.collateralBalance()) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.lessFunds;
+      } else if (tradeAmount.uiAmountFloat > $USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
+        inputError = dictionary[$USER.language].cockpit.lessFunds;
       // User is below the minimum c-ratio
-      } else if ($USER.obligation() && $USER.obligation().colRatio <= $MARKET.minColRatio) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.belowMinCRatio();
+      } else if ($USER.obligation && $USER.obligation.colRatio <= $MARKET.minColRatio) {
+        inputError = dictionary[$USER.language].cockpit.belowMinCRatio();
       // Otherwise, send withdraw
       } else {
         // If user is withdrawing all, use collateral notes
-        const withdrawAmount = tradeAmount.uiAmountFloat === $USER.collateralBalance()
+        const withdrawAmount = tradeAmount.uiAmountFloat === $USER.collateralBalances[$MARKET.currentReserve.abbrev]
           ? Amount.depositNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].collateralNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
         [ok, txid] = await withdraw($MARKET.currentReserve.abbrev, withdrawAmount);
@@ -170,10 +171,10 @@
     } else if (tradeAction === 'borrow') {
       // User is borrowing more than liquidity in market
       if (tradeAmount.amount.gt($MARKET.currentReserve.availableLiquidity.amount)) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.noLiquidity;
+        inputError = dictionary[$USER.language].cockpit.noLiquidity;
       // User is below the minimum c-ratio
-      } else if ($USER.obligation() && $USER.obligation().colRatio <= $MARKET.minColRatio) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.belowMinCRatio();
+      } else if ($USER.obligation && $USER.obligation.colRatio <= $MARKET.minColRatio) {
+        inputError = dictionary[$USER.language].cockpit.belowMinCRatio();
       // Otherwise, send borrow
       } else {
         const borrowAmount = Amount.tokens(tradeAmount.amount);
@@ -182,12 +183,12 @@
     // Repaying
     } else if (tradeAction === 'repay') {
       // User is repaying more than they owe
-      if (tradeAmount.uiAmountFloat > $USER.loanBalance()) {
-        inputError = dictionary[$USER.preferredLanguage].cockpit.oweLess;
+      if (tradeAmount.uiAmountFloat > $USER.loanBalances[$MARKET.currentReserve.abbrev]) {
+        inputError = dictionary[$USER.language].cockpit.oweLess;
       // Otherwise, send repay
       } else {
         // If user is repaying all, use loan notes
-        const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalance()
+        const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
           ? Amount.loanNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].loanNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
         [ok, txid] = await repay($MARKET.currentReserve.abbrev, repayAmount);
@@ -196,9 +197,9 @@
     
     // Notify user of successful/unsuccessful trade
     if (ok && txid) {
-      addNotification({
+      $USER.addNotification({
         success: true,
-        text: dictionary[$USER.preferredLanguage].cockpit.txSuccess
+        text: dictionary[$USER.language].cockpit.txSuccess
           .replaceAll('{{TRADE ACTION}}', tradeAction)
           .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount.uiAmountFloat} ${$MARKET.currentReserve.abbrev}`)
       });
@@ -207,9 +208,9 @@
       inputError = '';
       checkDisabledInput();
     } else if (!ok && !txid) {
-      addNotification({
+      $USER.addNotification({
         success: false,
-        text: dictionary[$USER.preferredLanguage].cockpit.txFailed
+        text: dictionary[$USER.language].cockpit.txFailed
       });
     }
 
@@ -217,10 +218,14 @@
     sendingTrade = false;
   };
 
-  // Adjust interface on wallet init and reserve change
-  $: if ($USER.walletInit || $MARKET.currentReserve) {
+  // Adjust interface on wallet init and
+  // reserve / trade action change
+  $: if ($USER.wallet || $USER.tradeAction) {
+    inputAmount = null;
+    inputError = '';
     checkDisabledInput();
     adjustCollateralizationRatio();
+    console.log($USER);
   }
 </script>
 
@@ -230,20 +235,16 @@
       {#each ['deposit', 'withdraw', 'borrow', 'repay'] as action}
         <div on:click={() => {
             if (!sendingTrade) {
-              inputAmount = null;
-              inputError = '';
               USER.update(user => {
                 user.tradeAction = action;
                 return user;
               });
-              checkDisabledInput();
-              adjustCollateralizationRatio();
             }
           }}
           class="trade-select flex justify-center align-center"
           class:active={$USER.tradeAction === action}>
           <p class="bicyclette">
-            {dictionary[$USER.preferredLanguage].cockpit[action]}
+            {dictionary[$USER.language].cockpit[action]}
           </p>
         </div>
       {/each}
@@ -259,17 +260,17 @@
         class:disabled={disabledInput}>
         <span>
           {#if $USER.tradeAction === 'deposit'}
-            {dictionary[$USER.preferredLanguage].cockpit.walletBalance.toUpperCase()}
+            {dictionary[$USER.language].cockpit.walletBalance.toUpperCase()}
           {:else if $USER.tradeAction === 'withdraw'}
-            {dictionary[$USER.preferredLanguage].cockpit.availableFunds.toUpperCase()}
+            {dictionary[$USER.language].cockpit.availableFunds.toUpperCase()}
           {:else if $USER.tradeAction === 'borrow'}
-            {dictionary[$USER.preferredLanguage].cockpit.maxBorrowAmount.toUpperCase()}
+            {dictionary[$USER.language].cockpit.maxBorrowAmount.toUpperCase()}
           {:else if $USER.tradeAction === 'repay'}
-            {dictionary[$USER.preferredLanguage].cockpit.amountOwed.toUpperCase()}
+            {dictionary[$USER.language].cockpit.amountOwed.toUpperCase()}
           {/if}
         </span>
         <div class="flex-centered">
-          {#if $USER.walletInit}
+          {#if $USER.wallet}
             <p>
               {currencyFormatter($USER.maxInput(), false, $MARKET.currentReserve.decimals)} 
               {$MARKET.currentReserve.abbrev}
@@ -285,17 +286,17 @@
         class:disabled={disabledInput}>
         <div class="flex-centered">
           <span>
-            {dictionary[$USER.preferredLanguage].cockpit.adjustedCollateralization.toUpperCase()}
+            {dictionary[$USER.language].cockpit.adjustedCollateralization.toUpperCase()}
           </span>
           <Info term="adjustedCollateralizationRatio" 
             style="color: var(--white); font-size: 9px;" 
           />
         </div>
         <p class="bicyclette">
-          {#if $USER.walletInit}
-            {#if ($USER.obligation().borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio > 10}
+          {#if $USER.wallet}
+            {#if ($USER.obligation.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio > 10}
               &gt; 1000%
-            {:else if ($USER.obligation().borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio < 10}
+            {:else if ($USER.obligation.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio < 10}
               {currencyFormatter(adjustedRatio * 100, false, 1) + '%'}
             {:else}
               ∞
@@ -323,7 +324,7 @@
         submit={() => {
           // Check for no input
           if (!inputAmount) {
-            inputError = dictionary[$USER.preferredLanguage].cockpit.noInputAmount;
+            inputError = dictionary[$USER.language].cockpit.noInputAmount;
             inputAmount = null;
             return;
           }

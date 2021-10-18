@@ -1,4 +1,4 @@
-import type { Market, User, } from '../models/JetTypes';
+import type { Market, User } from '../models/JetTypes';
 import { COPILOT, MARKET, USER } from '../store';
 import { currencyFormatter } from "./util";
 import { dictionary } from './localization';
@@ -12,13 +12,13 @@ USER.subscribe(data => user = data);
 export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, submitTrade: Function): void => {
   // Depositing all SOL leaving no lamports for fees, inform and reject
   if (user.tradeAction === 'deposit' && market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
-    && (user.walletBalance() - 0.02) <= inputAmount) {
+    && (user.walletBalances[market.currentReserve.abbrev] - 0.02) <= inputAmount) {
     if (market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
-      && (user.walletBalance() - 0.02) <= inputAmount) {
+      && (user.walletBalances[market.currentReserve.abbrev] - 0.02) <= inputAmount) {
       COPILOT.set({
         suggestion: {
           good: false,
-          detail: dictionary[user.preferredLanguage].cockpit.insufficientLamports
+          detail: dictionary[user.language].cockpit.insufficientLamports
         }
       });
     }
@@ -29,10 +29,10 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
       COPILOT.set({
         suggestion: {
           good: false,
-          detail: dictionary[user.preferredLanguage].cockpit.subjectToLiquidation
+          detail: dictionary[user.language].cockpit.subjectToLiquidation
             .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1)),                        
           action: {
-            text: dictionary[user.preferredLanguage].cockpit.confirm,
+            text: dictionary[user.language].cockpit.confirm,
             onClick: () => submitTrade()
           }
         }
@@ -40,11 +40,11 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
     }
     // below minimum ratio, inform and reject
     if (adjustedRatio < market.minColRatio 
-      && adjustedRatio < user.obligation().colRatio) {
+      && adjustedRatio < user.obligation.colRatio) {
       COPILOT.set({
         suggestion: {
         good: false,
-        detail: dictionary[user.preferredLanguage].cockpit.rejectTrade
+        detail: dictionary[user.language].cockpit.rejectTrade
           .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
         }
@@ -75,57 +75,51 @@ export const generateCopilotSuggestion = (): void => {
   }
 
   // Conditional AI for suggestion generation
-  if (user.obligation().borrowedValue && (user.obligation().colRatio < market?.minColRatio)) {
+  if (user.obligation.borrowedValue && (user.obligation.colRatio < market?.minColRatio)) {
     COPILOT.set({
       suggestion: {
         good: false,
-        overview: dictionary[user.preferredLanguage].copilot.suggestions.unhealthy.overview,
-        detail: dictionary[user.preferredLanguage].copilot.suggestions.unhealthy.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation().colRatio * 100, false, 1))
-          .replaceAll('{{RATIO BELOW AMOUNT}}', Math.abs(Number(currencyFormatter((market.minColRatio - user.obligation().colRatio) * 100, false, 1))))
+        overview: dictionary[user.language].copilot.suggestions.unhealthy.overview,
+        detail: dictionary[user.language].copilot.suggestions.unhealthy.detail
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
+          .replaceAll('{{RATIO BELOW AMOUNT}}', Math.abs(Number(currencyFormatter((market.minColRatio - user.obligation.colRatio) * 100, false, 1))))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100),
-        solution: dictionary[user.preferredLanguage].copilot.suggestions.unhealthy.solution,
-        action: {
-          onClick: () => USER.update(user => {
-            user.warnedOfLiquidation = true;
-            return user;
-          })
-        } 
+        solution: dictionary[user.language].copilot.suggestions.unhealthy.solution,
       }
     });
   } else if (bestReserveDepositRate?.depositRate && !user.assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance?.amount.isZero()) {
-    USER.update(user => {
+    MARKET.update(market => {
       market.currentReserve = bestReserveDepositRate;
-      return user;
-    })
+      return market;
+    });
     COPILOT.set({
       suggestion: {
         good: true,
-        overview: dictionary[user.preferredLanguage].copilot.suggestions.deposit.overview
+        overview: dictionary[user.language].copilot.suggestions.deposit.overview
           .replaceAll('{{BEST DEPOSIT RATE NAME}}', bestReserveDepositRate.name),
-        detail: dictionary[user.preferredLanguage].copilot.suggestions.deposit.detail
+        detail: dictionary[user.language].copilot.suggestions.deposit.detail
           .replaceAll('{{BEST DEPOSIT RATE ABBREV}}', bestReserveDepositRate.abbrev)
           .replaceAll('{{DEPOSIT RATE}}', (bestReserveDepositRate.depositRate * 100).toFixed(2))
           .replaceAll('{{USER BALANCE}}', currencyFormatter(user.assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance.uiAmountFloat, false, 2))
       }
     });
-  } else if (user.obligation().borrowedValue && (user.obligation().colRatio > market?.minColRatio && user.obligation().colRatio <= market?.minColRatio + 10)) {
+  } else if (user.obligation.borrowedValue && (user.obligation.colRatio > market?.minColRatio && user.obligation.colRatio <= market?.minColRatio + 10)) {
     COPILOT.set({
       suggestion: {
         good: false,
-        overview: dictionary[user.preferredLanguage].copilot.warning.tenPercent.overview,
-        detail: dictionary[user.preferredLanguage].copilot.warning.tenPercent.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation().colRatio * 100, false, 1))
+        overview: dictionary[user.language].copilot.warning.tenPercent.overview,
+        detail: dictionary[user.language].copilot.warning.tenPercent.detail
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
       }
     });
-  } else if (user.obligation().borrowedValue && (user.obligation().colRatio >= market?.minColRatio + 10 && user.obligation().colRatio <= market?.minColRatio + 20)) {
+  } else if (user.obligation.borrowedValue && (user.obligation.colRatio >= market?.minColRatio + 10 && user.obligation.colRatio <= market?.minColRatio + 20)) {
     COPILOT.set({
       suggestion: {
         good: false,
-        overview: dictionary[user.preferredLanguage].copilot.warning.twentyPercent.overview,
-        detail: dictionary[user.preferredLanguage].copilot.warning.twentyPercent.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation().colRatio * 100, false, 1))
+        overview: dictionary[user.language].copilot.warning.twentyPercent.overview,
+        detail: dictionary[user.language].copilot.warning.twentyPercent.detail
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
       }
     });
@@ -133,8 +127,8 @@ export const generateCopilotSuggestion = (): void => {
     COPILOT.set({
       suggestion: {
         good: true,
-        overview: dictionary[user.preferredLanguage].copilot.suggestions.healthy.overview,
-        detail: dictionary[user.preferredLanguage].copilot.suggestions.healthy.detail
+        overview: dictionary[user.language].copilot.suggestions.healthy.overview,
+        detail: dictionary[user.language].copilot.suggestions.healthy.detail
       }
     });
   }

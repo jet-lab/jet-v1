@@ -2,8 +2,7 @@
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
   import { getMarketAndIDL } from './scripts/jet';
-  import { getLocale } from './scripts/localization';
-  import { setDark } from './scripts/util';
+  import { checkDarkTheme } from './scripts/util';
   import Nav from './components/Nav.svelte';
   import Cockpit from './views/Cockpit.svelte';
   import TransactionLogs from "./views/TransactionLogs.svelte";
@@ -13,14 +12,11 @@
   import Copilot from './components/Copilot.svelte';
   import Notifications from './components/Notifications.svelte';
 
-  let darkTheme: boolean = localStorage.getItem('jetDark') === 'true';
   let launchUI: boolean = false;
   onMount(async () => {
-    // Initialize dark theme
-    if (darkTheme) setDark(true);
-    // Get user's locale and check for banned region
-    await getLocale();
-    // get IDL whith market reserve data
+    // Init dark thtme
+    checkDarkTheme();
+    // get IDL and market reserve data
     await getMarketAndIDL();
     // Display Interface
     launchUI = true;

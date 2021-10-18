@@ -5,9 +5,9 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Market, Asset, Reserve, AssetStore, SolWindow, User, WalletProvider, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
-import { MARKET, USER, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, COPILOT } from '../store';
-import { subscribeToAssets, subscribeToMarket } from './subscribe';
+import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
+import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
+import { subscribeToMarket, subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
@@ -67,10 +67,6 @@ export const getMarketAndIDL = async (): Promise<void> => {
   idl = await resp.json();
   IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
-  USER.update(user => {
-    user.preferredNode = localStorage.getItem('jetuser.PreferredNode');
-    return user;
-  });
 
   // Establish web3 connection
   const idlMetadata = parseIdlMetadata(idl.metadata);
@@ -78,18 +74,23 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
   // Establish and test web3 connection
   // If error log it and display failure component
+  const preferredNode = localStorage.getItem('jetPreferredNode');
   try {
     const anchorConnection = new anchor.web3.Connection(
-      user.preferredNode ?? idlMetadata.cluster, 
+      preferredNode ?? idlMetadata.cluster, 
       (anchor.Provider.defaultOptions()).commitment
     );
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    USER.update(user => {
+      user.rpcNode = preferredNode;
+      return user;
+    });
   } catch {
-    localStorage.removeItem('jetuser.PreferredNode');
     const anchorConnection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    localStorage.removeItem('jetPreferredNode');
     USER.update(user => {
-      user.preferredNode = null;
+      user.rpcNode = null;
       return user;
     });
   }
@@ -157,22 +158,13 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves[reserveMeta.abbrev] = reserve;
   }
 
-  // Init global market object
-  MARKET.set({
-    minColRatio: 0,
-    accountPubkey: idlMetadata.market.market,
-    authorityPubkey: idlMetadata.market.marketAuthority,
-    reserves: reserves,
-    currentReserve: reserves.SOL,
-    nativeValues: true,
-    // Get total value of all reserves
-    totalValueLocked: () => {
-      let tvl = 0;
-      for (let r in reserves) {
-        tvl += reserves[r].marketSize.muln(reserves[r].price)?.uiAmountFloat;
-      }
-      return tvl;
-    },
+  // Update market accounts and reserves
+  MARKET.update(market => {
+    market.accountPubkey = idlMetadata.market.market;
+    market.authorityPubkey = idlMetadata.market.marketAuthority;
+    market.reserves = reserves;
+    market.currentReserve = reserves.SOL;
+    return market;
   });
 
   // Subscribe to market 
@@ -211,185 +203,39 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
 
-  // Connect and begin fetching account data
-  // Check for newly created token accounts on interval
+  // Set name, connect to wallet
+  wallet.name = provider.name;
   wallet.on('connect', async () => {
-    // Set wallet
-    wallet.name = provider.name;
-    USER.update(user => {
-      user.wallet = wallet;
-      return user;
-    });
-
-    // Fetch user account data
     getTransactionLogs();
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
-    await getMarketAndIDL();
-
-    // Set user global getters and state
-    // and init wallet to display balances
-    USER.update(user => {
-      // Get value of deposits and borrowings, as well as c-ratio
-      user.obligation = () => {
-        let depositedValue: number = 0;
-        let borrowedValue: number = 0;
-        let colRatio = 0;
-        let utilizationRate = 0;
-
-        if (!user.assets || !market) {
-          return {
-            depositedValue,
-            borrowedValue,
-            colRatio,
-            utilizationRate
-          }
-        }
-
-        for (let t in user.assets.tokens) {
-          depositedValue += new TokenAmount(
-            user.assets.tokens[t].collateralBalance.amount,
-            market.reserves[t].decimals
-          ).uiAmountFloat * market.reserves[t].price;
-          borrowedValue += new TokenAmount(
-            user.assets.tokens[t].loanBalance.amount,
-            market.reserves[t].decimals
-          ).uiAmountFloat * market.reserves[t].price;
-
-          colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
-          utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
-        }
-
-        return {
-          depositedValue,
-          borrowedValue,
-          colRatio,
-          utilizationRate
-        }
-      };
-      user.belowMinCRatio = () => (user.obligation().depositedValue / user.obligation().borrowedValue) <= market.minColRatio;
-      // Check if user has no current collateral
-      user.noDeposits = () => !user.obligation().depositedValue;
-      // Check if user is below minimum c-ratio
-      // Check to see if user has a deposited/borrowed value for asset
-      user.assetIsCurrentDeposit = () => {
-        return market.currentReserve
-          ? !user.assets?.tokens[market.currentReserve.abbrev].collateralBalance.amount.isZero()
-            : false;
-      };
-      user.assetIsCurrentBorrow = () => {
-        return market.currentReserve
-          ? !user.assets?.tokens[market.currentReserve.abbrev].loanBalance.amount.isZero()
-            : false;
-      };
-      // Get user's wallet balance of asset
-      user.walletBalance = (r?: Reserve) => {
-        let balance = 0;
-        if (market.currentReserve && user.assets) {
-          balance = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.tokenMintPubkey.equals(NATIVE_MINT) 
-            ? user.assets.sol.uiAmountFloat
-              : user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.walletTokenBalance.uiAmountFloat;
-        }
-        return balance;
-      };
-      // Get user's collateral balance of asset
-      user.collateralBalance = (r?: Reserve) => {
-        let collateral = 0;
-        if (market.currentReserve && user.assets) {
-          collateral = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.collateralBalance.uiAmountFloat;
-        }
-        return collateral;
-      };
-      // Get user's loan balance of asset
-      user.loanBalance = (r?: Reserve) => {
-        let loan = 0;
-        if (market.currentReserve && user.assets) {
-          loan = user.assets.tokens[r ? r.abbrev : market.currentReserve.abbrev]?.loanBalance.uiAmountFloat;
-        }
-        return loan;
-      };
-      // Get maximum amount a user can withdraw of their collateral
-      user.maxWithdraw = () => {
-        let collateralBalance = 0;
-        let maxWithdraw = 0;
-        if (market.currentReserve && user.assets) {
-          collateralBalance = user.assets.tokens[market.currentReserve.abbrev]?.collateralBalance.uiAmountFloat;
-          maxWithdraw = user.obligation().borrowedValue
-            ? (user.obligation().depositedValue - (market.minColRatio * user.obligation().borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
-              : collateralBalance;
-          if (maxWithdraw > collateralBalance) {
-            maxWithdraw = collateralBalance;
-          }
-        }
-        return maxWithdraw;
-      };
-      // Get maximum borrow a user can submit for asset
-      user.maxBorrow = () => {
-        let maxBorrow = 0;
-        if (market.currentReserve && user.assets) {
-          const availableLiquidity = market.reserves[market.currentReserve.abbrev].availableLiquidity?.uiAmountFloat;
-          maxBorrow = ((user.obligation().depositedValue / market.minColRatio) - user.obligation().borrowedValue) / market.reserves[market.currentReserve.abbrev].price;
-          if (maxBorrow > availableLiquidity) {
-            maxBorrow = availableLiquidity;
-          }
-        }
-        return maxBorrow;
-      };
-      // Get the maximum value a user can input
-      user.maxInput = () => {
-        let max = 0;
-        if (market.currentReserve && user.assets) {
-          if (user.tradeAction === 'deposit') {
-            max = user.walletBalance();
-          } else if (user.tradeAction === 'withdraw') {
-            max = user.maxWithdraw();
-          } else if (user.tradeAction === 'borrow') {
-            // Check if available liquidity of a reserve is
-            // less than the most a user can borrow
-            const availableLiquidity = market.currentReserve.availableLiquidity.uiAmountFloat;
-            if (availableLiquidity < user.maxBorrow()) {
-              max = availableLiquidity;
-            } else {
-              max = user.maxBorrow();
-            }
-          } else if (user.tradeAction === 'repay') {
-            // Check if wallet balance is less than the user owes
-            if (user.walletBalance() < user.loanBalance()) {
-              max = user.walletBalance()
-            } else {
-              max = user.loanBalance();
-            }
-          }
-        }
-        return max;
-      };
-      user.walletInit = true;
-      return user;
-    });
-
-    // Must accept disclaimer upon mainnet launch
-    if (!inDevelopment) {
-      const accepted = localStorage.getItem('jetDisclaimer');
-      if (!accepted) {
-        COPILOT.set({
-          alert: {
-            good: false,
-            header: dictionary[user.preferredLanguage].copilot.alert.warning,
-            text: dictionary[user.preferredLanguage].copilot.alert.disclaimer
-              .replaceAll('{{TERMS OF USE}}', `<a href="https://www.jetprotocol.io/terms-of-use" target="_blank" class="bicyclette-bold text-gradient">TERMS OF USE</a>`)
-              .replaceAll('{{PRIVACY POLICY}}', `<a href="https://www.jetprotocol.io/privacy-policy" target="_blank" class="bicyclette-bold text-gradient">PRIVACY POLICY</a>`),
-            action: {
-              text: dictionary[user.preferredLanguage].copilot.alert.accept,
-              onClick: () => localStorage.setItem('jetDisclaimer', 'true')
-            }
-          }
-        });
-      }
-    }
   });
   await wallet.connect();
-};
+  USER.update(user => {
+    user.wallet = wallet;
+    return user;
+  })
 
+  // User must accept disclaimer upon mainnet launch
+  if (!inDevelopment) {
+    const accepted = localStorage.getItem('jetDisclaimer');
+    if (!accepted) {
+      COPILOT.set({
+        alert: {
+          good: false,
+          header: dictionary[user.language].copilot.alert.warning,
+          text: dictionary[user.language].copilot.alert.disclaimer
+            .replaceAll('{{TERMS OF USE}}', `<a href="https://www.jetprotocol.io/terms-of-use" target="_blank" class="bicyclette-bold text-gradient">TERMS OF USE</a>`)
+            .replaceAll('{{PRIVACY POLICY}}', `<a href="https://www.jetprotocol.io/privacy-policy" target="_blank" class="bicyclette-bold text-gradient">PRIVACY POLICY</a>`),
+          action: {
+            text: dictionary[user.language].copilot.alert.accept,
+            onClick: () => localStorage.setItem('jetDisclaimer', 'true')
+          }
+        }
+      });
+    }
+  }
+};
 // Disconnect user wallet
 export const disconnectWallet = () => {
   if (user.wallet?.disconnect) {
@@ -398,14 +244,12 @@ export const disconnectWallet = () => {
   if (user.wallet?.forgetAccounts) {
     user.wallet.forgetAccounts();
   }
-
   USER.update(user => {
     user.wallet = null;
-    user.walletInit = false;
     user.assets = null;
     user.transactionLogs = [];
     return user;
-  })
+  });
 };
 
 // Get Jet transaction logs and associated UI data on wallet init
@@ -417,11 +261,11 @@ export const getTransactionLogs = async (): Promise<void> => {
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  transactionLogConnection = user.preferredNode ? new anchor.web3.Connection(user.preferredNode)
+  transactionLogConnection = user.rpcNode ? new anchor.web3.Connection(user.rpcNode)
     : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
   const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(user.wallet.publicKey, undefined, 'confirmed'); 
   for (let sig of sigs) {
-    //Reset global variable for load
+    //Reset logs for load
     USER.update(user => {
       user.transactionLogs = null;
       return user;
@@ -459,7 +303,7 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
           }
           // If those bytes match any of our instructions label trade action
           if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
-            log.tradeAction = dictionary[user.preferredLanguage].transactions[progInst];
+            log.tradeAction = dictionary[user.language].transactions[progInst];
             // Determine asset and trade amount
             for (let pre of log.meta.preTokenBalances as any[]) {
               for (let post of log.meta.postTokenBalances as any[]) {
@@ -505,7 +349,7 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
 // Add new transaction log on trade submit
 export let addTransactionLog = async (signature: string) => {
   const txLogs = user.transactionLogs ?? [];
-  //Reset global variable for load
+  //Reset logs for load
   USER.update(user => {
     user.transactionLogs = null;
     return user;
@@ -530,7 +374,7 @@ export let addTransactionLog = async (signature: string) => {
 };
 
 // Get user token accounts
-const getAssetPubkeys = async (): Promise<void> => {
+export const getAssetPubkeys = async (): Promise<void> => {
   if (program == null || user.wallet === null) {
     return;
   }
