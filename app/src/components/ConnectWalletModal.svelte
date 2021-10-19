@@ -19,6 +19,11 @@
       url: "https://www.sollet.io/"
     },
     {
+      name: "Solflare",
+      logo: "img/wallets/solflare.png",
+      url: "https://solflare.com/"
+    },
+    {
       name: "Solong",
       logo: "img/wallets/solong.png",
       url: "https://solongwallet.com/"
@@ -27,7 +32,7 @@
       name: "Math Wallet",
       logo: "img/wallets/math_wallet.png",
       url: "https://mathwallet.org/en-us/"
-    }
+    },
   ];
 </script>
 

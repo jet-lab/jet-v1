@@ -180,6 +180,8 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana?.isPhantom) {
     wallet = solWindow.solana as unknown as Wallet;
+  } else if (provider.name === 'Solflare' && solWindow.solflare?.isSolflare) {
+    wallet = solWindow.solflare as unknown as Wallet;
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
