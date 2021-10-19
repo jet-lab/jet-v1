@@ -1009,11 +1009,8 @@
   }
 
   @media screen and (max-width: 1100px) {
-    .terms-footer {
-    bottom: var(--mobile-nav-height);
+  .terms-footer {
     width: 100%;
-    position: relative;
-    height: 50px;
     justify-content: center;
     align-items: center;
   }
