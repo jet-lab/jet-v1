@@ -11,6 +11,7 @@
   import ConnectWalletModal from './components/ConnectWalletModal.svelte';
   import Copilot from './components/Copilot.svelte';
   import Notifications from './components/Notifications.svelte';
+  import TermsConditions from './components/TermsConditions.svelte';
 
   let launchUI: boolean = false;
   onMount(async () => {
@@ -38,6 +39,7 @@
     <ConnectWalletModal />
     <Copilot />
     <Notifications />
+    <TermsConditions />
   {:else}
     <Loader fullscreen />
   {/if}

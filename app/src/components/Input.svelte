@@ -173,16 +173,17 @@
     .currency input {
       width: 140px;
       padding-left: 30px !important;
-      padding-right: 35px !important;
+      padding-right: 40px !important;
     }
     .currency .asset-abbrev-usd {
       right: var(--spacing-sm);
     }
     .currency img {
+      width: 18px;
       left: var(--spacing-sm);
     }
     .currency span {
-      font-size: 10px !important;
+      font-size: 8px !important;
     }
     .input-btn {
       height: 37px;

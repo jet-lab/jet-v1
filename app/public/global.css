@@ -71,6 +71,7 @@
   display: none !important;
 }
 body {
+  position: relative;
 	margin: 0;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 	background: var(--white);
@@ -78,6 +79,8 @@ body {
 	overflow-x: hidden;
   letter-spacing: 0.25px;
   width: calc(100% - var(--nav-width));
+  min-height: calc(100vh - 30px);
+  padding-bottom: 30px;
   margin-left: var(--nav-width);
 }
 

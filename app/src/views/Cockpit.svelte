@@ -250,7 +250,7 @@
             <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
               class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
               {#if $USER.walletInit}
-                {#if $USER.walletBalances[$rows[i].abbrev]
+                {#if $USER.walletBalances[$rows[i].abbrev] > 0
                   && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
@@ -269,7 +269,7 @@
               style={$USER.collateralBalances[$rows[i].abbrev] ? 
                 'color: var(--jet-green) !important;' : ''}>
               {#if $USER.walletInit}
-                {#if $USER.collateralBalances[$rows[i].abbrev]
+                {#if $USER.collateralBalances[$rows[i].abbrev] > 0
                   && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
@@ -288,7 +288,7 @@
               style={$USER.loanBalances[$rows[i].abbrev] ? 
               'color: var(--jet-blue) !important;' : ''}>
               {#if $USER.walletInit}
-                {#if $USER.loanBalances[$rows[i].abbrev]
+                {#if $USER.loanBalances[$rows[i].abbrev] > 0
                   && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
@@ -382,17 +382,18 @@
     .trade-market-tvl, .trade-position-snapshot {
       min-width: unset;
       margin: var(--spacing-xs) 0;
+      padding: var(--spacing-xs) var(--spacing-md);
     }
     .trade-position-snapshot h1 {
-      font-size: 50px;
-      line-height: 50px;
+      font-size: 40px;
+      line-height: 40px;
     }
     .trade-position-snapshot p {
       font-size: 20px;
       line-height: 20px;
     }
     .trade-position-ratio {
-      padding-right: 20px;
+      padding-right: 30px;
     }
   }
 </style>
