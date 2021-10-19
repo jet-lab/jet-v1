@@ -65,7 +65,7 @@
         "noDebtForRepay": "Hiç {{ASSET}} borcunuz yok.",
         "rejectTrade": "Bu ticaret, sizin yeni teminat oranınızı {{NEW-C-RATIO}}% minimum oranımız olan {{JET MIN C-RATIO}} altına düşürebilir. Borcun oluşturulması için ayrıca bir komisyon daha bulunmaktadır {{ORIGINATION FEE}}%. Hala borç almak istediğinize emin misiniz?",
         "insufficientLamports": "İşlem ücretlerini dahi karşılamayacak kadar çok SOL yatırıyorsunuz. Şu ankinden daha az bir miktar kullanarak yeniden deneyin. ",
-        "stillUndercollateralized": "Yeni C-oranınız {{NEW-C-RATIO}}% hala Jet Protocol'ün minimum piyasa teminat oranı "
+        "stillUndercollateralized": "Yeni C-oranınız {{NEW-C-RATIO}}% hala Jet Protocol'ün minimum piyasa teminat oranı"
     },
     "settings": {
         "title": "Ayarlar",
@@ -137,7 +137,7 @@
             "refresh": "Yenile",
             "originationFee": "Bu borca ilişkin {{ORIGINATION FEE}}% kadar oluşturulma komisyonu bulunmaktadır. ",
             "headsup": "Dikkat buraya!",
-            "disclaimer": "JetProtocol mainnet'e erişiyorsunuz. Yeterince bilgiye sahip değilseniz ilerlemeyin, şartları veya olası kayıpları kabul etmeyin. ",
+            "disclaimer": "JetProtocol mainnet'e erişiyorsunuz. Yeterince bilgiye sahip değilseniz ilerlemeyin, şartları veya olası kayıpları kabul etmeyin.  <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
             "accept": "Kabul Et",
             "warning": "UYARI"
         }
