@@ -188,7 +188,6 @@
     width: 100%;
     max-width: 600px;
     padding: var(--spacing-lg);
-    margin: var(--spacing-lg) 0;
   }
 
   @media screen and (max-width: 1100px) {
