@@ -52,11 +52,11 @@
     } else if ($USER.tradeAction === 'withdraw') {
       // No collateral to withdraw
       if (!$USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForWithdraw
+        disabledMessage = dictionary[$USER.language].cockpit.noDepositsForWithdraw
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // User is below minimum c-ratio
       } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
+        disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
       } else {
         disabledInput = false;
       }
@@ -64,17 +64,17 @@
     } else if ($USER.tradeAction === 'borrow') {
       // User has not deposited any collateral
       if (!$USER.position.depositedValue) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForBorrow;
+        disabledMessage = dictionary[$USER.language].cockpit.noDepositsForBorrow;
       // User is below minimum c-ratio
       } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
+        disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
       // User has a deposit of this asset
       } else if ($USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentDeposit
+        disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentDeposit
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // No liquidity in market to borrow from
       } else if ($MARKET.currentReserve.availableLiquidity.amount.isZero()) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noLiquidity;
+        disabledMessage = dictionary[$USER.language].cockpit.noLiquidity;
       } else {
         disabledInput = false;
       }
@@ -82,7 +82,7 @@
     } else if ($USER.tradeAction === 'repay') {
       // User has no loan balance to repay
       if (!$USER.loanBalances[$MARKET.currentReserve.abbrev]) {
-        disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDebtForRepay
+        disabledMessage = dictionary[$USER.language].cockpit.noDebtForRepay
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       } else {
         disabledInput = false;
