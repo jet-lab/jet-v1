@@ -10,12 +10,15 @@
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
   import { onMount } from 'svelte';
-  import Button from '../components/Button.svelte';
 
   let transactionLogs: TransactionLog[];
+  
   let currentPage: number = 1; 
   $: pageCount = Math.ceil(transactionLogs.length / 8);
   $: txnLogsToShow = sliceData(currentPage, transactionLogs);
+  $: transactionLogsLen = transactionLogs.length;
+  $: transactionCountStart = pageCount * 8 - 7;
+  $: transactionCountEnd = transactionCountStart + txnLogsToShow.length - 1;
 
   TRANSACTION_LOGS.subscribe((data) => {
     transactionLogs = data;
@@ -31,11 +34,11 @@
       currentPage += 1;
     } else {
       getMoreJetTxnsDetails(8, true)
-      .then(() => {
-        if (currentPage < pageCount) {
-          currentPage += 1;
-        }
-      })
+        .then(() => {
+          if (currentPage < pageCount) {
+            currentPage += 1;
+          }
+        });
     }
   };
 
@@ -137,14 +140,22 @@
       </div>
       <div class="txn-logs-ops flex column align-center">
         <p class="page-nums">
-          {`Showing ${currentPage} of ${pageCount} pages`}
+          {`Showing ${transactionCountStart} - ${transactionCountEnd} of ${transactionLogsLen}`}
         </p>
         <div class="flex" id="txn-logs-buttons">
-          <div class="logs-buttons">
-            <Button text={'Previous'} onClick={handlePrevious}/>
+          <div title="Previous" class="logs-buttons" style="margin-right: 15px" on:click={() => {
+            handlePrevious();
+          }}>
+            <i class="text-gradient jet-icons">
+              {` < `}
+            </i>
           </div>
-          <div class="logs-buttons">
-            <Button text={'More'} onClick={handleMore} />
+          <div title="More" class="logs-buttons right" style="margin-left: 15px" on:click={() => {
+            handleMore();
+          }}>
+            <i class="text-gradient jet-icons">
+              {` > `}
+            </i>
           </div>
         </div>   
       </div>
@@ -184,7 +195,6 @@
   .txn-logs-ops {
     width: 100%;
     max-width: 600px;
-    padding: var(--spacing-lg);
   }
 
   @media screen and (max-width: 1100px) {
@@ -195,13 +205,23 @@
       box-shadow: unset;
     }
     .txn-logs-ops {
-      display: block;
       padding: unset;
       margin: unset;
     }
   }
   .logs-buttons {
-    margin: 5px;
+    cursor: pointer;
+    border-radius: 100%;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+  .logs-buttons:hover {
+    box-shadow: var(--neu-shadow);
+  }
+
+  .logs-buttons:active {
+    box-shadow: var(--neu-datatable-inset-shadow) !important;
+    background: var(--grey) !important;
   }
   .page-nums {
     margin: 5px;

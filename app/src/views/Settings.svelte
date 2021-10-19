@@ -4,7 +4,7 @@
 <script lang="ts">
   import Select from 'svelte-select';
   import { WALLET, ASSETS, PREFERRED_LANGUAGE, DARK_THEME, PREFERRED_NODE, PING, CONNECT_WALLET } from '../store';
-  import { getMarketAndIDL, getTransactionLogs } from '../scripts/jet';
+  import { getMarketAndIDL, getAllConfirmedSigs, getMoreJetTxnsDetails } from '../scripts/jet';
   import { disconnectWallet, setDark, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
@@ -23,7 +23,10 @@
     localStorage.setItem('jetPreferredNode', rpcNodeInput);
     PING.set(0);
     getMarketAndIDL();
-    getTransactionLogs();
+    getAllConfirmedSigs()
+      .then(() => {
+        getMoreJetTxnsDetails(8, true);
+      });
     inputError = null;
     rpcNodeInput = null;
   };
@@ -64,7 +67,10 @@
               localStorage.removeItem('jetPreferredNode');
               PING.set(0);
               getMarketAndIDL();
-              getTransactionLogs();
+              getAllConfirmedSigs()
+                .then(() => {
+                  getMoreJetTxnsDetails(8, true);
+                });
             }}>
             {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
           </p>

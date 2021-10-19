@@ -217,10 +217,9 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   // Check for newly created token accounts on interval
   wallet.on('connect', async () => {
     getAllConfirmedSigs()
-    .then(() => {
-      getMoreJetTxnsDetails(8, true);
-    });
-    // getTransactionLogs();
+      .then(() => {
+        getMoreJetTxnsDetails(8, true);
+      });
     await getAssetPubkeys();
     await subscribeToAssets(connection, coder, wallet.publicKey);
     await getMarketAndIDL();
