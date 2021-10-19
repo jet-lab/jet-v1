@@ -2,10 +2,10 @@
   <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
-  import { Datatable, rows, PaginationButtons, PaginationRowCount } from 'svelte-simple-datatables';
-  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading, CountOfSigsAndHistoricTxns, SignaturesFromAddress } from '../store';
+  import { Datatable, rows } from 'svelte-simple-datatables';
+  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE, TxnsHistoryLoading } from '../store';
   import type { TransactionLog } from '../models/JetTypes' 
-  import { getTransactionLogs, getMoreJetTxnsDetails } from '../scripts/jet'; 
+  import { getMoreJetTxnsDetails } from '../scripts/jet'; 
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
@@ -13,15 +13,18 @@
   import Button from '../components/Button.svelte';
 
   let transactionLogs: TransactionLog[];
-  $: pageCount = Math.ceil(transactionLogs.length / 8);
   let currentPage: number = 1; 
+  $: pageCount = Math.ceil(transactionLogs.length / 8);
   $: txnLogsToShow = sliceData(currentPage, transactionLogs);
 
+  TRANSACTION_LOGS.subscribe((data) => {
+    transactionLogs = data;
+  });
 
   const sliceData = (page: number, txns: TransactionLog[]) => {
     const p = page - 1
     return txns.slice(p, p + 8)
-  }
+  };
 
   const handleMore = async () => {
     if(currentPage < pageCount) {  
@@ -34,17 +37,13 @@
         }
       })
     }
-  }
+  };
 
   const handlePrevious = () => {
     if(currentPage > 1) {
       currentPage -= 1;
     }
-  }
-
-  TRANSACTION_LOGS.subscribe((data) => {
-    transactionLogs = data;
-  })
+  };
 
 
   // Datatable Settings
@@ -155,8 +154,6 @@
   {/if}
 </div>
  
-
-
 <style>
   .transaction-logs {
     width: 100%;

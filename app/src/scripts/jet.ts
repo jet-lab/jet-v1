@@ -254,43 +254,11 @@ const txnLogsConnection = () => {
     : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com')  : new anchor.web3.Connection('https://api.mainnet-beta.solana.com'));
 }
 
-// Get ALL Jet transaction logs and associated UI data on wallet init
-export const getTransactionLogs = async (): Promise<void> => {
-  TxnsHistoryLoading.set(true);
-  // associated with user's wallet pubkey
-  const txLogs: TransactionLog[] = [];
-
-  //open connection
-  txnLogsConnection();
-
-  const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
-  console.log('sigs.length', sigs.length);
-  const sigsLen = sigs.length;
-  let index = 0;
-
-  while(index < sigsLen) {
-    const log = await transactionLogConnection.getConfirmedTransaction(sigs[index].signature, 'confirmed') as unknown as TransactionLog;
-    const detailedLog = log ? await getLogDetails(log, sigs[index].signature) : null;
-    if (detailedLog) {
-      txLogs.push(detailedLog);
-    }
-    index += 1;
-  }
-
-  // Check if user has submitted new trades before all were loaded    
-  const newerLogs = transactionLogs ?? [];
-  newerLogs.forEach(l => txLogs.unshift(l));
-  // Update global store
-  TRANSACTION_LOGS.set(txLogs);
-  TxnsHistoryLoading.set(false);
-};
-
 export const getAllConfirmedSigs = async (): Promise<void>  => {
   TxnsHistoryLoading.set(true);
   //open connection
   txnLogsConnection();
   const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed');
-  console.log('sigs length', sigs.length)
   //store all the signatures
   SignaturesFromAddress.set(sigs);
   TxnsHistoryLoading.set(false);
@@ -301,13 +269,11 @@ export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn 
   if(loadingOn) {
     TxnsHistoryLoading.set(true);
   }
-  console.log('getMoreJetTxnsDetails called')
   const sigsLen = signaturesFromAddress.length;
   let currentTxLogs = transactionLogs;
   let moreTxLogs: TransactionLog[] = [];
   let sigsIndex = sigIndex
   let txnsCount = 0;
-  console.log('start','sigIndex', sigIndex, 'txnsCount', txnsCount)
   //open connection
   txnLogsConnection();
   //iterate until get hit the last sig or we hit the max txn count we want to get
@@ -326,14 +292,12 @@ export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn 
 
   //update and keep track of our current signature index and txn log count
   CountOfSigsAndHistoricTxns.update((data) => {
-    console.log('CountOfSigsAndHistoricTxns', [sigsIndex, data[1] + txnsCount]);
     return [sigsIndex, data[1] + txnsCount];
-  })
+  });
   
-  console.log('how many txn pushed in', moreTxLogs.length)
   //set global set
   TRANSACTION_LOGS.set([...currentTxLogs,...moreTxLogs])
-  console.log('txnCount', txnCount);
+
   if(loadingOn) {
     TxnsHistoryLoading.set(false);
   }
