@@ -4,22 +4,22 @@
         "transactions": "Транзакции отправляются...",
         "connectingWallet": "Кошелёк подключается...",
         "initializing": "Завести Jet двигатели",
-        "fetchingReserves": "Fetching Reserve Data",
-        "fetchingAccount": "Fetching Account Data"
+        "fetchingReserves": "Получение резервных данных ",
+        "fetchingAccount": "Получение учётных данных "
     },
     "nav": {
         "cockpit": "Кабина",
         "settings": "Настройки",
         "collapse": "Свернуть",
-        "getCopilotSuggestion": "Get Copilot Suggestion",
-        "transactions": "Flight Logs"
+        "getCopilotSuggestion": "Получить помощь Второго пилота",
+        "transactions": "Бортовой журнал"
     },
     "cockpit": {
         "title": "Кабина",
         "asset": "Актив",
         "detail": "Подробнее",
         "native": "Базовая",
-        "totalValueLocked": "Зарезервированная рыночная стоимость",
+        "totalValueLocked": "Зарезервированная рыночная стоимость активов",
         "totalBorrowed": "Общая сумма займов",
         "availableLiquidity": "Доступная ликвидность",
         "amountDeposited": "Депозит",
@@ -53,7 +53,7 @@
         "oweLess": "Вы должны меньше.",
         "geobanned": "Jet протокол не доступен в вашем регионе.",
         "noMarket": "площадка Jet не смогла запуститься.",
-        "txSuccess": "Успез! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
+        "txSuccess": "Успех! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
         "txFailed": "Транзакция не прошла. Мы не уверены, что пошло не так. Попробуйте еще раз позже или свяжитесь с нами.",
         "max": "Максимум",
         "assetIsCurrentBorrow": "Вы одолжили {{ASSET}}, поэтому не можете его внести на депозит",
@@ -77,12 +77,12 @@
         "dark": "Тёмная",
         "language": "Язык",
         "rpcNode": "RPC нода",
-        "current": "Текущий",
+        "current": "Текущая",
         "defaultNode": "Jet Default",
         "reset": "Перезагрузка",
         "noUrl": "Ввести URL",
         "disconnect": "Отключить кошелёк",
-        "connected": "Connected"
+        "connected": "Соединено"
     },
     "reserveDetail": {
         "reserveSize": "Размер резерва",
@@ -137,22 +137,22 @@
             "refresh": "Обновить",
             "originationFee": "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
             "headsup": "Внимание!",
-            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/>{{TERMS OF USE}} {{PRIVACY POLICY}}",
-            "accept": "Accept",
-            "warning": "WARNING"
+            "disclaimer": "Вы подключились к Jet Protocol mainnet. Не продолжайте, если Вы не ознакомились или не приняли условия пользования, или не готовы к потенциальным финансовым убыткам.  <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
+            "accept": "Принять",
+            "warning": "Внимание"
         }
     },
     "transactions": {
-        "title": "Flight Logs",
+        "title": "Бортовой журнал",
         "date": "Дата",
         "signature": "Подпись",
         "tradeAction": "Транзакция",
         "tradeAmount": "Сумма",
         "noTrades": "У Вас нету зарегистрированных транзакций в Jet",
-        "entries": "{start} to {end} of {rows}",
-        "deposit": "Deposit",
-        "withdraw": "Withdraw",
-        "borrow": "Borrow",
-        "repay": "Repay"
+        "entries": "{start} до {end} из {rows}",
+        "deposit": "Пополнить",
+        "withdraw": "Вывести",
+        "borrow": "Одолжить",
+        "repay": "Оплатить"
     }
 }

@@ -234,28 +234,17 @@ impl Reserve {
     }
 
     /// Record an amount of tokens to be borrowed from the reserve.
-    ///
-    /// Returns the number of tokens borrowed plus any fees added on
-    /// by the reserve.
-    pub fn borrow(
-        &mut self,
-        current_slot: u64,
-        token_amount: u64,
-        note_amount: u64,
-        fees: u64,
-    ) -> u64 {
-        let debt_owed = Number::from(token_amount);
+    pub fn borrow(&mut self, current_slot: u64, token_amount: u64, note_amount: u64, fees: u64) {
+        let borrowed_amount = Number::from(token_amount);
 
         let state = self.unwrap_state_mut(current_slot);
 
         let fees = Number::from_decimal(fees, 0);
 
         state.uncollected_fees += fees;
-        state.outstanding_debt += debt_owed + fees;
+        state.outstanding_debt += borrowed_amount + fees;
         state.total_deposits = state.total_deposits.checked_sub(token_amount).unwrap();
         state.total_loan_notes = state.total_loan_notes.checked_add(note_amount).unwrap();
-
-        debt_owed.as_u64(0)
     }
 
     /// Record an amount of tokens repaid back to the reserve.

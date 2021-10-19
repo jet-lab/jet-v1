@@ -1,10 +1,9 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].transactions.title}</title>
+  <title>Jet Protocol | {dictionary[$USER.language].transactions.title}</title>
 </svelte:head>
 <script lang="ts">
   import { Datatable, rows } from 'svelte-simple-datatables';
-  import { TRANSACTION_LOGS, PREFERRED_LANGUAGE } from '../store';
-  import { getTransactionLogs } from '../scripts/jet'; 
+  import { USER } from '../store';
   import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
@@ -19,8 +18,8 @@
       searchInput: false
     },
     labels: {
-      noRows: dictionary[$PREFERRED_LANGUAGE].transactions.noTrades,
-      info: dictionary[$PREFERRED_LANGUAGE].transactions.entries,
+      noRows: dictionary[$USER.language].transactions.noTrades,
+      info: dictionary[$USER.language].transactions.entries,
       previous: '<',
       next: '>'
     }
@@ -29,32 +28,29 @@
 
 <div class="view-container flex justify-center column">
   <h1 class="view-title text-gradient">
-    {dictionary[$PREFERRED_LANGUAGE].transactions.title}
+    {dictionary[$USER.language].transactions.title}
   </h1>
   <div class="divider">
   </div>
-  {#if $TRANSACTION_LOGS}
+  {#if $USER.transactionLogs}
     <div class="transaction-logs flex">
-      <Datatable settings={tableSettings} data={$TRANSACTION_LOGS}>
+      <Datatable settings={tableSettings} data={$USER.transactionLogs}>
         <thead>
           <th data-key="blockDate">
-            {dictionary[$PREFERRED_LANGUAGE].transactions.date} 
+            {dictionary[$USER.language].transactions.date} 
           </th>
           <th data-key="signature">
-            {dictionary[$PREFERRED_LANGUAGE].transactions.signature} 
+            {dictionary[$USER.language].transactions.signature} 
           </th>
           <th data-key="tradeAction"
             style="text-align: center !important;">
-            {dictionary[$PREFERRED_LANGUAGE].transactions.tradeAction} 
+            {dictionary[$USER.language].transactions.tradeAction} 
           </th>
           <th data-key="tradeAmount" class="asset">
-            {dictionary[$PREFERRED_LANGUAGE].transactions.tradeAmount} 
+            {dictionary[$USER.language].transactions.tradeAmount} 
           </th>
           <th>
-          <i class="refresh-logs fas fa-sync"
-            style="color: var(--jet-blue); font-size: 15px;"
-            on:click={() => getTransactionLogs()}>
-          </i>
+            <!--Empty column for arrow-->
           </th>
         </thead>
         <div class="datatable-divider">
@@ -119,11 +115,7 @@
   .divider {
     max-width: 400px;
   }
-  .refresh-logs {
-    color: var(--jet-blue);
-    cursor: pointer;
-  }
-
+  
   @media screen and (max-width: 1100px) {
     .transaction-logs {
       display: block;

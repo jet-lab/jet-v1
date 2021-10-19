@@ -1,27 +1,103 @@
-import type * as anchor from '@project-serum/anchor';
-import type { Market, Reserve, AssetStore, Copilot, Locale, TransactionLog, Notification, CustomProgramError, IdlMetadata } from './models/JetTypes';
 import { writable } from 'svelte/store';
+import type { PublicKey } from '@solana/web3.js';
+import type * as anchor from '@project-serum/anchor';
+import type { Market, Reserve, User, Copilot, CustomProgramError, IdlMetadata, Notification } from './models/JetTypes';
 
-// Writable value stores
-export const MARKET = writable<Market>({reserves: {}} as Market);
-export const CONNECT_WALLET = writable<boolean> (false);
-export const WALLET = writable<any> (null);
-export const ASSETS = writable<AssetStore | null> (null);
-export const TRANSACTION_LOGS = writable<TransactionLog[] | null> ([]);
-export const CURRENT_RESERVE = writable<Reserve | null> (null);
-export const TRADE_ACTION = writable<string> ('deposit');
+
+// Overall app init
+export const INIT_FAILED = writable<boolean> (false);
+
+// Market
+export const MARKET = writable<Market>({
+  // Accounts
+  accountPubkey: {} as PublicKey,
+  authorityPubkey: {} as PublicKey,
+
+  // Hardcode minimum c-ratio to 130% for now
+  minColRatio: 1.3,
+
+  // Total value of all reserves
+  totalValueLocked: 0,
+
+  // Reserves
+  reserves: {},
+  reservesArray: [],
+  currentReserve: {} as Reserve,
+
+  // Native vs USD UI values
+  nativeValues: true,
+});
+
+// User
+let user: User;
+export const USER = writable<User>({
+  // Locale
+  locale: null,
+  geobanned: false,
+
+  // Wallet
+  connectingWallet: true,
+  wallet: null,
+  walletInit: false,
+  tradeAction: 'deposit',
+
+  // Assets and position
+  assets: null,
+  walletBalances: {},
+  collateralBalances: {},
+  loanBalances: {},
+  position: {
+    depositedValue: 0,
+    borrowedValue: 0,
+    colRatio: 0,
+    utilizationRate: 0
+  },
+
+  // Transaction Logs
+  transactionLogs: [],
+
+  // Notifications
+  notifications: [],
+
+  // Add notification
+  addNotification: (n: Notification) => {
+    const notifs = user.notifications ?? [];
+    notifs.push(n);
+    const index = notifs.indexOf(n);
+    USER.update(user => {
+      user.notifications = notifs;
+      return user;
+    });
+    setTimeout(() => {
+      if (user.notifications[index] && user.notifications[index].text === n.text) {
+        user.clearNotification(index);
+      }
+    }, 5000);
+  },
+  // Clear notification
+  clearNotification: (i: number) => {
+    const notifs = user.notifications;
+    notifs.splice(i, 1);
+    USER.update(user => {
+      user.notifications = notifs;
+      return user;
+    });
+  },
+
+  // Settings
+  darkTheme: localStorage.getItem('jetDark') === 'true',
+  navExpanded: localStorage.getItem('jetNavExpanded') === 'true',
+  language: localStorage.getItem('jetPreferredLanguage') ?? 'en',
+  rpcNode: localStorage.getItem('jetPreferredNode') ?? '',
+  rpcPing: 0,
+});
+USER.subscribe(data => user = data);
+
+// Copilot
 export const COPILOT = writable<Copilot | null> (null);
+
+// Program
 export const PROGRAM = writable<anchor.Program | null> (null);
-export const LOCALE = writable<Locale | null> (null);
-export const PREFERRED_LANGUAGE = writable<string> ('en');
-export const NATIVE = writable<boolean> (true);
-export const DARK_THEME = writable<boolean> (false);
-export const PREFERRED_NODE = writable<string | null> (null);
-export const PING = writable<number> (0);
-export const WALLET_INIT = writable<boolean> (false);
-export const LIQUIDATION_WARNED = writable<boolean> (false);
-export const INIT_FAILED = writable<{ geobanned: boolean } | null> (null);
-export const NOTIFICATIONS = writable<Notification[]> ([]);
 export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]> ([]);
 export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection> (undefined);
 export const ANCHOR_CODER = writable<anchor.Coder> (undefined);
