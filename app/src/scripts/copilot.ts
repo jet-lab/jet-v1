@@ -11,17 +11,14 @@ USER.subscribe(data => user = data);
 // Check user's trade and offer Copilot warning
 export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, submitTrade: Function): void => {
   // Depositing all SOL leaving no lamports for fees, inform and reject
-  if (user.tradeAction === 'deposit' && market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
-    && (user.walletBalances[market.currentReserve.abbrev] - 0.02) <= inputAmount) {
-    if (market.currentReserve?.abbrev === 'SOL' && inputAmount <= user.maxInput()
-      && (user.walletBalances[market.currentReserve.abbrev] - 0.02) <= inputAmount) {
-      COPILOT.set({
-        suggestion: {
-          good: false,
-          detail: dictionary[user.language].cockpit.insufficientLamports
-        }
-      });
-    }
+  if (user.tradeAction === 'deposit' && market.currentReserve?.abbrev === 'SOL'
+    && inputAmount >= (user.walletBalances[market.currentReserve.abbrev] - 0.02)) {
+    COPILOT.set({
+      suggestion: {
+        good: false,
+        detail: dictionary[user.language].cockpit.insufficientLamports
+      }
+    });
   // Borrowing and within danger of liquidation
   } else if (user.tradeAction === 'borrow' && adjustedRatio <= market.minColRatio + 0.2) {
     // not below min-ratio, warn and allow trade

@@ -158,7 +158,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
 export const subscribeToAssets = async (connection: Connection, coder: anchor.Coder, wallet: anchor.web3.PublicKey) => {
   let promise: Promise<number>;
   let promises: Promise<number>[] = [];
-  if (user.assets == null) {
+  if (!user.assets) {
     return;
   }
 
@@ -201,7 +201,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].walletTokenBalance = amount ?? new TokenAmount(new BN(0), reserve.decimals);
           user.assets.tokens[reserve.abbrev].walletTokenExists = !!amount;
-          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(reserve, user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -214,7 +214,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].depositNoteDestBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].depositNoteDestExists = !!amount;
-          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(reserve, user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -227,7 +227,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].depositNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].depositNoteExists = !!amount;
-          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(reserve, user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -240,7 +240,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].loanNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].loanNoteExists = !!amount;
-          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(reserve, user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -253,7 +253,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
         if (user.assets) {
           user.assets.tokens[reserve.abbrev].collateralNoteBalance = amount ?? TokenAmount.zero(reserve.decimals);
           user.assets.tokens[reserve.abbrev].collateralNoteExists = !!amount;
-          deriveAssetValues(market.reserves[reserve.abbrev], user.assets.tokens[reserve.abbrev]);
+          deriveAssetValues(reserve, user.assets.tokens[reserve.abbrev]);
         }
         return user;
       });
@@ -288,48 +288,47 @@ const deriveMarketValues = (reserve: Reserve) => {
 };
 // Derive user asset values and update global object
 const deriveAssetValues = (reserve: Reserve, asset: Asset) => {
+  console.log('hii');
   asset.depositBalance = asset.depositNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
   asset.loanBalance = asset.loanNoteBalance.mulb(reserve.loanNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
   asset.collateralBalance = asset.collateralNoteBalance.mulb(reserve.depositNoteExchangeRate).divb(new BN(Math.pow(10, 15)));
 
-  // Update user balances and position from new values
-  for (let reserve of Object.keys(market.reserves)) {
-    USER.update(user => {
-      if (user.assets) {
-        // balances
-        user.walletBalances[reserve] = user.assets.tokens[reserve]?.tokenMintPubkey.equals(NATIVE_MINT) 
-            ? user.assets.sol.uiAmountFloat
-              : user.assets.tokens[reserve]?.walletTokenBalance.uiAmountFloat;
-        user.collateralBalances[reserve] = user.assets.tokens[reserve]?.collateralBalance.uiAmountFloat;
-        user.loanBalances[reserve] = user.assets.tokens[reserve]?.loanBalance.uiAmountFloat;
+  // Update user balances and obligation from new values
+  USER.update(user => {
+    if (user.assets) {
+      // Balances
+      user.walletBalances[reserve.abbrev] = asset.tokenMintPubkey.equals(NATIVE_MINT) 
+        ? user.assets.sol.uiAmountFloat
+          : asset.walletTokenBalance.uiAmountFloat;
+      user.collateralBalances[reserve.abbrev] = asset.collateralBalance.uiAmountFloat;
+      user.loanBalances[reserve.abbrev] = asset.loanBalance.uiAmountFloat;
 
-        // obligation
-        let depositedValue: number = 0;
-        let borrowedValue: number = 0;
-        let colRatio = 0;
-        let utilizationRate = 0;
-        for (let t in user.assets.tokens) {
-          depositedValue += new TokenAmount(
-            user.assets.tokens[t].collateralBalance.amount,
-            market.reserves[t].decimals
-          ).uiAmountFloat * market.reserves[t].price;
-          borrowedValue += new TokenAmount(
-            user.assets.tokens[t].loanBalance.amount,
-            market.reserves[t].decimals
-          ).uiAmountFloat * market.reserves[t].price;
+      // Obligation
+      let depositedValue: number = 0;
+      let borrowedValue: number = 0;
+      let colRatio = 0;
+      let utilizationRate = 0;
+      for (let t in user.assets.tokens) {
+        depositedValue += new TokenAmount(
+          user.assets.tokens[t].collateralBalance.amount,
+          market.reserves[t].decimals
+        ).uiAmountFloat * market.reserves[t].price;
+        borrowedValue += new TokenAmount(
+          user.assets.tokens[t].loanBalance.amount,
+          market.reserves[t].decimals
+        ).uiAmountFloat * market.reserves[t].price;
 
-          colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
-          utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
-        }
-
-        user.obligation = {
-          depositedValue,
-          borrowedValue,
-          colRatio,
-          utilizationRate
-        }
+        colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
+        utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
       }
-      return user;
-    });
-  }
+
+      user.obligation = {
+        depositedValue,
+        borrowedValue,
+        colRatio,
+        utilizationRate
+      }
+    }
+    return user;
+  });
 };

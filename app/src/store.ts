@@ -10,20 +10,22 @@ export const INIT_FAILED = writable<boolean> (false);
 // Market
 let market: Market;
 export const MARKET = writable<Market>({
-  // Account pubkey
+  // Accounts
   accountPubkey: {} as PublicKey,
-  // Authority pubkey
   authorityPubkey: {} as PublicKey,
-  // Total value of all reserves
-  totalValueLocked: 0,
+
   // Hardcode minimum c-ratio to 130% for now
   minColRatio: 1.3,
+
+  // Total value of all reserves
+  totalValueLocked: 0,
+
   // Reserves
   reserves: {},
   reservesArray: [],
-  // Set current reserve to SOL
   currentReserve: {} as Reserve,
-  // Set UI to display native values
+
+  // Native vs USD UI values
   nativeValues: true,
 });
 MARKET.subscribe(data => market = data);
@@ -38,40 +40,21 @@ export const USER = writable<User>({
   // Wallet
   connectingWallet: true,
   wallet: null,
+  walletInit: false,
+  tradeAction: 'deposit',
 
   // Assets and position
   assets: null,
-  walletBalances: {},
-  collateralBalances: {},
-  loanBalances: {},
   obligation: {
     depositedValue: 0,
     borrowedValue: 0,
     colRatio: 0,
     utilizationRate: 0
   },
-  tradeAction: 'deposit',
+  walletBalances: {},
+  collateralBalances: {},
+  loanBalances: {},
 
-  // Check if user is below min c-ratio
-  belowMinCRatio: () => {
-    return (user.obligation.depositedValue / user.obligation.borrowedValue) <= market.minColRatio;
-  },
-  // Check if user has no collateral
-  noDeposits: () => {
-    return !user.obligation.depositedValue;
-  },
-  // Check if user has deposited current reserve asset
-  assetIsCurrentDeposit: () => {
-    return market.currentReserve
-      ? !user.assets?.tokens[market.currentReserve.abbrev].collateralBalance.amount.isZero()
-        : false;
-  },
-  // Check if user has borrowed current reserve asset
-  assetIsCurrentBorrow: () => {
-    return market.currentReserve
-      ? !user.assets?.tokens[market.currentReserve.abbrev].loanBalance.amount.isZero()
-        : false;
-  },
   // Get the maximum value a user can input of current asset
   maxInput: () => {
     let currentReserve = market.currentReserve.abbrev;
@@ -132,25 +115,30 @@ export const USER = writable<User>({
 
   // Add notification
   addNotification: (n: Notification) => {
-    const NOTIFICATION_TIMEOUT = 4000;
     const notifs = user.notifications ?? [];
     notifs.push(n);
     const index = notifs.indexOf(n);
-    user.notifications = notifs;
+    USER.update(user => {
+      user.notifications = notifs;
+      return user;
+    });
     setTimeout(() => {
       if (user.notifications[index] && user.notifications[index].text === n.text) {
         user.clearNotification(index);
       }
-    }, NOTIFICATION_TIMEOUT);
+    }, 4000);
   },
   // Clear notification
   clearNotification: (i: number) => {
     const notifs = user.notifications;
     notifs.splice(i, 1);
-    user.notifications = notifs;
+    USER.update(user => {
+      user.notifications = notifs;
+      return user;
+    });
   },
 
-  // Preferences
+  // Settings
   darkTheme: localStorage.getItem('jetDark') === 'true',
   navExpanded: localStorage.getItem('jetNavExpanded') === 'true',
   language: localStorage.getItem('jetPreferredLanguage') ?? 'en',

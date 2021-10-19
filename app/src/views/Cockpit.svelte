@@ -104,13 +104,13 @@
             </h2>
             <Info term="collateralizationRatio" />
           </div>
-          <h1 class="view-header"
+          {#if $USER.walletInit}
+            <h1 class="view-header"
             style="margin-bottom: -20px; {$USER.wallet
               ? ($USER.obligation.borrowedValue && ($USER.obligation.colRatio <= $MARKET.minColRatio) 
                 ? 'color: var(--failure);' 
                   : 'color: var(--success);')
                 : ''}">
-            {#if $USER.wallet}
               {#if $USER.obligation.borrowedValue && $USER.obligation.colRatio > 10}
                 &gt;1000
               {:else if $USER.obligation.borrowedValue && $USER.obligation.colRatio < 10}
@@ -118,15 +118,17 @@
               {:else}
                 ∞
               {/if}
-              {#if $USER.obligation.borrowedValue}
-                <span style="color: inherit; padding-left: 2px;">
-                  %
-                </span>
-              {/if}
-            {:else}
-              --
+            </h1>
+            {#if $USER.obligation.borrowedValue}
+              <span style="color: inherit; padding-left: 2px;">
+                %
+              </span>
             {/if}
-          </h1>
+          {:else}
+            <p>
+              --
+            </p>
+          {/if}
         </div>
         <div class="flex-centered column">
           <div class="trade-position-value flex-centered column">
@@ -230,7 +232,7 @@
             </td>
             <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
               class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
-              {#if $USER.wallet}
+              {#if $USER.walletInit}
                 {#if $USER.walletBalances[$rows[i].abbrev] && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
@@ -248,7 +250,7 @@
             <td class:dt-bold={$USER.collateralBalances[$rows[i].abbrev]}
               style={$USER.collateralBalances[$rows[i].abbrev] ? 
                 'color: var(--jet-green) !important;' : ''}>
-              {#if $USER.wallet}
+              {#if $USER.walletInit}
                 {#if $USER.collateralBalances[$rows[i].abbrev] && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
@@ -266,7 +268,7 @@
             <td class:dt-bold={$USER.loanBalances[$rows[i].abbrev]}
               style={$USER.loanBalances[$rows[i].abbrev] ? 
               'color: var(--jet-blue) !important;' : ''}>
-              {#if $USER.wallet}
+              {#if $USER.walletInit}
                 {#if $USER.loanBalances[$rows[i].abbrev] && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}

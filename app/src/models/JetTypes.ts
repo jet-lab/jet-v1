@@ -42,8 +42,8 @@ export interface Market {
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
-  totalValueLocked: number,
   minColRatio: number,
+  totalValueLocked: number,
   reserves: Record<string, Reserve>,
   reservesArray: Reserve[],
   currentReserve: Reserve,
@@ -253,19 +253,15 @@ export interface User {
   // Wallet
   connectingWallet: boolean,
   wallet: Wallet | MathWallet | SolongWallet | null,
+  walletInit: boolean,
+  tradeAction: string,
 
   // Assets and position
   assets: AssetStore | null,
+  obligation: Obligation,
   walletBalances: Record<string, number>,
   collateralBalances: Record<string, number>,
   loanBalances: Record<string, number>,
-  obligation: Obligation,
-  tradeAction: string,
-
-  belowMinCRatio: () => boolean,
-  noDeposits: () => boolean,
-  assetIsCurrentDeposit: () => boolean,
-  assetIsCurrentBorrow: () => boolean,
   maxInput: () => number,
 
   // Transaction logs
@@ -273,11 +269,10 @@ export interface User {
   
   // Notifications
   notifications: Notification[],
-
   addNotification: (n: Notification) => void,
   clearNotification: (i: number) => void,
 
-  // Preferences
+  // Settings
   language: string,
   darkTheme: boolean,
   navExpanded: boolean,

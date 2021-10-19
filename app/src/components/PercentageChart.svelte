@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { timeout } from '../scripts/util';
   import Info from './Info.svelte';
 
@@ -15,10 +16,9 @@
     }
   };
 
-  // Reactive statement to update percentage
-  $: if (percentage) {
+  onMount(() => {
     animatePercent();
-  }
+  });
 </script>
 
 <div class="chart">

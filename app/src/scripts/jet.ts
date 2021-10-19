@@ -203,16 +203,26 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
 
-  // Set name, connect to wallet
+  // Set up wallet connection
   wallet.name = provider.name;
   wallet.on('connect', async () => {
+    //Set wallet object on user
+    USER.update(user => {
+      user.wallet = wallet;
+      return user;
+    });
+    // Begin fetching logs
     getTransactionLogs();
+    // Get all asset pubkeys owned by wallet pubkey
     await getAssetPubkeys();
+    // Subscribe to all asset accounts for those pubkeys
     await subscribeToAssets(connection, coder, wallet.publicKey);
   });
+  // Initiate wallet connection
   await wallet.connect();
+  // Init wallet for UI display
   USER.update(user => {
-    user.wallet = wallet;
+    user.walletInit = true;
     return user;
   })
 
@@ -250,6 +260,64 @@ export const disconnectWallet = () => {
     user.transactionLogs = [];
     return user;
   });
+};
+
+// Get user token accounts
+export const getAssetPubkeys = async (): Promise<void> => {
+  if (program == null || user.wallet === null) {
+    return;
+  }
+
+  let [obligationPubkey, obligationBump] = await findObligationAddress(program, market.accountPubkey, user.wallet.publicKey);
+
+  let assetStore: AssetStore = {
+    sol: new TokenAmount(new BN(0), SOL_DECIMALS),
+    obligationPubkey,
+    obligationBump,
+    tokens: {}
+  } as AssetStore;
+  for (const assetAbbrev in market.reserves) {
+    let reserve = market.reserves[assetAbbrev];
+    let tokenMintPubkey = reserve.tokenMintPubkey;
+
+    let [depositNoteDestPubkey, depositNoteDestBump] = await findDepositNoteDestAddress(program, reserve.accountPubkey, user.wallet.publicKey);
+    let [depositNotePubkey, depositNoteBump] = await findDepositNoteAddress(program, reserve.accountPubkey, user.wallet.publicKey);
+    let [loanNotePubkey, loanNoteBump] = await findLoanNoteAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
+    let [collateralPubkey, collateralBump] = await findCollateralAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
+
+    let asset: Asset = {
+      tokenMintPubkey,
+      walletTokenPubkey: await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, tokenMintPubkey, user.wallet.publicKey),
+      walletTokenExists: false,
+      walletTokenBalance: TokenAmount.zero(reserve.decimals),
+      depositNotePubkey,
+      depositNoteBump,
+      depositNoteExists: false,
+      depositNoteBalance: TokenAmount.zero(reserve.decimals),
+      depositBalance: TokenAmount.zero(reserve.decimals),
+      depositNoteDestPubkey,
+      depositNoteDestBump,
+      depositNoteDestExists: false,
+      depositNoteDestBalance: TokenAmount.zero(reserve.decimals),
+      loanNotePubkey,
+      loanNoteBump,
+      loanNoteExists: false,
+      loanNoteBalance: TokenAmount.zero(reserve.decimals),
+      loanBalance: TokenAmount.zero(reserve.decimals),
+      collateralNotePubkey: collateralPubkey,
+      collateralNoteBump: collateralBump,
+      collateralNoteExists: false,
+      collateralNoteBalance: TokenAmount.zero(reserve.decimals),
+      collateralBalance: TokenAmount.zero(reserve.decimals),
+    };
+
+    // Set user assets
+    assetStore.tokens[assetAbbrev] = asset;
+    USER.update(user => {
+      user.assets = assetStore;
+      return user;
+    });
+  }
 };
 
 // Get Jet transaction logs and associated UI data on wallet init
@@ -368,64 +436,6 @@ export let addTransactionLog = async (signature: string) => {
     txLogs.unshift(logDetail);
     USER.update(user => {
       user.transactionLogs = txLogs;
-      return user;
-    });
-  }
-};
-
-// Get user token accounts
-export const getAssetPubkeys = async (): Promise<void> => {
-  if (program == null || user.wallet === null) {
-    return;
-  }
-
-  let [obligationPubkey, obligationBump] = await findObligationAddress(program, market.accountPubkey, user.wallet.publicKey);
-
-  let assetStore: AssetStore = {
-    sol: new TokenAmount(new BN(0), SOL_DECIMALS),
-    obligationPubkey,
-    obligationBump,
-    tokens: {}
-  } as AssetStore;
-  for (const assetAbbrev in market.reserves) {
-    let reserve = market.reserves[assetAbbrev];
-    let tokenMintPubkey = reserve.tokenMintPubkey;
-
-    let [depositNoteDestPubkey, depositNoteDestBump] = await findDepositNoteDestAddress(program, reserve.accountPubkey, user.wallet.publicKey);
-    let [depositNotePubkey, depositNoteBump] = await findDepositNoteAddress(program, reserve.accountPubkey, user.wallet.publicKey);
-    let [loanNotePubkey, loanNoteBump] = await findLoanNoteAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
-    let [collateralPubkey, collateralBump] = await findCollateralAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
-
-    let asset: Asset = {
-      tokenMintPubkey,
-      walletTokenPubkey: await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, tokenMintPubkey, user.wallet.publicKey),
-      walletTokenExists: false,
-      walletTokenBalance: TokenAmount.zero(reserve.decimals),
-      depositNotePubkey,
-      depositNoteBump,
-      depositNoteExists: false,
-      depositNoteBalance: TokenAmount.zero(reserve.decimals),
-      depositBalance: TokenAmount.zero(reserve.decimals),
-      depositNoteDestPubkey,
-      depositNoteDestBump,
-      depositNoteDestExists: false,
-      depositNoteDestBalance: TokenAmount.zero(reserve.decimals),
-      loanNotePubkey,
-      loanNoteBump,
-      loanNoteExists: false,
-      loanNoteBalance: TokenAmount.zero(reserve.decimals),
-      loanBalance: TokenAmount.zero(reserve.decimals),
-      collateralNotePubkey: collateralPubkey,
-      collateralNoteBump: collateralBump,
-      collateralNoteExists: false,
-      collateralNoteBalance: TokenAmount.zero(reserve.decimals),
-      collateralBalance: TokenAmount.zero(reserve.decimals),
-    };
-
-    // Set user assets
-    assetStore.tokens[assetAbbrev] = asset;
-    USER.update(user => {
-      user.assets = assetStore;
       return user;
     });
   }

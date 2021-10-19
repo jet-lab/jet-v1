@@ -371,7 +371,7 @@ input[type=number] {
   width: 12px !important;
   height: 12px !important;
 }
-.rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider {
+.rangeSlider .rangeHandle, .rangeSlider .rangeNub {
   opacity: 1 !important;
   transition: unset !important;
   cursor: pointer !important;
