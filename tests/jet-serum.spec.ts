@@ -463,8 +463,8 @@ describe("jet-serum", () => {
       .find(
         (a) => a.mint.toBase58() == usdc.reserve.data.loanNoteMint.toBase58()
       ).amount;
-    expect(collateralBalance.toNumber()).to.be.closeTo(631578948, 1);
-    expect(loanBalance.toNumber()).to.be.closeTo(505226681, 1);
+    expect(collateralBalance.toNumber()).to.be.closeTo(631578940, 10);
+    expect(loanBalance.toNumber()).to.be.closeTo(505226680, 10);
   });
 
   it("allow basic dex buy liquidation", async () => {
@@ -505,8 +505,8 @@ describe("jet-serum", () => {
       .find(
         (a) => a.mint.toBase58() == wsol.reserve.data.loanNoteMint.toBase58()
       ).amount;
-    expect(collateralBalance.toNumber()).to.be.closeTo(732368421, 1);
-    expect(loanBalance.toNumber()).to.be.closeTo(6892567506, 1);
+    expect(collateralBalance.toNumber()).to.be.closeTo(732368420, 10);
+    expect(loanBalance.toNumber()).to.be.closeTo(6892567500, 10);
   });
 
   it("dex liquidation with 10 collaterals", async () => {
