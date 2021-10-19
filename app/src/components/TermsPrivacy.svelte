@@ -973,7 +973,7 @@
     height: 95%;
     font-family: Montserrat, sans-serif !important;
     font-weight: 300;
-    color: #000000;
+    color: var(--black);
   }
 
   h3,
@@ -991,7 +991,7 @@
     padding-top: 0;
     margin-bottom: 1em;
     font-size: 14px;
-    color: #000000;
+    color: var(--black);
   }
 
   ul {
