@@ -1,34 +1,37 @@
 <script>
-  import { INIT_FAILED, PREFERRED_LANGUAGE, PREFERRED_NODE, PING } from '../store';
+  import { USER } from '../store';
   import { getMarketAndIDL } from '../scripts/jet';
   import { dictionary } from '../scripts/localization';
   import Button from './Button.svelte';
 </script>
 
-<div class="view-container flex align-center justify-center column">
+<div class="view-container flex-centered column">
   <img src="img/ui/failed_init.gif" alt="Failed To Init App" />
   <h1 class="bicyclette">
-    {dictionary[$PREFERRED_LANGUAGE].copilot.alert.failed}
+    {dictionary[$USER.language].copilot.alert.failed}
   </h1>
-  {#if $INIT_FAILED.geobanned}
+  {#if $USER.geobanned}
     <span>
-      {dictionary[$PREFERRED_LANGUAGE].cockpit.geobanned}
+      {dictionary[$USER.language].cockpit.geobanned}
     </span>
   {:else}
     <span>
-      {dictionary[$PREFERRED_LANGUAGE].cockpit.noMarket}
+      {dictionary[$USER.language].cockpit.noMarket}
     </span>
   {/if}
-  {#if $PREFERRED_NODE}
+  {#if $USER.rpcNode}
     <p>
       <i class="fas fa-wifi"></i>
-      {$PREFERRED_NODE}
+      {$USER.rpcNode}
     </p>
     <Button small
-      text={dictionary[$PREFERRED_LANGUAGE].settings.reset}
+      text={dictionary[$USER.language].settings.reset}
       onClick={() => {
         localStorage.removeItem('jetPreferredNode');
-        PING.set(0);
+        USER.update(user => {
+          user.rpcPing = 0;
+          return user;
+        });
         getMarketAndIDL();
       }} />
   {/if}

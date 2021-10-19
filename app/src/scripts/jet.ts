@@ -5,9 +5,9 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Reserve, AssetStore, SolWindow, WalletProvider, Wallet, Asset, Market, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
-import { MARKET, CONNECT_WALLET, WALLET, ASSETS, TRANSACTION_LOGS, PROGRAM, PREFERRED_NODE, WALLET_INIT, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED, CURRENT_RESERVE, PREFERRED_LANGUAGE, COPILOT } from '../store';
-import { subscribeToAssets, subscribeToMarket } from './subscribe';
+import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
+import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
+import { subscribeToMarket, subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
@@ -22,28 +22,20 @@ const FAUCET_PROGRAM_ID = new PublicKey(
   "4bXpkKSV8swHSnwqtzuboGPaPDeEgAn4Vt8GfarV5rZt"
 );
 
-let wallet: Wallet | MathWallet | SolongWallet;
-let assets: AssetStore | null;
 let program: anchor.Program | null;
 let market: Market;
+let user: User;
 let idl: any;
 let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
 let transactionLogConnection: anchor.web3.Connection;
 let coder: anchor.Coder;
-let preferredLanguage: string;
-let preferredNode: string | null;
-let transactionLogs: TransactionLog[] | null;
-WALLET.subscribe(data => wallet = data);
-ASSETS.subscribe(data => assets = data);
 PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
+USER.subscribe(data => user = data);
 CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
 ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
 ANCHOR_CODER.subscribe(data => coder = data);
-PREFERRED_LANGUAGE.subscribe(data => preferredLanguage = data);
-PREFERRED_NODE.subscribe(data => preferredNode = data);
-TRANSACTION_LOGS.subscribe(data => transactionLogs = data);
 
 // Development / Devnet identifier
 export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
@@ -75,7 +67,6 @@ export const getMarketAndIDL = async (): Promise<void> => {
   idl = await resp.json();
   IDL_METADATA.set(parseIdlMetadata(idl.metadata));
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
-  PREFERRED_NODE.set(localStorage.getItem('jetPreferredNode'));
 
   // Establish web3 connection
   const idlMetadata = parseIdlMetadata(idl.metadata);
@@ -83,27 +74,34 @@ export const getMarketAndIDL = async (): Promise<void> => {
 
   // Establish and test web3 connection
   // If error log it and display failure component
+  const preferredNode = localStorage.getItem('jetPreferredNode');
   try {
     const anchorConnection = new anchor.web3.Connection(
       preferredNode ?? idlMetadata.cluster, 
       (anchor.Provider.defaultOptions()).commitment
     );
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    USER.update(user => {
+      user.rpcNode = preferredNode;
+      return user;
+    });
   } catch {
     const anchorConnection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
     ANCHOR_WEB3_CONNECTION.set(anchorConnection);
-    PREFERRED_NODE.set(null);
     localStorage.removeItem('jetPreferredNode');
+    USER.update(user => {
+      user.rpcNode = null;
+      return user;
+    });
   }
   
   ANCHOR_CODER.set(new anchor.Coder(idl));
   try {
     await connection.getVersion();
-    INIT_FAILED.set(null);
   } catch (err) {
     console.error(`Unable to connect: ${err}`)
     rollbar.critical(`Unable to connect: ${err}`);
-    INIT_FAILED.set({ geobanned: false });
+    INIT_FAILED.set(true);
     return;
   }
 
@@ -160,32 +158,30 @@ export const getMarketAndIDL = async (): Promise<void> => {
     reserves[reserveMeta.abbrev] = reserve;
   }
 
-  // Set market
-  MARKET.set({
-    minColRatio: 0,
-    accountPubkey: idlMetadata.market.market,
-    authorityPubkey: idlMetadata.market.marketAuthority,
-    reserves: reserves,
+  // Update market accounts and reserves
+  MARKET.update(market => {
+    market.accountPubkey = idlMetadata.market.market;
+    market.authorityPubkey = idlMetadata.market.marketAuthority;
+    market.reserves = reserves;
+    market.currentReserve = reserves.SOL;
+    return market;
   });
-
-  // Set current reserve to SOL
-  CURRENT_RESERVE.set(market.reserves.SOL);
 
   // Subscribe to market 
   await subscribeToMarket(idlMetadata, connection, coder);
-
-  // Prompt user to connect wallet
-  CONNECT_WALLET.set(true);
 };
 
 // Connect to user's wallet
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Cast solana injected window type
   const solWindow = window as unknown as SolWindow;
+  let wallet: Wallet | SolongWallet | MathWallet;
 
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana?.isPhantom) {
     wallet = solWindow.solana as unknown as Wallet;
+  } else if (provider.name === 'Solflare' && solWindow.solflare?.isSolflare) {
+    wallet = solWindow.solflare as unknown as Wallet;
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
@@ -200,10 +196,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     wallet = new WalletAdapter(provider.url) as Wallet;
   };
 
-  // Set wallet
-  wallet.name = provider.name;
-  WALLET.set(wallet);
-
   // Setup anchor program
   anchor.setProvider(new anchor.Provider(
     connection,
@@ -213,49 +205,154 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   program = new anchor.Program(idl, (new anchor.web3.PublicKey(idl.metadata.address)));
   PROGRAM.set(program);
 
-  // Connect and begin fetching account data
-  // Check for newly created token accounts on interval
+  // Set up wallet connection
+  wallet.name = provider.name;
   wallet.on('connect', async () => {
+    //Set wallet object on user
+    USER.update(user => {
+      user.wallet = wallet;
+      return user;
+    });
+    // Begin fetching logs
     getTransactionLogs();
+    // Get all asset pubkeys owned by wallet pubkey
     await getAssetPubkeys();
+    // Subscribe to all asset accounts for those pubkeys
     await subscribeToAssets(connection, coder, wallet.publicKey);
-    await getMarketAndIDL();
-    WALLET_INIT.set(true);
-
-    // Must accept disclaimer upon mainnet launch
-    if (!inDevelopment) {
-      const accepted = localStorage.getItem('jetDisclaimer');
-      if (!accepted) {
-        COPILOT.set({
-          alert: {
-            good: false,
-            header: dictionary[preferredLanguage].copilot.alert.warning,
-            text: dictionary[preferredLanguage].copilot.alert.disclaimer
-              .replaceAll('{{TERMS OF USE}}', `<a href="https://www.jetprotocol.io/terms-of-use" target="_blank" class="bicyclette-bold text-gradient">TERMS OF USE</a>`)
-              .replaceAll('{{PRIVACY POLICY}}', `<a href="https://www.jetprotocol.io/privacy-policy" target="_blank" class="bicyclette-bold text-gradient">PRIVACY POLICY</a>`),
-            action: {
-              text: dictionary[preferredLanguage].copilot.alert.accept,
-              onClick: () => localStorage.setItem('jetDisclaimer', 'true')
-            }
-          }
-        });
-      }
-    }
+    // Init wallet for UI display
+    USER.update(user => {
+      user.walletInit = true;
+      return user;
+    })
   });
+  // Initiate wallet connection
   await wallet.connect();
+
+  // User must accept disclaimer upon mainnet launch
+  if (!inDevelopment) {
+    const accepted = localStorage.getItem('jetDisclaimer');
+    if (!accepted) {
+      COPILOT.set({
+        alert: {
+          good: false,
+          header: dictionary[user.language].copilot.alert.warning,
+          text: dictionary[user.language].copilot.alert.disclaimer,
+          action: {
+            text: dictionary[user.language].copilot.alert.accept,
+            onClick: () => localStorage.setItem('jetDisclaimer', 'true')
+          }
+        }
+      });
+    }
+  }
+};
+// Disconnect user wallet
+export const disconnectWallet = () => {
+  if (user.wallet?.disconnect) {
+    user.wallet.disconnect();
+  }
+  if (user.wallet?.forgetAccounts) {
+    user.wallet.forgetAccounts();
+  }
+  USER.update(user => {
+    user.wallet = null;
+    user.walletInit = false;
+    user.assets = null;
+    user.walletBalances = {};
+    user.collateralBalances = {};
+    user.loanBalances = {};
+    user.position = {
+      depositedValue: 0,
+      borrowedValue: 0,
+      colRatio: 0,
+      utilizationRate: 0
+    }
+    user.transactionLogs = [];
+    return user;
+  });
+};
+
+// Get user token accounts
+export const getAssetPubkeys = async (): Promise<void> => {
+  if (program == null || user.wallet === null) {
+    return;
+  }
+
+  let [obligationPubkey, obligationBump] = await findObligationAddress(program, market.accountPubkey, user.wallet.publicKey);
+
+  let assetStore: AssetStore = {
+    sol: new TokenAmount(new BN(0), SOL_DECIMALS),
+    obligationPubkey,
+    obligationBump,
+    tokens: {}
+  } as AssetStore;
+  for (const assetAbbrev in market.reserves) {
+    let reserve = market.reserves[assetAbbrev];
+    let tokenMintPubkey = reserve.tokenMintPubkey;
+
+    let [depositNoteDestPubkey, depositNoteDestBump] = await findDepositNoteDestAddress(program, reserve.accountPubkey, user.wallet.publicKey);
+    let [depositNotePubkey, depositNoteBump] = await findDepositNoteAddress(program, reserve.accountPubkey, user.wallet.publicKey);
+    let [loanNotePubkey, loanNoteBump] = await findLoanNoteAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
+    let [collateralPubkey, collateralBump] = await findCollateralAddress(program, reserve.accountPubkey, obligationPubkey, user.wallet.publicKey);
+
+    let asset: Asset = {
+      tokenMintPubkey,
+      walletTokenPubkey: await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, tokenMintPubkey, user.wallet.publicKey),
+      walletTokenExists: false,
+      walletTokenBalance: TokenAmount.zero(reserve.decimals),
+      depositNotePubkey,
+      depositNoteBump,
+      depositNoteExists: false,
+      depositNoteBalance: TokenAmount.zero(reserve.decimals),
+      depositBalance: TokenAmount.zero(reserve.decimals),
+      depositNoteDestPubkey,
+      depositNoteDestBump,
+      depositNoteDestExists: false,
+      depositNoteDestBalance: TokenAmount.zero(reserve.decimals),
+      loanNotePubkey,
+      loanNoteBump,
+      loanNoteExists: false,
+      loanNoteBalance: TokenAmount.zero(reserve.decimals),
+      loanBalance: TokenAmount.zero(reserve.decimals),
+      collateralNotePubkey: collateralPubkey,
+      collateralNoteBump: collateralBump,
+      collateralNoteExists: false,
+      collateralNoteBalance: TokenAmount.zero(reserve.decimals),
+      collateralBalance: TokenAmount.zero(reserve.decimals),
+      maxDepositAmount: 0,
+      maxWithdrawAmount: 0,
+      maxBorrowAmount: 0,
+      maxRepayAmount: 0
+    };
+
+    // Set user assets
+    assetStore.tokens[assetAbbrev] = asset;
+    USER.update(user => {
+      user.assets = assetStore;
+      return user;
+    });
+  }
 };
 
 // Get Jet transaction logs and associated UI data on wallet init
 export const getTransactionLogs = async (): Promise<void> => {
+  if (!user.wallet) {
+    return;
+  }
+
   // Establish solana connection and get all confirmed signatures
   // associated with user's wallet pubkey
   const txLogs: TransactionLog[] = [];
-  transactionLogConnection = preferredNode ? new anchor.web3.Connection(preferredNode)
+  transactionLogConnection = user.rpcNode ? new anchor.web3.Connection(user.rpcNode)
     : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
-  const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(wallet.publicKey, undefined, 'confirmed'); 
+  const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(user.wallet.publicKey, undefined, 'confirmed'); 
   for (let sig of sigs) {
-    //Reset global variable for load
-    TRANSACTION_LOGS.set(null);
+    //Reset logs for load
+    USER.update(user => {
+      user.transactionLogs = null;
+      return user;
+    });
+
     // Get confirmed transaction from each signature
     const log = await transactionLogConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
     const detailedLog = log ? await getLogDetails(log, sig.signature) : null;
@@ -266,9 +363,12 @@ export const getTransactionLogs = async (): Promise<void> => {
 
   // Check if user has submitted new trades before all were loaded
   // Update global store
-  const newerLogs = transactionLogs ?? [];
+  const newerLogs = user.transactionLogs ?? [];
   newerLogs.forEach(l => txLogs.push(l));
-  TRANSACTION_LOGS.set(txLogs);
+  USER.update(user => {
+    user.transactionLogs = txLogs;
+    return user;
+  });
 };
 
 // Get UI data of a transaction log
@@ -285,7 +385,7 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
           }
           // If those bytes match any of our instructions label trade action
           if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
-            log.tradeAction = dictionary[preferredLanguage].transactions[progInst];
+            log.tradeAction = dictionary[user.language].transactions[progInst];
             // Determine asset and trade amount
             for (let pre of log.meta.preTokenBalances as any[]) {
               for (let post of log.meta.postTokenBalances as any[]) {
@@ -330,9 +430,12 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
 
 // Add new transaction log on trade submit
 export let addTransactionLog = async (signature: string) => {
-  const txLogs = transactionLogs ?? [];
-  //Reset global variable for load
-  TRANSACTION_LOGS.set(null);
+  const txLogs = user.transactionLogs ?? [];
+  //Reset logs for load
+  USER.update(user => {
+    user.transactionLogs = null;
+    return user;
+  });
 
   // Keep trying to get confirmed log (may take a few seconds for validation)
   let log: TransactionLog | null = null;
@@ -345,69 +448,17 @@ export let addTransactionLog = async (signature: string) => {
   const logDetail = await getLogDetails(log, signature);
   if (logDetail) {
     txLogs.unshift(logDetail);
-    TRANSACTION_LOGS.set(txLogs);
-  }
-};
-
-// Get user token accounts
-const getAssetPubkeys = async (): Promise<void> => {
-  if (program == null || wallet.publicKey == null) {
-    return;
-  }
-
-  let [obligationPubkey, obligationBump] = await findObligationAddress(program, market.accountPubkey, wallet.publicKey);
-
-  let assetStore: AssetStore = {
-    sol: new TokenAmount(new BN(0), SOL_DECIMALS),
-    obligationPubkey,
-    obligationBump,
-    tokens: {}
-  } as AssetStore;
-  for (const assetAbbrev in market.reserves) {
-    let reserve = market.reserves[assetAbbrev];
-    let tokenMintPubkey = reserve.tokenMintPubkey;
-
-    let [depositNoteDestPubkey, depositNoteDestBump] = await findDepositNoteDestAddress(program, reserve.accountPubkey, wallet.publicKey);
-    let [depositNotePubkey, depositNoteBump] = await findDepositNoteAddress(program, reserve.accountPubkey, wallet.publicKey);
-    let [loanNotePubkey, loanNoteBump] = await findLoanNoteAddress(program, reserve.accountPubkey, obligationPubkey, wallet.publicKey);
-    let [collateralPubkey, collateralBump] = await findCollateralAddress(program, reserve.accountPubkey, obligationPubkey, wallet.publicKey);
-
-    let asset: Asset = {
-      tokenMintPubkey,
-      walletTokenPubkey: await Token.getAssociatedTokenAddress(ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, tokenMintPubkey, wallet.publicKey),
-      walletTokenExists: false,
-      walletTokenBalance: TokenAmount.zero(reserve.decimals),
-      depositNotePubkey,
-      depositNoteBump,
-      depositNoteExists: false,
-      depositNoteBalance: TokenAmount.zero(reserve.decimals),
-      depositBalance: TokenAmount.zero(reserve.decimals),
-      depositNoteDestPubkey,
-      depositNoteDestBump,
-      depositNoteDestExists: false,
-      depositNoteDestBalance: TokenAmount.zero(reserve.decimals),
-      loanNotePubkey,
-      loanNoteBump,
-      loanNoteExists: false,
-      loanNoteBalance: TokenAmount.zero(reserve.decimals),
-      loanBalance: TokenAmount.zero(reserve.decimals),
-      collateralNotePubkey: collateralPubkey,
-      collateralNoteBump: collateralBump,
-      collateralNoteExists: false,
-      collateralNoteBalance: TokenAmount.zero(reserve.decimals),
-      collateralBalance: TokenAmount.zero(reserve.decimals),
-    };
-
-    // Set asset
-    assetStore.tokens[assetAbbrev] = asset;
-    ASSETS.set(assetStore);
+    USER.update(user => {
+      user.transactionLogs = txLogs;
+      return user;
+    });
   }
 };
 
 // Deposit
 export const deposit = async (abbrev: string, lamports: BN)
   : Promise<[ok: boolean, txid: string | undefined]> => {
-  if (!assets || !program) {
+  if (!user.assets || !user.wallet || !program) {
     return [false, undefined];
   }
 
@@ -417,7 +468,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   }
 
   let reserve = market.reserves[abbrev];
-  let asset = assets.tokens[abbrev];
+  let asset = user.assets.tokens[abbrev];
   let depositSourcePubkey = asset.walletTokenPubkey;
 
   // Optional signers
@@ -443,7 +494,7 @@ export const deposit = async (abbrev: string, lamports: BN)
 
     const rent = await connection.getMinimumBalanceForRentExemption(TokenAccountLayout.span);
     createTokenAccountIx = SystemProgram.createAccount({
-      fromPubkey: wallet.publicKey,
+      fromPubkey: user.wallet.publicKey,
       newAccountPubkey: depositSourcePubkey,
       programId: TOKEN_PROGRAM_ID,
       space: TokenAccountLayout.span,
@@ -454,14 +505,14 @@ export const deposit = async (abbrev: string, lamports: BN)
       TOKEN_PROGRAM_ID,
       NATIVE_MINT,
       depositSourcePubkey,
-      wallet.publicKey
+      user.wallet.publicKey
     );
 
     closeTokenAccountIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
       depositSourcePubkey,
-      wallet.publicKey,
-      wallet.publicKey,
+      user.wallet.publicKey,
+      user.wallet.publicKey,
       []);
   }
 
@@ -475,7 +526,7 @@ export const deposit = async (abbrev: string, lamports: BN)
         reserve: reserve.accountPubkey,
         depositNoteMint: reserve.depositNoteMintPubkey,
 
-        depositor: wallet.publicKey,
+        depositor: user.wallet.publicKey,
         depositAccount: asset.depositNotePubkey,
 
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -485,7 +536,7 @@ export const deposit = async (abbrev: string, lamports: BN)
     });
   }
 
-  if (!assets.obligation) {
+  if (!user.assets.obligation) {
     initObligationIx = buildInitObligationIx()
   }
 
@@ -501,7 +552,7 @@ export const deposit = async (abbrev: string, lamports: BN)
       vault: reserve.vaultPubkey,
       depositNoteMint: reserve.depositNoteMintPubkey,
 
-      depositor: wallet.publicKey,
+      depositor: user.wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
       depositSource: depositSourcePubkey,
 
@@ -516,11 +567,11 @@ export const deposit = async (abbrev: string, lamports: BN)
         market: market.accountPubkey,
         marketAuthority: market.authorityPubkey,
 
-        obligation: assets.obligationPubkey,
+        obligation: user.assets.obligationPubkey,
         reserve: reserve.accountPubkey,
         depositNoteMint: reserve.depositNoteMintPubkey,
 
-        owner: wallet.publicKey,
+        owner: user.wallet.publicKey,
         collateralAccount: asset.collateralNotePubkey,
 
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -541,8 +592,8 @@ export const deposit = async (abbrev: string, lamports: BN)
 
       reserve: reserve.accountPubkey,
 
-      obligation: assets.obligationPubkey,
-      owner: wallet.publicKey,
+      obligation: user.assets.obligationPubkey,
+      owner: user.wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
       collateralAccount: asset.collateralNotePubkey,
 
@@ -575,7 +626,7 @@ export const deposit = async (abbrev: string, lamports: BN)
 // Withdraw
 export const withdraw = async (abbrev: string, amount: Amount)
   : Promise<[ok: boolean, txid: string | undefined]> => {
-  if (!assets || !program) {
+  if (!user.assets || !user.wallet || !program) {
     return [false, undefined];
   }
 
@@ -585,7 +636,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
   }
 
   const reserve = market.reserves[abbrev];
-  const asset = assets.tokens[abbrev];
+  const asset = user.assets.tokens[abbrev];
 
   let withdrawAccount = asset.walletTokenPubkey;
 
@@ -608,7 +659,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
     wsolKeypair = Keypair.generate();
     withdrawAccount = wsolKeypair.publicKey;
     createWsolIx = SystemProgram.createAccount({
-      fromPubkey: wallet.publicKey,
+      fromPubkey: user.wallet.publicKey,
       newAccountPubkey: withdrawAccount,
       programId: TOKEN_PROGRAM_ID,
       space: TokenAccountLayout.span,
@@ -618,7 +669,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
       TOKEN_PROGRAM_ID, 
       reserve.tokenMintPubkey, 
       withdrawAccount, 
-      wallet.publicKey);
+      user.wallet.publicKey);
   } else if (!asset.walletTokenExists) {
     // Create the wallet token account if it doesn't exist
     createAssociatedTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
@@ -626,8 +677,8 @@ export const withdraw = async (abbrev: string, amount: Amount)
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
       withdrawAccount,
-      wallet.publicKey,
-      wallet.publicKey);
+      user.wallet.publicKey,
+      user.wallet.publicKey);
   }
 
   // Obligatory refresh instruction
@@ -644,8 +695,8 @@ export const withdraw = async (abbrev: string, amount: Amount)
 
       reserve: reserve.accountPubkey,
 
-      obligation: assets.obligationPubkey,
-      owner: wallet.publicKey,
+      obligation: user.assets.obligationPubkey,
+      owner: user.wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
       collateralAccount: asset.collateralNotePubkey,
 
@@ -662,7 +713,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
       vault: reserve.vaultPubkey,
       depositNoteMint: reserve.depositNoteMintPubkey,
 
-      depositor: wallet.publicKey,
+      depositor: user.wallet.publicKey,
       depositAccount: asset.depositNotePubkey,
       withdrawAccount,
 
@@ -675,8 +726,8 @@ export const withdraw = async (abbrev: string, amount: Amount)
     closeWsolIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
       withdrawAccount,
-      wallet.publicKey,
-      wallet.publicKey,
+      user.wallet.publicKey,
+      user.wallet.publicKey,
       []);
   }
 
@@ -712,7 +763,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
 // Borrow
 export const borrow = async (abbrev: string, amount: Amount)
   : Promise<[ok: boolean, txid: string | undefined]> => {
-  if (!assets || !program) {
+  if (!user.assets || !user.wallet || !program) {
     return [false, undefined];
   }
 
@@ -723,7 +774,7 @@ export const borrow = async (abbrev: string, amount: Amount)
   
 
   const reserve = market.reserves[abbrev];
-  const asset = assets.tokens[abbrev];
+  const asset = user.assets.tokens[abbrev];
 
   let receiverAccount = asset.walletTokenPubkey;
 
@@ -749,7 +800,7 @@ export const borrow = async (abbrev: string, amount: Amount)
     wsolKeypair = Keypair.generate();
     receiverAccount = wsolKeypair.publicKey;
     createWsolTokenAccountIx = SystemProgram.createAccount({
-      fromPubkey: wallet.publicKey,
+      fromPubkey: user.wallet.publicKey,
       newAccountPubkey: wsolKeypair.publicKey,
       programId: TOKEN_PROGRAM_ID,
       space: TokenAccountLayout.span,
@@ -759,7 +810,7 @@ export const borrow = async (abbrev: string, amount: Amount)
       TOKEN_PROGRAM_ID, 
       reserve.tokenMintPubkey, 
       wsolKeypair.publicKey, 
-      wallet.publicKey);
+      user.wallet.publicKey);
   } else if (!asset.walletTokenExists) {
     // Create the wallet token account if it doesn't exist
     createTokenAccountIx = Token.createAssociatedTokenAccountInstruction(
@@ -767,8 +818,8 @@ export const borrow = async (abbrev: string, amount: Amount)
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
       asset.walletTokenPubkey,
-      wallet.publicKey,
-      wallet.publicKey);
+      user.wallet.publicKey,
+      user.wallet.publicKey);
   }
 
   // Create the loan note account if it doesn't exist
@@ -778,11 +829,11 @@ export const borrow = async (abbrev: string, amount: Amount)
         market: market.accountPubkey,
         marketAuthority: market.authorityPubkey,
 
-        obligation: assets.obligationPubkey,
+        obligation: user.assets.obligationPubkey,
         reserve: reserve.accountPubkey,
         loanNoteMint: reserve.loanNoteMintPubkey,
 
-        owner: wallet.publicKey,
+        owner: user.wallet.publicKey,
         loanAccount: asset.loanNotePubkey,
 
         tokenProgram: TOKEN_PROGRAM_ID,
@@ -800,12 +851,12 @@ export const borrow = async (abbrev: string, amount: Amount)
       market: market.accountPubkey,
       marketAuthority: market.authorityPubkey,
 
-      obligation: assets.obligationPubkey,
+      obligation: user.assets.obligationPubkey,
       reserve: reserve.accountPubkey,
       vault: reserve.vaultPubkey,
       loanNoteMint: reserve.loanNoteMintPubkey,
 
-      borrower: wallet.publicKey,
+      borrower: user.wallet.publicKey,
       loanAccount: asset.loanNotePubkey,
       receiverAccount,
 
@@ -818,8 +869,8 @@ export const borrow = async (abbrev: string, amount: Amount)
     closeTokenAccountIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
       receiverAccount,
-      wallet.publicKey,
-      wallet.publicKey,
+      user.wallet.publicKey,
+      user.wallet.publicKey,
       []);
   }
 
@@ -856,7 +907,7 @@ export const borrow = async (abbrev: string, amount: Amount)
 // Repay
 export const repay = async (abbrev: string, amount: Amount)
   : Promise<[ok: boolean, txid: string | undefined]> => {
-  if (!assets || !program) {
+  if (!user.assets || !user.wallet || !program) {
     return [false, undefined];
   }
 
@@ -866,7 +917,7 @@ export const repay = async (abbrev: string, amount: Amount)
   }
 
   const reserve = market.reserves[abbrev];
-  const asset = assets.tokens[abbrev];
+  const asset = user.assets.tokens[abbrev];
   let depositSourcePubkey = asset.walletTokenPubkey;
 
   // Optional signers
@@ -893,7 +944,7 @@ export const repay = async (abbrev: string, amount: Amount)
 
     const rent = await connection.getMinimumBalanceForRentExemption(TokenAccountLayout.span);
     createTokenAccountIx = SystemProgram.createAccount({
-      fromPubkey: wallet.publicKey,
+      fromPubkey: user.wallet.publicKey,
       newAccountPubkey: depositSourcePubkey,
       programId: TOKEN_PROGRAM_ID,
       space: TokenAccountLayout.span,
@@ -904,14 +955,14 @@ export const repay = async (abbrev: string, amount: Amount)
       TOKEN_PROGRAM_ID,
       NATIVE_MINT,
       depositSourcePubkey,
-      wallet.publicKey
+      user.wallet.publicKey
     );
 
     closeTokenAccountIx = Token.createCloseAccountInstruction(
       TOKEN_PROGRAM_ID,
       depositSourcePubkey,
-      wallet.publicKey,
-      wallet.publicKey,
+      user.wallet.publicKey,
+      user.wallet.publicKey,
       []);
   } else if (!asset.walletTokenExists) {
     return [false, undefined];
@@ -925,12 +976,12 @@ export const repay = async (abbrev: string, amount: Amount)
       market: market.accountPubkey,
       marketAuthority: market.authorityPubkey,
 
-      obligation: assets.obligationPubkey,
+      obligation: user.assets.obligationPubkey,
       reserve: reserve.accountPubkey,
       vault: reserve.vaultPubkey,
       loanNoteMint: reserve.loanNoteMintPubkey,
 
-      payer: wallet.publicKey,
+      payer: user.wallet.publicKey,
       loanAccount: asset.loanNotePubkey,
       payerAccount: depositSourcePubkey,
 
@@ -958,17 +1009,17 @@ export const repay = async (abbrev: string, amount: Amount)
 
 const buildInitObligationIx = ()
   : TransactionInstruction | undefined => {
-  if (!program || !assets) {
+  if (!program || !user.assets || !user.wallet) {
     return;
   }
 
-  return program.instruction.initObligation(assets.obligationBump, {
+  return program.instruction.initObligation(user.assets.obligationBump, {
     accounts: {
       market: market.accountPubkey,
       marketAuthority: market.authorityPubkey,
 
-      borrower: wallet.publicKey,
-      obligation: assets.obligationPubkey,
+      borrower: user.wallet.publicKey,
+      obligation: user.assets.obligationPubkey,
 
       tokenProgram: TOKEN_PROGRAM_ID,
       systemProgram: SystemProgram.programId,
@@ -980,11 +1031,11 @@ const buildInitObligationIx = ()
 const buildRefreshReserveIxs = () => {
   const ix: TransactionInstruction[] = [];
 
-  if (!assets) {
+  if (!user.assets) {
     return ix;
   }
 
-  for (const assetAbbrev in assets.tokens) {
+  for (const assetAbbrev in user.assets.tokens) {
     const refreshReserveIx = buildRefreshReserveIx(assetAbbrev);
     ix.push(refreshReserveIx);
   }
@@ -1051,12 +1102,12 @@ const buildRefreshReserveIx = (abbrev: string) => {
 // Faucet
 export const airdrop = async (abbrev: string, lamports: BN)
   : Promise<[ok: boolean, txid: string | undefined]> => {
-  if (program == null || assets == null) {
+  if (program == null || user.assets == null || !user.wallet) {
     return [false, undefined];
   }
 
   let reserve = market.reserves[abbrev];
-  const asset = Object.values(assets.tokens).find(asset => asset.tokenMintPubkey.equals(reserve.tokenMintPubkey));
+  const asset = Object.values(user.assets.tokens).find(asset => asset.tokenMintPubkey.equals(reserve.tokenMintPubkey));
 
   if (asset == null) {
     return [false, undefined];
@@ -1075,8 +1126,8 @@ export const airdrop = async (abbrev: string, lamports: BN)
       TOKEN_PROGRAM_ID,
       asset.tokenMintPubkey,
       asset.walletTokenPubkey,
-      wallet.publicKey,
-      wallet.publicKey);
+      user.wallet.publicKey,
+      user.wallet.publicKey);
     ix.push(createTokenAccountIx);
   }
 
@@ -1085,7 +1136,7 @@ export const airdrop = async (abbrev: string, lamports: BN)
     try {
       // Use a specific endpoint. A hack because some devnet endpoints are unable to airdrop
       const endpoint = new anchor.web3.Connection('https://api.devnet.solana.com', (anchor.Provider.defaultOptions()).commitment);
-      const txid = await endpoint.requestAirdrop(wallet.publicKey, parseInt(lamports.toString()));
+      const txid = await endpoint.requestAirdrop(user.wallet.publicKey, parseInt(lamports.toString()));
       console.log(`Transaction ${explorerUrl(txid)}`);
       const confirmation = await endpoint.confirmTransaction(txid);
       if (confirmation.value.err) {
@@ -1112,7 +1163,7 @@ export const airdrop = async (abbrev: string, lamports: BN)
     [ok, txid] = await sendTransaction(program.provider, ix, signers);
   } else {
     // Mint to the destination token account
-    const mintToIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, reserve.tokenMintPubkey, asset.walletTokenPubkey, wallet.publicKey, [], new u64(lamports.toArray()));
+    const mintToIx = Token.createMintToInstruction(TOKEN_PROGRAM_ID, reserve.tokenMintPubkey, asset.walletTokenPubkey, user.wallet.publicKey, [], new u64(lamports.toArray()));
     ix.push(mintToIx);
 
     [ok, txid] = await sendTransaction(program.provider, ix, signers);

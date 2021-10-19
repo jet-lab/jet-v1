@@ -1,13 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { useLocation } from 'svelte-navigator';
-  import { WALLET, ASSETS, PREFERRED_LANGUAGE, CONNECT_WALLET } from '../store';
-  import { disconnectWallet, shortenPubkey } from '../scripts/util';
+  import { USER } from '../store';
   import { dictionary } from '../scripts/localization';
   import Logo from './Logo.svelte';
   import NavLink from './NavLink.svelte';
-
-  export let launchUI: boolean;
+  import ConnectWalletButton from './ConnectWalletButton.svelte';
 
   let expanded: boolean = false;
   const location = useLocation();
@@ -34,28 +32,27 @@
 
 <!--Desktop-->
 <nav class="desktop flex flex align-center justify-between column" 
-  class:expanded
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+  class:expanded>
 	<div class="top flex align-center column">
-    <div class="nav-logo-container flex align-center justify-center"
+    <div class="nav-logo-container flex-centered"
       on:click={() => window.open('https://jetprotocol.io/', '_blank')}>
-      <Logo width={!expanded ? 50 : 100} logoMark={!expanded} />
+      <Logo width={!expanded ? 50 : 105} logoMark={!expanded} />
     </div>
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'}
-      text={expanded ? dictionary[$PREFERRED_LANGUAGE].nav.cockpit : ''} 
+      text={expanded ? dictionary[$USER.language].nav.cockpit : ''} 
     />
     <NavLink active={$location.pathname === '/transactions'} 
       path='/transactions' icon={$location.pathname === '/transactions' ? '➺' : '➸'}
-      text={expanded ? dictionary[$PREFERRED_LANGUAGE].nav.transactions : ''} 
+      text={expanded ? dictionary[$USER.language].nav.transactions : ''} 
     />
     <NavLink active={$location.pathname === '/settings'} 
       path='/settings' icon={$location.pathname === '/settings' ? '✎' : '✀'}
-      text={expanded ? dictionary[$PREFERRED_LANGUAGE].nav.settings : ''} 
+      text={expanded ? dictionary[$USER.language].nav.settings : ''} 
     />
 	</div>
   <div class="bottom flex align-center justify-end column">
-    <div on:click={() => toggleNav()} class="bottom-expand flex align-center justify-center">
+    <div on:click={() => toggleNav()} class="bottom-expand flex-centered">
       <i class="text-gradient jet-icons">
         {#if expanded}
           ➧
@@ -66,52 +63,34 @@
       {#if expanded}
         <span class="bicyclette-bold text-gradient"
           style="font-size: 10.5px;">
-          {dictionary[$PREFERRED_LANGUAGE].nav.collapse.toUpperCase()}
+          {dictionary[$USER.language].nav.collapse.toUpperCase()}
         </span>
       {/if}
     </div>
 	</div>
 </nav>
 <!--Tablet-->
-<nav class="tablet flex flex align-center justify-between" 
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+<nav class="tablet flex flex align-center justify-between">
 	<div class="top flex align-center justify-evenly">
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'} 
-      text={dictionary[$PREFERRED_LANGUAGE].nav.cockpit} 
+      text={dictionary[$USER.language].nav.cockpit} 
     />
     <NavLink active={$location.pathname === '/transactions'} 
       path='/transactions' icon={$location.pathname === '/transactions' ? '➺' : '➸'} 
-      text={dictionary[$PREFERRED_LANGUAGE].nav.transactions} 
+      text={dictionary[$USER.language].nav.transactions} 
     />
     <NavLink active={$location.pathname === '/settings'} 
       path='/settings' icon={$location.pathname === '/settings' ? '✎' : '✀'} 
-      text={dictionary[$PREFERRED_LANGUAGE].nav.settings} 
+      text={dictionary[$USER.language].nav.settings} 
     />
   </div>
   <div class="bottom flex align-center justify-evenly">
-    <div class="wallet flex align-center justify-center"
-      on:click={() => disconnectWallet()}>
-      {#if $WALLET && $ASSETS}
-        <img width="100%" height="auto" 
-          src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
-          alt={`${$WALLET.name} Logo`}
-        />
-        <span>
-          {shortenPubkey($WALLET.publicKey.toString(), 4)}
-        </span>
-      {:else}
-        <span class="bicyclette-bold text-gradient"
-          on:click={() => CONNECT_WALLET.set(true)}>
-          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
-        </span>
-      {/if}
-    </div>
+    <ConnectWalletButton />
   </div>
 </nav>
 <!--Mobile-->
-<nav class="mobile flex flex align-center justify-between" 
-  style={launchUI ? 'opacity: 1;' : 'opacity: 0;'}>
+<nav class="mobile flex flex align-center justify-between">
 	<div class="top flex align-center justify-evenly">
     <NavLink active={$location.pathname === '/'} 
       path="/" icon={$location.pathname === '/' ? '✔' : '✈'} 
@@ -124,23 +103,7 @@
     />
   </div>
   <div class="bottom flex align-center justify-evenly">
-    <div class="wallet flex align-center justify-center"
-      on:click={() => disconnectWallet()}>
-      {#if $WALLET && $ASSETS}
-        <img width="100%" height="auto" 
-          src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
-          alt={`${$WALLET.name} Logo`}
-        />
-        <span>
-          {shortenPubkey($WALLET.publicKey.toString(), 4)}
-        </span>
-      {:else}
-        <span class="bicyclette-bold text-gradient"
-          on:click={() => CONNECT_WALLET.set(true)}>
-          {dictionary[$PREFERRED_LANGUAGE].settings.connect.toUpperCase()}
-        </span>
-      {/if}
-    </div>
+    <ConnectWalletButton mobile />
   </div>
 </nav>
 
@@ -170,19 +133,6 @@
     height: 80px;
     cursor: pointer;
   }
-  .wallet {
-    width: 25px;
-    cursor: pointer;
-    margin: var(--spacing-sm) auto;
-  }
-  .wallet img {
-    margin: 0 var(--spacing-xs);
-  }
-  .wallet span {
-    font-size: 11px;
-    font-weight: 500;
-    margin: 0 2px;
-  }
   .top, .bottom {
     width: 100%;
   }
@@ -210,6 +160,9 @@
     }
     .mobile {
       display: flex;
+    }
+    .bottom {
+      justify-content: center;
     }
   }
 </style>

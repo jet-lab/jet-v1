@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./util";
-import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg, addTransactionLog } from "./jet";
+import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
 
 // Find PDA functions and jet algorithms that are reimplemented here
 

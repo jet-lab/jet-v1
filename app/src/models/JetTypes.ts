@@ -3,16 +3,55 @@ import type BN from 'bn.js';
 import type WalletAdapter from '../scripts/walletAdapter';
 import type { TokenAmount } from '../scripts/util';
 
+// Web3
+export interface HasPublicKey {
+  publicKey: PublicKey;
+};
+export interface ToBytes {
+  toBytes(): Uint8Array;
+};
+
+// Solana injected window object
+export interface SolWindow extends Window {
+  solana: {
+    isPhantom?: boolean,
+    isMathWallet?: boolean,
+    getAccount: () => Promise<string>,
+  },
+  solong: {
+    selectAccount: () => Promise<string>,
+  },
+  solflare: {
+    isSolflare?: boolean
+  }
+};
+
+//Idl Metadata
+export interface IdlMetadata {
+  address: PublicKey;
+  cluster: string;
+  market: MarketMetadata;
+  reserves: ReserveMetadata[]
+};
+//Idl errors
+export interface CustomProgramError {
+  code: number;
+  name: string;
+  msg: string;
+};
+
 // Market
 export interface Market {
-  minColRatio: number,
-  reserves: Record<string, Reserve>,
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
+  minColRatio: number,
+  totalValueLocked: number,
+  reserves: Record<string, Reserve>,
+  reservesArray: Reserve[],
+  currentReserve: Reserve,
+  nativeValues: boolean
 };
-
-// Market Account
 export interface MarketAccount {
   version: number,
   /** The exponent used for quote prices */
@@ -36,7 +75,6 @@ export interface MarketAccount {
   /** Tracks the current prices of the tokens in reserve accounts */
   reserves: JetMarketReserveInfo[]
 };
-
 export interface JetMarketReserveInfo {
   reserve: PublicKey;
   price: BN;
@@ -47,7 +85,6 @@ export interface JetMarketReserveInfo {
   lastUpdated: BN;
   invalidated: number;
 };
-
 export type CacheReserveInfoStruct = CacheStruct & {
   /** The price of the asset being stored in the reserve account.
   USD per smallest unit (1u64) of a token */
@@ -64,7 +101,6 @@ export type CacheReserveInfoStruct = CacheStruct & {
   /** Unused space */
   _reserved: number[],
 };
-
 export interface CacheStruct {
   /** The last slot that this information was updated in */
   lastUpdated: BN,
@@ -72,6 +108,10 @@ export interface CacheStruct {
   invalidated: number,
   /** Unused space */
   _reserved: number[],
+};
+export interface MarketMetadata {
+  market: PublicKey,
+  marketAuthority: PublicKey,
 };
 
 // Reserve
@@ -112,8 +152,6 @@ export interface Reserve {
   pythPricePubkey: PublicKey,
   pythProductPubkey: PublicKey
 };
-
-// Reserve Account
 export interface ReserveAccount {
   version: number,
   index: number,
@@ -134,8 +172,6 @@ export interface ReserveAccount {
   _reserved1: number[],
   state: ReserveStateStruct,
 };
-
-// Reserve Account Config
 export interface ReserveConfigStruct {
   /** The utilization rate at which we switch from the first to second regime. */
   utilizationRate1: number,
@@ -171,7 +207,6 @@ export interface ReserveConfigStruct {
   /** Unused space */
   _reserved1: number[],
 };
-
 export type ReserveStateStruct = CacheStruct & {
   accruedUntil: BN,
   outstandingDebt: BN,
@@ -181,52 +216,76 @@ export type ReserveStateStruct = CacheStruct & {
   totalLoanNotes: BN,
   _reserved: number[],
 };
-
-// Obligation
-export interface Obligation {
-  depositedValue: number,
-  borrowedValue: number,
-  colRatio: number,
-  utilizationRate: number
-};
-// Obligation Account
-export interface ObligationAccount {
-  version: number,
-  /** Unused space */
-  _reserved0: number,
-  /** The market this obligation is a part of */
-  market: PublicKey,
-  /** The address that owns the debt/assets as a part of this obligation */
-  owner: PublicKey,
-  /** Unused space */
-  _reserved1: number[],
-  /** Storage for cached calculations */
-  cached: number[],
-  /** The storage for the information on collateral owned by this obligation */
-  collateral: ObligationPositionStruct[],
-  /** The storage for the information on positions owed by this obligation */
-  loans: ObligationPositionStruct[],
-};
-
-export interface ObligationPositionStruct {
-  /** The token account holding the bank notes */
-  account: PublicKey,
-  /** Non-authoritative number of bank notes placed in the account */
-  amount: BN,
-  side: number,
-  /** The index of the reserve that this position's assets are from */
+export interface ReserveMetadata {
+  name: string,
+  abbrev: string,
+  decimals: number,
   reserveIndex: number,
-  _reserved: number[],
+  accounts: {
+    reserve: PublicKey,
+    vault: PublicKey,
+    feeNoteVault: PublicKey,
+    tokenMint: PublicKey,
+    faucet?: PublicKey,
+    depositNoteMint: PublicKey,
+    loanNoteMint: PublicKey,
+    
+    pythPrice: PublicKey,
+    pythProduct: PublicKey,
+
+    dexMarket: PublicKey,
+    dexSwapTokens: PublicKey,
+    dexOpenOrders: PublicKey,
+  },
+  bump: {
+    vault: number,
+    depositNoteMint: number,
+    loanNoteMint: number,
+
+    dexSwapTokens: number,
+    dexOpenOrders: number,
+  },
+};
+
+// User
+export interface User {
+  // Location
+  locale: Locale | null,
+  geobanned: boolean,
+
+  // Wallet
+  connectingWallet: boolean,
+  wallet: Wallet | MathWallet | SolongWallet | null,
+  walletInit: boolean,
+  tradeAction: string,
+
+  // Assets and position
+  assets: AssetStore | null,
+  walletBalances: Record<string, number>,
+  collateralBalances: Record<string, number>,
+  loanBalances: Record<string, number>,
+  position: Obligation,
+
+  // Transaction logs
+  transactionLogs: TransactionLog[] | null,
+  
+  // Notifications
+  notifications: Notification[],
+  addNotification: (n: Notification) => void,
+  clearNotification: (i: number) => void,
+
+  // Settings
+  language: string,
+  darkTheme: boolean,
+  navExpanded: boolean,
+  rpcNode: string | null,
+  rpcPing: number
 };
 
 // Wallet
-export interface WalletProvider {
-  name: string,
-  logo: string,
-  url: string
-};
 export interface Wallet extends WalletAdapter {
   name: string,
+  forgetAccounts: Function
 };
 export interface SolongWallet {
   name: string,
@@ -237,7 +296,9 @@ export interface SolongWallet {
   transferRst: any,
   publicKey: any,
   on: Function,
-  connect: Function
+  disconnect: Function
+  connect: Function,
+  forgetAccounts: Function
 };
 export interface MathWallet {
   isMathWallet: boolean,
@@ -245,7 +306,14 @@ export interface MathWallet {
   name: string,
   publicKey: PublicKey,
   on: Function,
-  connect: Function
+  connect: Function,
+  disconnect: Function,
+  forgetAccounts: Function
+};
+export interface WalletProvider {
+  name: string,
+  logo: string,
+  url: string
 };
 
 // Account
@@ -287,6 +355,56 @@ export interface Asset {
   collateralNoteExists: boolean,
   collateralNoteBalance: TokenAmount,
   collateralBalance: TokenAmount,
+  maxDepositAmount: number,
+  maxWithdrawAmount: number,
+  maxBorrowAmount: number,
+  maxRepayAmount: number,
+};
+
+// Obligation
+export interface Obligation {
+  depositedValue: number,
+  borrowedValue: number,
+  colRatio: number,
+  utilizationRate: number
+};
+export interface ObligationAccount {
+  version: number,
+  /** Unused space */
+  _reserved0: number,
+  /** The market this obligation is a part of */
+  market: PublicKey,
+  /** The address that owns the debt/assets as a part of this obligation */
+  owner: PublicKey,
+  /** Unused space */
+  _reserved1: number[],
+  /** Storage for cached calculations */
+  cached: number[],
+  /** The storage for the information on collateral owned by this obligation */
+  collateral: ObligationPositionStruct[],
+  /** The storage for the information on positions owed by this obligation */
+  loans: ObligationPositionStruct[],
+};
+export interface ObligationPositionStruct {
+  /** The token account holding the bank notes */
+  account: PublicKey,
+  /** Non-authoritative number of bank notes placed in the account */
+  amount: BN,
+  side: number,
+  /** The index of the reserve that this position's assets are from */
+  reserveIndex: number,
+  _reserved: number[],
+};
+
+// Locale
+export interface Locale {
+  ip: string,
+  city: string,
+  region: string,
+  country: string,
+  loc: string,
+  postal: number,
+  timezone: string
 };
 
 // Transaction Logs
@@ -323,12 +441,10 @@ export interface TransactionLog {
   tokenPrice: number
 };
 
-// Web3
-export interface HasPublicKey {
-  publicKey: PublicKey;
-};
-export interface ToBytes {
-  toBytes(): Uint8Array;
+// Notifications
+export interface Notification {
+  success: boolean,
+  text: string
 };
 
 // Copilot
@@ -359,84 +475,4 @@ export interface CopilotAlert {
     text: string,
     onClick: () => void
   }
-};
-
-// Solana injected window object
-export interface SolWindow extends Window {
-  solana: {
-    isPhantom?: boolean,
-    isMathWallet?: boolean,
-    getAccount: () => Promise<string>,
-  }
-  solong: {
-    selectAccount: () => Promise<string>,
-  }
-};
-
-// Locale
-export interface Locale {
-  ip: string,
-  city: string,
-  region: string,
-  country: string,
-  loc: string,
-  postal: number,
-  timezone: string
-};
-
-//Idl Metadata
-export interface IdlMetadata {
-  address: PublicKey;
-  cluster: string;
-  market: MarketMetadata;
-  reserves: ReserveMetadata[]
-};
-
-//Idl errors
-export interface CustomProgramError {
-  code: number;
-  name: string;
-  msg: string;  
-};
-
-export interface MarketMetadata {
-  market: PublicKey,
-  marketAuthority: PublicKey,
-};
-
-export interface ReserveMetadata {
-  name: string,
-  abbrev: string,
-  decimals: number,
-  reserveIndex: number,
-  accounts: {
-    reserve: PublicKey,
-    vault: PublicKey,
-    feeNoteVault: PublicKey,
-    tokenMint: PublicKey,
-    faucet?: PublicKey,
-    depositNoteMint: PublicKey,
-    loanNoteMint: PublicKey,
-    
-    pythPrice: PublicKey,
-    pythProduct: PublicKey,
-
-    dexMarket: PublicKey,
-    dexSwapTokens: PublicKey,
-    dexOpenOrders: PublicKey,
-  },
-  bump: {
-    vault: number,
-    depositNoteMint: number,
-    loanNoteMint: number,
-
-    dexSwapTokens: number,
-    dexOpenOrders: number,
-  },
-};
-
-// Notifications
-export interface Notification {
-  success: boolean,
-  text: string
 };

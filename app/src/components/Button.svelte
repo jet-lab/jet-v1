@@ -1,7 +1,4 @@
 <script lang="ts">
-  import { PREFERRED_LANGUAGE, WALLET_INIT } from "../store";
-  import { dictionary } from "../scripts/localization";
-
   export let text: string;
   export let img: string = '';
   export let disabled: boolean = false;
@@ -13,12 +10,12 @@
   export let onClick: Function;
 </script>
 
-<button class="flex align-center justify-center" class:bicyclette
+<button class="flex-centered" class:bicyclette
   class:secondary class:small class:disabled class:error class:noCaps
   title={text}
   on:click={() => {if(!disabled) onClick()}}>
   {#if img}
-    <img src={img} alt={dictionary[$PREFERRED_LANGUAGE].settings.wallet} />
+    <img src={img} alt={text} />
   {/if}
   {text}
 </button>
