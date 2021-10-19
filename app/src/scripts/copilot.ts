@@ -37,7 +37,7 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
     }
     // below minimum ratio, inform and reject
     if (adjustedRatio < market.minColRatio 
-      && adjustedRatio < user.obligation.colRatio) {
+      && adjustedRatio < user.position.colRatio) {
       COPILOT.set({
         suggestion: {
         good: false,
@@ -72,14 +72,14 @@ export const generateCopilotSuggestion = (): void => {
   }
 
   // Conditional AI for suggestion generation
-  if (user.obligation.borrowedValue && (user.obligation.colRatio < market?.minColRatio)) {
+  if (user.position.borrowedValue && (user.position.colRatio < market?.minColRatio)) {
     COPILOT.set({
       suggestion: {
         good: false,
         overview: dictionary[user.language].copilot.suggestions.unhealthy.overview,
         detail: dictionary[user.language].copilot.suggestions.unhealthy.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
-          .replaceAll('{{RATIO BELOW AMOUNT}}', Math.abs(Number(currencyFormatter((market.minColRatio - user.obligation.colRatio) * 100, false, 1))))
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.position.colRatio * 100, false, 1))
+          .replaceAll('{{RATIO BELOW AMOUNT}}', Math.abs(Number(currencyFormatter((market.minColRatio - user.position.colRatio) * 100, false, 1))))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100),
         solution: dictionary[user.language].copilot.suggestions.unhealthy.solution,
       }
@@ -100,23 +100,23 @@ export const generateCopilotSuggestion = (): void => {
           .replaceAll('{{USER BALANCE}}', currencyFormatter(user.assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance.uiAmountFloat, false, 2))
       }
     });
-  } else if (user.obligation.borrowedValue && (user.obligation.colRatio > market?.minColRatio && user.obligation.colRatio <= market?.minColRatio + 10)) {
+  } else if (user.position.borrowedValue && (user.position.colRatio > market?.minColRatio && user.position.colRatio <= market?.minColRatio + 10)) {
     COPILOT.set({
       suggestion: {
         good: false,
         overview: dictionary[user.language].copilot.warning.tenPercent.overview,
         detail: dictionary[user.language].copilot.warning.tenPercent.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.position.colRatio * 100, false, 1))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
       }
     });
-  } else if (user.obligation.borrowedValue && (user.obligation.colRatio >= market?.minColRatio + 10 && user.obligation.colRatio <= market?.minColRatio + 20)) {
+  } else if (user.position.borrowedValue && (user.position.colRatio >= market?.minColRatio + 10 && user.position.colRatio <= market?.minColRatio + 20)) {
     COPILOT.set({
       suggestion: {
         good: false,
         overview: dictionary[user.language].copilot.warning.twentyPercent.overview,
         detail: dictionary[user.language].copilot.warning.twentyPercent.detail
-          .replaceAll('{{C-RATIO}}', currencyFormatter(user.obligation.colRatio * 100, false, 1))
+          .replaceAll('{{C-RATIO}}', currencyFormatter(user.position.colRatio * 100, false, 1))
           .replaceAll('{{JET MIN C-RATIO}}', market.minColRatio * 100)
       }
     });

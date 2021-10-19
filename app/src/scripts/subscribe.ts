@@ -29,7 +29,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
         const decoded = parseMarketAccount(account.data, coder);
         for (const reserveStruct of decoded.reserves) {
           for (const abbrev in market.reserves) {
-            if (market.reserves[abbrev].accountPubkey.equals(reserveStruct.reserve) && user.assets) {
+            if (market.reserves[abbrev].accountPubkey.equals(reserveStruct.reserve)) {
               const reserve = market.reserves[abbrev];
 
               reserve.liquidationPremium = reserveStruct.liquidationBonus;
@@ -171,32 +171,6 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
             ...account,
             data: parseObligationAccount(account.data, coder),
           };
-
-          // Obligation object for UI
-          let depositedValue: number = 0;
-          let borrowedValue: number = 0;
-          let colRatio = 0;
-          let utilizationRate = 0;
-          for (let t in user.assets.tokens) {
-            depositedValue += new TokenAmount(
-              user.assets.tokens[t].collateralBalance.amount,
-              market.reserves[t].decimals
-            ).uiAmountFloat * market.reserves[t].price;
-            borrowedValue += new TokenAmount(
-              user.assets.tokens[t].loanBalance.amount,
-              market.reserves[t].decimals
-            ).uiAmountFloat * market.reserves[t].price;
-
-            colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
-            utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
-          }
-
-          user.obligation = {
-            depositedValue,
-            borrowedValue,
-            colRatio,
-            utilizationRate
-          }
         }
         return user;
       });
@@ -334,47 +308,45 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
     user.collateralBalances[reserve.abbrev] = asset.collateralBalance.uiAmountFloat;
     user.loanBalances[reserve.abbrev] = asset.loanBalance.uiAmountFloat;
 
+    // Update user position object for UI
+    user.position = {
+      depositedValue: 0,
+      borrowedValue: 0,
+      colRatio: 0,
+      utilizationRate: 0
+    }
+    for (let t in user.assets?.tokens) {
+      user.position.depositedValue += user.collateralBalances[t] * market.reserves[t].price;
+      user.position.borrowedValue += user.loanBalances[t] * market.reserves[t].price;
+      user.position.colRatio = user.position.borrowedValue ? user.position.depositedValue / user.position.borrowedValue : 0;
+      user.position.utilizationRate = user.position.depositedValue ? user.position.borrowedValue / user.position.depositedValue : 0;
+    }
+
     // Max deposit
     asset.maxDepositAmount = user.walletBalances[reserve.abbrev];
 
     // Max withdraw
-    let collateralBalance = 0;
-    let maxWithdraw = 0;
-    if (market.currentReserve && user.assets) {
-      collateralBalance = user.assets.tokens[market.currentReserve.abbrev]?.collateralBalance?.uiAmountFloat;
-      maxWithdraw = user.obligation.borrowedValue
-        ? (user.obligation.depositedValue - (market.minColRatio * user.obligation.borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
-          : collateralBalance;
-      if (maxWithdraw > collateralBalance) {
-        maxWithdraw = collateralBalance;
-      }
-      asset.maxWithdrawAmount = maxWithdraw;
+    asset.maxWithdrawAmount = user.position.borrowedValue
+      ? (user.position.depositedValue - (market.minColRatio * user.position.borrowedValue)) / reserve.price
+        : asset.collateralBalance.uiAmountFloat;
+    if (asset.maxWithdrawAmount > asset.collateralBalance.uiAmountFloat) {
+      asset.maxWithdrawAmount = asset.collateralBalance.uiAmountFloat;
     }
 
     // Max borrow
-    let maxBorrow = 0;
-    if (market.currentReserve && user.assets) {
-      const availableLiquidity = market.reserves[market.currentReserve.abbrev].availableLiquidity?.uiAmountFloat;
-      maxBorrow = ((user.obligation.depositedValue / market.minColRatio) - user.obligation.borrowedValue) / market.reserves[market.currentReserve.abbrev].price;
-      if (maxBorrow > availableLiquidity) {
-        maxBorrow = availableLiquidity;
-      }
+    asset.maxBorrowAmount = ((user.position.depositedValue / market.minColRatio) - user.position.borrowedValue) / reserve.price;
+    if (asset.maxBorrowAmount > reserve.availableLiquidity.uiAmountFloat) {
+      asset.maxBorrowAmount = reserve.availableLiquidity.uiAmountFloat;
     }
-    // Check if available liquidity of a reserve is
-    // less than the most a user can borrow
-    const availableLiquidity = market.currentReserve.availableLiquidity.uiAmountFloat;
-    if (availableLiquidity < maxBorrow) {
-      asset.maxBorrowAmount = availableLiquidity;
-    } else {
-      asset.maxBorrowAmount = maxBorrow;
+    if (reserve.availableLiquidity.uiAmountFloat < asset.maxBorrowAmount) {
+      asset.maxBorrowAmount = reserve.availableLiquidity.uiAmountFloat;
     }
 
     // Max repay
-    // Check if wallet balance is less than the user owes
-    if (user.walletBalances[reserve.abbrev] < user.loanBalances[reserve.abbrev]) {
+    if (user.walletBalances[reserve.abbrev] < asset.loanBalance.uiAmountFloat) {
       asset.maxRepayAmount = user.walletBalances[reserve.abbrev];
     } else {
-      asset.maxRepayAmount = user.loanBalances[reserve.abbrev];
+      asset.maxRepayAmount = asset.loanBalance.uiAmountFloat;
     }
   };
 };

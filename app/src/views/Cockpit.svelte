@@ -61,8 +61,7 @@
   // Init Cockpit
   onMount(() => {
     // If user is subject to liquidation, warn them
-    if ($USER.obligation.borrowedValue &&
-      $USER.obligation.colRatio <= $MARKET.minColRatio) {
+    if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
       generateCopilotSuggestion();
     }
 
@@ -90,11 +89,11 @@
         <h2 class="view-subheader">
           {dictionary[$USER.language].cockpit.totalValueLocked}
         </h2>
-        <h1 class="view-header text-gradient">
-          {#key $MARKET.totalValueLocked}
+        {#key $MARKET.totalValueLocked}
+          <h1 class="view-header text-gradient">
             {totalAbbrev($MARKET.totalValueLocked)}
-          {/key}
-        </h1>
+          </h1>
+        {/key}
       </div>
       <div class="trade-position-snapshot flex-centered">
         <div class="trade-position-ratio flex align-start justify-center column">
@@ -105,25 +104,27 @@
             <Info term="collateralizationRatio" />
           </div>
           {#if $USER.walletInit}
-            <h1 class="view-header"
-            style="margin-bottom: -20px; {$USER.wallet
-              ? ($USER.obligation.borrowedValue && ($USER.obligation.colRatio <= $MARKET.minColRatio) 
-                ? 'color: var(--failure);' 
-                  : 'color: var(--success);')
-                : ''}">
-              {#if $USER.obligation.borrowedValue && $USER.obligation.colRatio > 10}
-                &gt;1000
-              {:else if $USER.obligation.borrowedValue && $USER.obligation.colRatio < 10}
-                {currencyFormatter($USER.obligation.colRatio * 100, false, 1)}
-              {:else}
-                ∞
-              {/if}
-              {#if $USER.obligation.borrowedValue}
-                <span style="color: inherit; padding-left: 2px;">
-                  %
-                </span>
-              {/if}
-            </h1>
+            {#key $USER.position.colRatio}
+              <h1 class="view-header"
+              style="margin-bottom: -20px; {$USER.wallet
+                ? ($USER.position.borrowedValue && ($USER.position.colRatio <= $MARKET.minColRatio) 
+                  ? 'color: var(--failure);' 
+                    : 'color: var(--success);')
+                  : ''}">
+                {#if $USER.position.borrowedValue && $USER.position.colRatio > 10}
+                  &gt;1000
+                {:else if $USER.position.borrowedValue && $USER.position.colRatio < 10}
+                  {currencyFormatter($USER.position.colRatio * 100, false, 1)}
+                {:else}
+                  ∞
+                {/if}
+                {#if $USER.position.borrowedValue}
+                  <span style="color: inherit; padding-left: 2px;">
+                    %
+                  </span>
+                {/if}
+              </h1>
+            {/key}
           {:else}
             <p>
               --
@@ -135,17 +136,33 @@
             <h2 class="view-subheader">
               {dictionary[$USER.language].cockpit.totalDepositedValue}
             </h2>
-            <p class="{$USER.walletInit ? 'text-gradient' : ''} bicyclette">
-              {$USER.walletInit ? totalAbbrev($USER.obligation.depositedValue ?? 0) : '--'}
-            </p>
+            {#if $USER.walletInit}
+              {#key $USER.position.depositedValue}
+                <p class="bicyclette text-gradient">
+                  {totalAbbrev($USER.position.depositedValue ?? 0)}
+                </p>
+              {/key}
+            {:else}
+              <p class="bicyclette">
+                --
+              </p>
+            {/if}
           </div>
           <div class="trade-position-value flex-centered column">
             <h2 class="view-subheader">
               {dictionary[$USER.language].cockpit.totalBorrowedValue}
             </h2>
-            <p class="{$USER.walletInit ? 'text-gradient' : ''} bicyclette">
-              {$USER.walletInit ? totalAbbrev($USER.obligation.borrowedValue ?? 0) : '--'}
-            </p>
+            {#if $USER.walletInit}
+              {#key $USER.position.borrowedValue}
+                <p class="bicyclette text-gradient">
+                  {totalAbbrev($USER.position.borrowedValue ?? 0)}
+                </p>
+              {/key}
+            {:else}
+              <p class="bicyclette">
+                --
+              </p>
+            {/if}
           </div>
         </div>
       </div>

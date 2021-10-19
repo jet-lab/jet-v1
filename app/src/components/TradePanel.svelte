@@ -9,6 +9,7 @@
   import Info from './Info.svelte';
 
   let inputAmount: number | null = null;
+  let maxInput: number = 0;
   let disabledInput: boolean = true;
   let disabledMessage: string = '';
   let inputError: string;
@@ -20,6 +21,7 @@
     inputAmount = null;
     inputError = '';
     checkDisabledInput();
+    getMaxInput();
     adjustCollateralizationRatio();
   };
 
@@ -53,7 +55,7 @@
         disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForWithdraw
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // User is below minimum c-ratio
-      } else if ($USER.obligation.colRatio <= $MARKET.minColRatio) {
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
         disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
       } else {
         disabledInput = false;
@@ -61,10 +63,10 @@
     // Borrowing
     } else if ($USER.tradeAction === 'borrow') {
       // User has not deposited any collateral
-      if (!$USER.obligation.depositedValue) {
+      if (!$USER.position.depositedValue) {
         disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.noDepositsForBorrow;
       // User is below minimum c-ratio
-      } else if ($USER.obligation.colRatio <= $MARKET.minColRatio) {
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
         disabledMessage = disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
       // User has a deposit of this asset
       } else if ($USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
@@ -88,6 +90,23 @@
     }
   };
 
+  // Get max input for current trade action and reserve
+  const getMaxInput = () => {
+    let max = 0;
+    if ($USER.assets) {
+      if ($USER.tradeAction === 'deposit') {
+        max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxDepositAmount;
+      } else if ($USER.tradeAction === 'withdraw') {
+        max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxWithdrawAmount;
+      } else if ($USER.tradeAction === 'borrow') {
+        max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxBorrowAmount;
+      } else if ($USER.tradeAction === 'repay') {
+        max = $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxRepayAmount;
+      }
+    }
+    maxInput = max;
+  };
+
   // Adjust user input and calculate updated c-ratio if 
   // they were to submit current trade
   const adjustCollateralizationRatio = (): void => {
@@ -97,58 +116,38 @@
     
     // Depositing
     if ($USER.tradeAction === 'deposit') {
-      adjustedRatio = ($USER.obligation.depositedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
-        $USER.obligation.borrowedValue > 0
-            ? $USER.obligation.borrowedValue
+      adjustedRatio = ($USER.position.depositedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
+        $USER.position.borrowedValue > 0
+            ? $USER.position.borrowedValue
               : 1
         );
     // Withdrawing
     } else if ($USER.tradeAction === 'withdraw') {
-      adjustedRatio = ($USER.obligation.depositedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
-        $USER.obligation.borrowedValue > 0 
-            ? $USER.obligation.borrowedValue
+      adjustedRatio = ($USER.position.depositedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) / (
+        $USER.position.borrowedValue > 0 
+            ? $USER.position.borrowedValue
               : 1
         );
     // Borrowing
     } else if ($USER.tradeAction === 'borrow') {
-      adjustedRatio = $USER.obligation.depositedValue / (
-        ($USER.obligation.borrowedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
-            ? ($USER.obligation.borrowedValue + ((inputAmount ?? 0) * $MARKET.currentReserve.price))
+      adjustedRatio = $USER.position.depositedValue / (
+        ($USER.position.borrowedValue + (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
+            ? ($USER.position.borrowedValue + ((inputAmount ?? 0) * $MARKET.currentReserve.price))
               : 1
         );
     // Repaying
     } else if ($USER.tradeAction === 'repay') {
-      adjustedRatio = $USER.obligation.depositedValue / (
-        ($USER.obligation.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
-            ? ($USER.obligation.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price)
+      adjustedRatio = $USER.position.depositedValue / (
+        ($USER.position.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price) > 0
+            ? ($USER.position.borrowedValue - (inputAmount ?? 0) * $MARKET.currentReserve.price)
              : 1
       );
     }
   };
 
-  // Get max input for current trade action and reserve
-  const maxInput = () => {
-    let maxInput = 0;
-
-    // Depositing
-    if ($USER.assets) {
-      if ($USER.tradeAction === 'deposit') {
-        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxDepositAmount;
-      } else if ($USER.tradeAction === 'withdraw') {
-        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxWithdrawAmount;
-      } else if ($USER.tradeAction === 'borrow') {
-        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxBorrowAmount;
-      } else if ($USER.tradeAction === 'repay') {
-        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxRepayAmount;
-      }
-    }
-
-    return maxInput;
-  };
-
   // Update input and adjusted ratio on slider change
   const sliderHandler = (e: any) => {
-    inputAmount = maxInput() * (e.detail.value / 100);
+    inputAmount = maxInput * (e.detail.value / 100);
     adjustCollateralizationRatio();
   };
 
@@ -183,7 +182,7 @@
       } else if (tradeAmount.uiAmountFloat > $USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.lessFunds;
       // User is below the minimum c-ratio
-      } else if ($USER.obligation && $USER.obligation.colRatio <= $MARKET.minColRatio) {
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
         inputError = dictionary[$USER.language].cockpit.belowMinCRatio;
       // Otherwise, send withdraw
       } else {
@@ -199,7 +198,7 @@
       if (tradeAmount.gt($MARKET.currentReserve.availableLiquidity)) {
         inputError = dictionary[$USER.language].cockpit.noLiquidity;
       // User is below the minimum c-ratio
-      } else if ($USER.obligation && $USER.obligation.colRatio <= $MARKET.minColRatio) {
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
         inputError = dictionary[$USER.language].cockpit.belowMinCRatio;
       // Otherwise, send borrow
       } else {
@@ -241,6 +240,19 @@
     // End trade submit
     sendingTrade = false;
   };
+
+  // Adjust interface on wallet init
+  let walletHasInit = false;
+  $: if ($USER.walletInit && !walletHasInit) {
+    adjustInterface();
+    walletHasInit = true;
+  }
+  // Readjust interface on current reserve change
+  let currentReserve = $MARKET.currentReserve;
+  $: if (currentReserve !== $MARKET.currentReserve) {
+    adjustInterface();
+    currentReserve = $MARKET.currentReserve;
+  }
 </script>
 
 {#if $MARKET}
@@ -287,7 +299,7 @@
         <div class="flex-centered">
           {#if $USER.walletInit}
             <p>
-              {currencyFormatter(maxInput(), false, $MARKET.currentReserve.decimals)} 
+              {currencyFormatter(maxInput, false, $MARKET.currentReserve.decimals)} 
               {$MARKET.currentReserve.abbrev}
             </p>
           {:else}
@@ -309,9 +321,9 @@
         </div>
         <p class="bicyclette">
           {#if $USER.walletInit}
-            {#if ($USER.obligation.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio > 10}
+            {#if ($USER.position.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio > 10}
               &gt; 1000%
-            {:else if ($USER.obligation.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio < 10}
+            {:else if ($USER.position.borrowedValue || ($USER.tradeAction === 'borrow' && inputAmount)) && adjustedRatio < 10}
               {currencyFormatter(adjustedRatio * 100, false, 1) + '%'}
             {:else}
               ∞
@@ -324,8 +336,8 @@
     {/if}
     <div class="trade-section flex-centered column">
       <Input type="number" currency
-        bind:value={inputAmount}
-        maxInput={maxInput()}
+        value={inputAmount}
+        maxInput={maxInput}
         disabled={disabledInput}
         error={inputError}
         loading={sendingTrade}

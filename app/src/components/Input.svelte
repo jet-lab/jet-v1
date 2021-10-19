@@ -4,11 +4,10 @@
   import Loader from './Loader.svelte';
 
   export let type: 'text' | 'number';
+  export let value: string | number | null;
   export let placeholder: string = '';
-  export let value: any;
   export let currency: boolean = false;
   export let maxInput: number | null = null;
-  export let inputAmount: number | null = null;
   export let error: string | null = null;
   export let disabled: boolean = false;
   export let loading: boolean = false;
@@ -34,7 +33,7 @@
 <div class="flex-centered" class:disabled>
   <div class="flex-centered" class:currency>
     <input {disabled}
-      bind:value={value}
+      bind:value
       placeholder={error ?? placeholder}
       class:error
       use:typeAction
@@ -52,7 +51,7 @@
         </span>
         <span>
           ≈ {currencyFormatter(
-              (inputAmount ?? 0) * $MARKET.currentReserve.price,
+              (Number(value) ?? 0) * $MARKET.currentReserve.price,
               true,
               2
             )}

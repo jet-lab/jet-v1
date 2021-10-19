@@ -43,15 +43,15 @@ export const USER = writable<User>({
 
   // Assets and position
   assets: null,
-  obligation: {
+  walletBalances: {},
+  collateralBalances: {},
+  loanBalances: {},
+  position: {
     depositedValue: 0,
     borrowedValue: 0,
     colRatio: 0,
     utilizationRate: 0
   },
-  walletBalances: {},
-  collateralBalances: {},
-  loanBalances: {},
 
   // Transaction Logs
   transactionLogs: [],

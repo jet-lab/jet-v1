@@ -219,8 +219,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     await getAssetPubkeys();
     // Subscribe to all asset accounts for those pubkeys
     await subscribeToAssets(connection, coder, wallet.publicKey);
-    // Why are we doing this, weird bug
-    await getMarketAndIDL();
     // Init wallet for UI display
     USER.update(user => {
       user.walletInit = true;
@@ -238,9 +236,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
         alert: {
           good: false,
           header: dictionary[user.language].copilot.alert.warning,
-          text: dictionary[user.language].copilot.alert.disclaimer
-            .replaceAll('{{TERMS OF USE}}', `<a href="https://www.jetprotocol.io/terms-of-use" target="_blank" class="bicyclette-bold text-gradient">TERMS OF USE</a>`)
-            .replaceAll('{{PRIVACY POLICY}}', `<a href="https://www.jetprotocol.io/privacy-policy" target="_blank" class="bicyclette-bold text-gradient">PRIVACY POLICY</a>`),
+          text: dictionary[user.language].copilot.alert.disclaimer,
           action: {
             text: dictionary[user.language].copilot.alert.accept,
             onClick: () => localStorage.setItem('jetDisclaimer', 'true')
@@ -260,7 +256,17 @@ export const disconnectWallet = () => {
   }
   USER.update(user => {
     user.wallet = null;
+    user.walletInit = false;
     user.assets = null;
+    user.walletBalances = {};
+    user.collateralBalances = {};
+    user.loanBalances = {};
+    user.position = {
+      depositedValue: 0,
+      borrowedValue: 0,
+      colRatio: 0,
+      utilizationRate: 0
+    }
     user.transactionLogs = [];
     return user;
   });

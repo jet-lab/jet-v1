@@ -261,10 +261,10 @@ export interface User {
 
   // Assets and position
   assets: AssetStore | null,
-  obligation: Obligation,
   walletBalances: Record<string, number>,
   collateralBalances: Record<string, number>,
   loanBalances: Record<string, number>,
+  position: Obligation,
 
   // Transaction logs
   transactionLogs: TransactionLog[] | null,
