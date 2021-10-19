@@ -170,9 +170,9 @@ pub fn repay<'info, T: RepayContext<'info>>(
     market.verify_ability_repay()?;
 
     // Calculate the number of tokens and notes that match the value being repaid
-    let payoff_tokens = amount.as_tokens(reserve_info, Rounding::Down);
     let payoff_notes = amount.as_loan_notes(reserve_info, Rounding::Down)?;
     let payoff_notes = std::cmp::min(payoff_notes, token::accessor::amount(loan_account)?);
+    let payoff_tokens = reserve_info.loan_notes_to_tokens(payoff_notes, Rounding::Up);
 
     // Burn the debt that's being repaid
     token::burn(
