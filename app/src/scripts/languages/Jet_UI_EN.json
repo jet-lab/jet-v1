@@ -133,11 +133,11 @@
         "alert": {
             "failed": "Mayday!",
             "success": "Success!",
-            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
+            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!",
-            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/>{{TERMS OF USE}} {{PRIVACY POLICY}}",
+            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
             "accept": "Accept",
             "warning": "WARNING"
         }

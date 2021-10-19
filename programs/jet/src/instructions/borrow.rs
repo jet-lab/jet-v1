@@ -117,18 +117,20 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
     let clock = Clock::get().unwrap();
     let reserve_info = market_reserves.get_cached(reserve.index, clock.slot);
 
-    let req_tokens = amount.as_tokens(reserve_info, Rounding::Down);
-    let fees = reserve.borrow_fee(req_tokens);
-    let token_amount = req_tokens + fees;
+    let requested_tokens = amount.as_tokens(reserve_info, Rounding::Down);
+    let fees = reserve.borrow_fee(requested_tokens);
+    let total_token_debt = requested_tokens
+        .checked_add(fees)
+        .expect("Requested a debt that would exceed the maximum potential supply for a token.");
 
     // Calculate the number of notes to create to match the value being
-    // borrowed, then mint the notes as a way of tracking this borrower's
-    // debt.
-    let new_notes = reserve_info.loan_notes_from_tokens(token_amount, Rounding::Up);
+    // borrowed plus the fees, then mint the notes as a way of tracking
+    // this borrower's debt.
+    let new_notes = reserve_info.loan_notes_from_tokens(total_token_debt, Rounding::Up);
 
     // Record the borrow onto the reserve account, and also add any fees
     // to get the total amount borrowed.
-    let token_amount = reserve.borrow(clock.slot, req_tokens, new_notes, fees);
+    reserve.borrow(clock.slot, requested_tokens, new_notes, fees);
 
     token::mint_to(
         ctx.accounts
@@ -156,7 +158,7 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
         ctx.accounts
             .transfer_context()
             .with_signer(&[&market.authority_seeds()]),
-        token_amount,
+        requested_tokens,
     )?;
 
     emit!(BorrowEvent {

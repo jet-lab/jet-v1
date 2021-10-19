@@ -1,124 +1,118 @@
 <svelte:head>
-  <title>Jet Protocol | {dictionary[$PREFERRED_LANGUAGE].settings.title}</title>
+  <title>Jet Protocol | {dictionary[$USER.language].settings.title}</title>
 </svelte:head>
 <script lang="ts">
   import Select from 'svelte-select';
-  import { WALLET, ASSETS, PREFERRED_LANGUAGE, DARK_THEME, PREFERRED_NODE, PING, CONNECT_WALLET } from '../store';
-  import { getMarketAndIDL, getTransactionLogs } from '../scripts/jet';
-  import { disconnectWallet, setDark, shortenPubkey } from '../scripts/util';
+  import { USER } from '../store';
+  import { getMarketAndIDL, getTransactionLogs, disconnectWallet } from '../scripts/jet';
+  import { setDark, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
   import Toggle from '../components/Toggle.svelte';
+  import Input from '../components/Input.svelte';
 
   let rpcNodeInput: string | null = null;
   let inputError: string | null = null;
+
+  // Reset connection to default
+  const resetRPC = () => {
+    localStorage.removeItem('jetPreferredNode');
+    USER.update(user => {
+      user.rpcPing = 0;
+      return user;
+    });
+    getMarketAndIDL();
+    getTransactionLogs();
+  };
   
   // Check RPC input and set localStorage, restart app
   const checkRPC = async () => {
     if (!rpcNodeInput) {
-      inputError = dictionary[$PREFERRED_LANGUAGE].settings.noUrl;
+      inputError = dictionary[$USER.language].settings.noUrl;
       return;
     }
     
     localStorage.setItem('jetPreferredNode', rpcNodeInput);
-    PING.set(0);
+    USER.update(user => {
+      user.rpcPing = 0;
+      return user;
+    });
     getMarketAndIDL();
     getTransactionLogs();
     inputError = null;
     rpcNodeInput = null;
   };
-
 </script>
 
 <div class="view-container flex column">
   <h1 class="view-title text-gradient">
-    {dictionary[$PREFERRED_LANGUAGE].settings.title}
+    {dictionary[$USER.language].settings.title}
   </h1>
   <div class="divider">
   </div>
   <div class="settings">
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$PREFERRED_LANGUAGE].settings.rpcNode.toUpperCase()}
+        {dictionary[$USER.language].settings.rpcNode.toUpperCase()}
       </span>
       <div class="flex align-center justify-start"
         style="padding: var(--spacing-xs) 0;">
         <p>
-          {$PREFERRED_NODE ?? dictionary[$PREFERRED_LANGUAGE].settings.defaultNode}
+          {$USER.rpcNode ?? dictionary[$USER.language].settings.defaultNode}
         </p>
-        {#if $PING}
+        {#if $USER.rpcPing}
           <div class="ping-indicator"
-            style={$PING < 1000 
+            style={$USER.rpcPing < 1000 
               ? 'background: var(--success);' 
                 : 'background: var(--failure);'}>
           </div>
-          <p style={$PING < 1000 
+          <p style={$USER.rpcPing < 1000 
             ? 'color: var(--success);' 
               : 'color: var(--failure);'}>
-            ({$PING}ms)
+            ({$USER.rpcPing}ms)
           </p>
         {/if}
-        {#if $PREFERRED_NODE}
+        {#if $USER.rpcNode}
           <p class="reset-rpc bicyclette-bold text-gradient"
-            on:click={() => {
-              localStorage.removeItem('jetPreferredNode');
-              PING.set(0);
-              getMarketAndIDL();
-              getTransactionLogs();
-            }}>
-            {dictionary[$PREFERRED_LANGUAGE].settings.reset.toUpperCase()}
+            on:click={() => resetRPC()}>
+            {dictionary[$USER.language].settings.reset.toUpperCase()}
           </p>
         {/if}
       </div>
-      <div class="submit-input flex align-center justify-center">
-        <input
-          bind:value={rpcNodeInput}
-          placeholder={inputError ?? 'ex: https://api.devnet.solana.com/'}
-          class={inputError ? 'input-error' : ''}
-          class:active={rpcNodeInput}
-          type="text"
-          on:keypress={(e) => {
-            if (e.code === 'Enter') {
-              checkRPC();
-            }
-          }}
-          on:click={() => {
-            inputError = null;
-          }}
-        />
-        <div class="submit-input-btn flex align-center justify-center"
-          on:click={() => checkRPC()}>
-          <i class="jet-icons"
-            title="Save">
-            ➜
-          </i>
-        </div>
-      </div>
+      <Input type="text"
+        value={rpcNodeInput} 
+        placeholder="ex: https://api.devnet.solana.com/"
+        submit={checkRPC}
+        error={inputError}
+      />
     </div>
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$PREFERRED_LANGUAGE].settings.wallet.toUpperCase()}
+        {dictionary[$USER.language].settings.wallet.toUpperCase()}
       </span>
-      {#if $WALLET && $ASSETS}
-        <div class="wallet flex align-center justify-center">
+      {#if $USER.wallet}
+        <div class="wallet flex-centered">
           <img width="28px" height="auto" 
             style="margin-right: var(--spacing-xs);"
-            src={`img/wallets/${$WALLET.name.replace(' ', '_').toLowerCase()}.png`} 
-            alt={`${$WALLET.name} Logo`}
+            src="img/wallets/{$USER.wallet.name.replace(' ', '_').toLowerCase()}.png"
+            alt="{$USER.wallet.name} Logo"
           />
           <p style="margin: 0 var(--spacing-lg) 0 var(--spacing-xs);">
-            {shortenPubkey($WALLET.publicKey.toString(), 4)}
+            {shortenPubkey($USER.wallet.publicKey.toString(), 4)}
           </p>
           <Button small secondary
-            text={dictionary[$PREFERRED_LANGUAGE].settings.disconnect} 
+            text={dictionary[$USER.language].settings.disconnect} 
             onClick={() => disconnectWallet()} 
           />
         </div>
       {:else}
         <Button small secondary
-          text={dictionary[$PREFERRED_LANGUAGE].settings.connect} 
-          onClick={() => CONNECT_WALLET.set(true)} 
+          text={dictionary[$USER.language].settings.connect} 
+          onClick={() => USER.update(user => {
+            user.connectingWallet = true;
+            return user;
+          })} 
         />
       {/if}
     </div>
@@ -126,30 +120,33 @@
     </div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$PREFERRED_LANGUAGE].settings.theme.toUpperCase()}
+        {dictionary[$USER.language].settings.theme.toUpperCase()}
       </span>
       <div class="theme-toggle-container flex align-center justify-start">
-        <Toggle onClick={() => setDark(!$DARK_THEME)}
-          text={$DARK_THEME ? dictionary[$PREFERRED_LANGUAGE].settings.dark : dictionary[$PREFERRED_LANGUAGE].settings.light}
+        <Toggle onClick={() => setDark(!$USER.darkTheme)}
+          text={$USER.darkTheme ? dictionary[$USER.language].settings.dark : dictionary[$USER.language].settings.light}
           icon="❂" 
-          active={$DARK_THEME} 
+          active={$USER.darkTheme} 
         />
       </div>
     </div>
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$PREFERRED_LANGUAGE].settings.language.toUpperCase()}
+        {dictionary[$USER.language].language.toUpperCase()}
       </span>
       <div class="dropdown-select">
         <Select items={Object.keys(dictionary).map(k => ({value: k, label: dictionary[k].language}))}
-          value={dictionary[$PREFERRED_LANGUAGE].language}
+          value={dictionary[$USER.language].language}
           on:select={e => {
             // Fix odd bug where it calls on:select twice
             Object.keys(dictionary).forEach(k => {
               if (k === e.detail.value) {
-                PREFERRED_LANGUAGE.set(e.detail.value);
                 localStorage.setItem('jetPreferredLanguage', e.detail.value);
+                USER.update(user => {
+                  user.language = e.detail.value;
+                  return user;
+                });
               }
             })
           }}
@@ -163,10 +160,6 @@
       <a href="https://twitter.com/jetprotocol" target="_blank"><i class="text-gradient fab fa-twitter"></i></a>
       <a href="https://discord.gg/RW2hsqwfej" target="_blank"><i class="text-gradient fab fa-discord"></i></a>
       <a href="https://github.com/jet-lab/jet-v1" target="_blank"><i class="text-gradient fab fa-github"></i></a>
-    </div>
-    <div class="socials flex column justify-start">
-      <a href="https://www.jetprotocol.io/terms-of-use" target="_blank"><span>Terms of Use</span></a>
-      <a href="https://www.jetprotocol.io/privacy-policy" target="_blank"><span>Privacy Policy</span></a>
     </div>
   </div>
 </div>
@@ -195,20 +188,6 @@
   .divider {
     margin: var(--spacing-md) 0;
   }
-  .submit-input-btn {
-    height: 39px;
-    margin-left: -2px;
-    background: var(--gradient);
-    border-left: none;
-    cursor: pointer;
-  }
-  .submit-input-btn:active {
-    opacity: 0.8;
-  }
-  .submit-input-btn:active i {
-    -webkit-background-clip: unset !important;
-    -webkit-text-fill-color: unset !important;
-  }
   .ping-indicator {
     width: 8px;
     height: 8px;
@@ -219,12 +198,6 @@
   .reset-rpc {
     margin: var(--spacing-xs) 0 0 var(--spacing-sm);
     cursor: pointer;
-  }
-  input {
-    width: 250px;
-    padding-left: var(--spacing-lg);
-    padding-right: var(--spacing-lg);
-    font-size: 13px;
   }
   span {
     font-weight: bold;
@@ -245,9 +218,6 @@
       padding: unset;
       margin: unset;
       box-shadow: unset;
-    }
-    input {
-      width: 180px;
     }
   }
 </style>

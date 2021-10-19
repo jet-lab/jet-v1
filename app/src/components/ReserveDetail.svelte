@@ -2,15 +2,15 @@
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { Reserve } from '../models/JetTypes';
-  import { CONNECT_WALLET, WALLET, COPILOT, CURRENT_RESERVE, PREFERRED_LANGUAGE, NATIVE} from '../store';
+  import { MARKET, USER } from '../store';
   import { currencyFormatter, } from '../scripts/util';
-  import { dictionary, definitions } from '../scripts/localization';
+  import { dictionary } from '../scripts/localization';
   import Button from './Button.svelte';
   import PercentageChart from './PercentageChart.svelte';
   import Toggle from './Toggle.svelte';
+  import Info from './Info.svelte';
 
   export let reserveDetail: Reserve;
-  export let updateValues: Function;
   export let closeModal: Function;
 
   onMount(() => {
@@ -23,17 +23,17 @@
 </script>
 
 {#if reserveDetail}
-  <div class="modal-bg flex align-center justify-center"
+  <div class="modal-bg flex-centered"
     transition:fade={{duration: 50}}
     on:click={() => closeModal()}>
   </div>
-  <div class="reserve-detail modal flex align-center justify-center column"
-    in:fly={{y: 50, duration: 500}}
+  <div class="reserve-detail modal flex-centered column"
+    in:fly={{y: 25, duration: 500}}
     out:fade={{duration: 50}}>
-    <div class="modal-section flex align-center justify-center column">
+    <div class="modal-section flex-centered column">
       <div class="flex align-center-justify-center">
-        <img src={`img/cryptos/${reserveDetail.abbrev}.png`} 
-          alt={`${reserveDetail.abbrev} Logo`}
+        <img src="img/cryptos/{reserveDetail.abbrev}.png" 
+          alt="{reserveDetail.abbrev} Logo"
         />
         <h1 class="modal-header">
           {reserveDetail.name.toUpperCase()}
@@ -47,22 +47,25 @@
       <div class="divider">
       </div>
       <div class="toggler">
-        <Toggle onClick={() => NATIVE.set(!$NATIVE)}
-          active={!$NATIVE} 
+        <Toggle onClick={() => MARKET.update(market => {
+          market.nativeValues = !market.nativeValues;
+          return market;
+        })}
+          active={!$MARKET.nativeValues} 
           native 
         />
       </div>
     </div>
-    <div class="modal-section flex align-center justify-center column">
-      <span class="flex align-center justify-center">
-        {dictionary[$PREFERRED_LANGUAGE].reserveDetail.reserveSize.toUpperCase()}
+    <div class="modal-section flex-centered column">
+      <span class="flex-centered">
+        {dictionary[$USER.language].reserveDetail.reserveSize.toUpperCase()}
       </span>
       <h2 class="modal-subheader text-gradient">
         {currencyFormatter(
-          $NATIVE
+          $MARKET.nativeValues
             ? reserveDetail.marketSize.uiAmountFloat
               : reserveDetail.marketSize.muln(reserveDetail.price).uiAmountFloat, 
-          !$NATIVE, 
+          !$MARKET.nativeValues, 
           2
         )}
       </h2>
@@ -71,8 +74,8 @@
     </div>
     <div class="modal-section flex align-center justify-evenly">
       <PercentageChart percentage={reserveDetail.utilizationRate * 100} 
-        text={dictionary[$PREFERRED_LANGUAGE].reserveDetail.utilisationRate.toUpperCase()} 
-        percentageDefinition={definitions[$PREFERRED_LANGUAGE].utilisationRate}
+        text={dictionary[$USER.language].reserveDetail.utilisationRate.toUpperCase()} 
+        term="utilisationRate"
       />
       <div class="flex align-start justify-center column">
         <div class="flex align-start justify-center" style="margin: var(--spacing-sm);">
@@ -80,17 +83,17 @@
             style="background: var(--failure); box-shadow: var(--neu-shadow-inset-failure);">
           </div>
           <span style="text-align: start;">
-            {dictionary[$PREFERRED_LANGUAGE].reserveDetail.totalBorrowed.toUpperCase()}
+            {dictionary[$USER.language].reserveDetail.totalBorrowed.toUpperCase()}
             <br>
             <p>
               {currencyFormatter(
-                $NATIVE
+                $MARKET.nativeValues
                   ? reserveDetail.outstandingDebt.uiAmountFloat
                     : reserveDetail.outstandingDebt.muln(reserveDetail.price).uiAmountFloat, 
-                !$NATIVE, 
+                !$MARKET.nativeValues, 
                 2
               )}
-              {#if $NATIVE}
+              {#if $MARKET.nativeValues}
                 {reserveDetail.abbrev}
               {/if}
             </p>
@@ -101,17 +104,17 @@
             style="background: var(--success); box-shadow: var(--neu-shadow-inset-success);">
           </div>
           <span style="text-align: start;">
-            {dictionary[$PREFERRED_LANGUAGE].reserveDetail.availableLiquidity.toUpperCase()}
+            {dictionary[$USER.language].reserveDetail.availableLiquidity.toUpperCase()}
             <br>
             <p>
               {currencyFormatter(
-                $NATIVE
+                $MARKET.nativeValues
                   ? reserveDetail.availableLiquidity.uiAmountFloat
                     : reserveDetail.availableLiquidity.muln(reserveDetail.price).uiAmountFloat, 
-                !$NATIVE, 
+                !$MARKET.nativeValues, 
                 2
               )}
-              {#if $NATIVE}
+              {#if $MARKET.nativeValues}
                 {reserveDetail.abbrev}
               {/if}
             </p>
@@ -121,28 +124,24 @@
     </div>
     <div class="divider">
     </div>
-    <div class="modal-section flex align-center justify-center">
-      <div class="modal-detail flex align-center justify-center column">
+    <div class="modal-section flex-centered">
+      <div class="modal-detail flex-centered column">
         <span>
-          {dictionary[$PREFERRED_LANGUAGE].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
-          <i class="info fas fa-info-circle"
-            on:click={() => COPILOT.set({
-              definition: definitions[$PREFERRED_LANGUAGE].collateralizationRatio
-            })}>
-          </i>
+          {dictionary[$USER.language].reserveDetail.minimumCollateralizationRatio.toUpperCase()}
+          <Info term="collateralizationRatio" 
+            style="margin: unset;" 
+          />
         </span>
         <p>
           {reserveDetail.maximumLTV / 100}%
         </p>
       </div>
-      <div class="modal-detail flex align-center justify-center column">
+      <div class="modal-detail flex-centered column">
         <span>
-          {dictionary[$PREFERRED_LANGUAGE].reserveDetail.liquidationPremium.toUpperCase()}
-          <i on:click={() => COPILOT.set({
-            definition: definitions[$PREFERRED_LANGUAGE].liquidationPremium
-          })} 
-            class="info fas fa-info-circle">
-          </i>
+          {dictionary[$USER.language].reserveDetail.liquidationPremium.toUpperCase()}
+          <Info term="liquidationPremium" 
+            style="margin: unset;" 
+          />
         </span>
         <p>
           {reserveDetail.liquidationPremium / 100}%
@@ -151,20 +150,19 @@
     </div>
     <div class="divider">
     </div>
-    <div class="modal-section flex align-center justify-center">
-      {#if $WALLET}
-        <Button text={dictionary[$PREFERRED_LANGUAGE].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
+    <div class="modal-section flex-centered">
+      {#if $USER.wallet}
+        <Button text={dictionary[$USER.language].reserveDetail.tradeAsset.replace('{{ASSET}}', reserveDetail.abbrev)} 
           onClick={() => {
             closeModal();
-            CURRENT_RESERVE.set(reserveDetail);
-            updateValues();
           }} 
         />
       {:else}
-        <Button text={dictionary[$PREFERRED_LANGUAGE].settings.connect} 
-          onClick={() => {
-            CONNECT_WALLET.set(true);
-          }} 
+        <Button text={dictionary[$USER.language].settings.connect} 
+          onClick={() => USER.update(user => {
+            user.connectingWallet = true;
+            return user;
+          })}
         />
       {/if}
     </div>
@@ -188,10 +186,6 @@
     width: 10px;
     height: 12px;
     margin: 2.5px var(--spacing-sm);
-  }
-  .info {
-    position: absolute;
-    top: -2px;
   }
   .native-toggle {
     position: relative;
@@ -226,9 +220,6 @@
     }
     .divider {
       margin: var(--spacing-lg) 0;
-    }
-    .info {
-      position: relative;
     }
     .asset-info-color {
       width: 6px;
