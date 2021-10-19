@@ -165,4 +165,28 @@
   .disabled .currency + .input-btn:active i {
     -webkit-text-fill-color: unset !important;
   }
+
+  @media screen and (max-width: 1100px) {
+    input {
+      width: 200px;
+      font-size: 15px;
+    }
+    .currency input {
+      width: 140px;
+      padding-left: 30px !important;
+      padding-right: 35px !important;
+    }
+    .currency .asset-abbrev-usd {
+      right: var(--spacing-sm);
+    }
+    .currency img {
+      left: var(--spacing-sm);
+    }
+    .currency span {
+      font-size: 10px !important;
+    }
+    .input-btn {
+      height: 37px;
+    }
+  }
 </style>

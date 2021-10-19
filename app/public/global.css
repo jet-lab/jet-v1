@@ -648,22 +648,6 @@ input[type=number] {
     height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
 	  margin-left: 0;
   }
-  .input input {
-    width: 150px;
-    padding-left: 30px;
-    padding-right: 35px;
-    font-size: 15px;
-  }
-  .input img {
-    width: 18px;
-    left: var(--spacing-sm);
-  }
-  .input span {
-    font-size: 10px !important;
-  }
-  .input-btn {
-    height: 37px;
-  }
   .view-container {
     width: clamp(250px, 90%, 1000px);
     padding-bottom: calc(var(--spacing-md) + var(--mobile-nav-height));
@@ -726,7 +710,7 @@ input[type=number] {
     display: none !important;
   }
   .datatable th, .datatable td.reserve-detail {
-    font-size: 10px !important;
+    font-size: 9px !important;
   }
   .datatable th:first-of-type {
     min-width: unset !important;

@@ -219,14 +219,16 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     await getAssetPubkeys();
     // Subscribe to all asset accounts for those pubkeys
     await subscribeToAssets(connection, coder, wallet.publicKey);
+    // Why are we doing this, weird bug
+    await getMarketAndIDL();
+    // Init wallet for UI display
+    USER.update(user => {
+      user.walletInit = true;
+      return user;
+    })
   });
   // Initiate wallet connection
   await wallet.connect();
-  // Init wallet for UI display
-  USER.update(user => {
-    user.walletInit = true;
-    return user;
-  })
 
   // User must accept disclaimer upon mainnet launch
   if (!inDevelopment) {
@@ -311,6 +313,10 @@ export const getAssetPubkeys = async (): Promise<void> => {
       collateralNoteExists: false,
       collateralNoteBalance: TokenAmount.zero(reserve.decimals),
       collateralBalance: TokenAmount.zero(reserve.decimals),
+      maxDepositAmount: 0,
+      maxWithdrawAmount: 0,
+      maxBorrowAmount: 0,
+      maxRepayAmount: 0
     };
 
     // Set user assets

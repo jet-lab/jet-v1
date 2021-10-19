@@ -232,6 +232,22 @@ export class TokenAmount {
     return new TokenAmount(this.amount.divn(b), this.decimals);
   }
 
+  public lt(b: TokenAmount) {
+    return this.amount.lt(b.amount);
+  }
+
+  public gt(b: TokenAmount) {
+    return this.amount.gt(b.amount);
+  }
+
+  public eq(b: TokenAmount) {
+    return this.amount.eq(b.amount);
+  }
+
+  public isZero() {
+    return this.amount.isZero();
+  }
+
   private do(b: TokenAmount, fn: (b: BN) => BN) {
     if (this.decimals !== b.decimals) {
       console.warn("Decimal mismatch");

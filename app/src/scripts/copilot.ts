@@ -84,7 +84,7 @@ export const generateCopilotSuggestion = (): void => {
         solution: dictionary[user.language].copilot.suggestions.unhealthy.solution,
       }
     });
-  } else if (bestReserveDepositRate?.depositRate && !user.assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance?.amount.isZero()) {
+  } else if (bestReserveDepositRate?.depositRate && !user.assets.tokens[bestReserveDepositRate.abbrev].walletTokenBalance?.isZero()) {
     MARKET.update(market => {
       market.currentReserve = bestReserveDepositRate;
       return market;

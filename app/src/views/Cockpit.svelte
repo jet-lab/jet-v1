@@ -90,11 +90,11 @@
         <h2 class="view-subheader">
           {dictionary[$USER.language].cockpit.totalValueLocked}
         </h2>
-        {#key $MARKET.totalValueLocked}
-          <h1 class="view-header text-gradient">
+        <h1 class="view-header text-gradient">
+          {#key $MARKET.totalValueLocked}
             {totalAbbrev($MARKET.totalValueLocked)}
-          </h1>
-        {/key}
+          {/key}
+        </h1>
       </div>
       <div class="trade-position-snapshot flex-centered">
         <div class="trade-position-ratio flex align-start justify-center column">
@@ -118,12 +118,12 @@
               {:else}
                 ∞
               {/if}
+              {#if $USER.obligation.borrowedValue}
+                <span style="color: inherit; padding-left: 2px;">
+                  %
+                </span>
+              {/if}
             </h1>
-            {#if $USER.obligation.borrowedValue}
-              <span style="color: inherit; padding-left: 2px;">
-                %
-              </span>
-            {/if}
           {:else}
             <p>
               --
@@ -135,16 +135,16 @@
             <h2 class="view-subheader">
               {dictionary[$USER.language].cockpit.totalDepositedValue}
             </h2>
-            <p class="{$USER.wallet ? 'text-gradient' : ''} bicyclette">
-              {$USER.wallet ? totalAbbrev($USER.obligation.depositedValue ?? 0) : '--'}
+            <p class="{$USER.walletInit ? 'text-gradient' : ''} bicyclette">
+              {$USER.walletInit ? totalAbbrev($USER.obligation.depositedValue ?? 0) : '--'}
             </p>
           </div>
           <div class="trade-position-value flex-centered column">
             <h2 class="view-subheader">
               {dictionary[$USER.language].cockpit.totalBorrowedValue}
             </h2>
-            <p class="{$USER.wallet ? 'text-gradient' : ''} bicyclette">
-              {$USER.wallet ? totalAbbrev($USER.obligation.borrowedValue ?? 0) : '--'}
+            <p class="{$USER.walletInit ? 'text-gradient' : ''} bicyclette">
+              {$USER.walletInit ? totalAbbrev($USER.obligation.borrowedValue ?? 0) : '--'}
             </p>
           </div>
         </div>
@@ -218,7 +218,7 @@
             </td>
             <td>
               {totalAbbrev(
-                $rows[i].availableLiquidity?.uiAmountFloat,
+                $rows[i].availableLiquidity.uiAmountFloat,
                 $rows[i].price,
                 $MARKET.nativeValues,
                 2
@@ -233,7 +233,8 @@
             <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
               class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
               {#if $USER.walletInit}
-                {#if $USER.walletBalances[$rows[i].abbrev] && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
+                {#if $USER.walletBalances[$rows[i].abbrev]
+                  && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(
@@ -251,7 +252,8 @@
               style={$USER.collateralBalances[$rows[i].abbrev] ? 
                 'color: var(--jet-green) !important;' : ''}>
               {#if $USER.walletInit}
-                {#if $USER.collateralBalances[$rows[i].abbrev] && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
+                {#if $USER.collateralBalances[$rows[i].abbrev]
+                  && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(
@@ -269,7 +271,8 @@
               style={$USER.loanBalances[$rows[i].abbrev] ? 
               'color: var(--jet-blue) !important;' : ''}>
               {#if $USER.walletInit}
-                {#if $USER.loanBalances[$rows[i].abbrev] && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
+                {#if $USER.loanBalances[$rows[i].abbrev]
+                  && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
                   {totalAbbrev(

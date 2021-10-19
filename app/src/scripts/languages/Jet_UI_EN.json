@@ -133,7 +133,7 @@
         "alert": {
             "failed": "Mayday!",
             "success": "Success!",
-            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}. Please refresh the app to see your new balance.",
+            "airdropSuccess": "We have Airdropped you {{UI AMOUNT}} {{RESERVE ABBREV}}.",
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!",

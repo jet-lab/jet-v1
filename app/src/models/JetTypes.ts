@@ -17,9 +17,12 @@ export interface SolWindow extends Window {
     isPhantom?: boolean,
     isMathWallet?: boolean,
     getAccount: () => Promise<string>,
-  }
+  },
   solong: {
     selectAccount: () => Promise<string>,
+  },
+  solflare: {
+    isSolflare?: boolean
   }
 };
 
@@ -262,7 +265,6 @@ export interface User {
   walletBalances: Record<string, number>,
   collateralBalances: Record<string, number>,
   loanBalances: Record<string, number>,
-  maxInput: () => number,
 
   // Transaction logs
   transactionLogs: TransactionLog[] | null,
@@ -353,6 +355,10 @@ export interface Asset {
   collateralNoteExists: boolean,
   collateralNoteBalance: TokenAmount,
   collateralBalance: TokenAmount,
+  maxDepositAmount: number,
+  maxWithdrawAmount: number,
+  maxBorrowAmount: number,
+  maxRepayAmount: number,
 };
 
 // Obligation

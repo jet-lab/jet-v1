@@ -8,7 +8,6 @@ import type { Market, Reserve, User, Copilot, CustomProgramError, IdlMetadata, N
 export const INIT_FAILED = writable<boolean> (false);
 
 // Market
-let market: Market;
 export const MARKET = writable<Market>({
   // Accounts
   accountPubkey: {} as PublicKey,
@@ -28,7 +27,6 @@ export const MARKET = writable<Market>({
   // Native vs USD UI values
   nativeValues: true,
 });
-MARKET.subscribe(data => market = data);
 
 // User
 let user: User;
@@ -55,58 +53,6 @@ export const USER = writable<User>({
   collateralBalances: {},
   loanBalances: {},
 
-  // Get the maximum value a user can input of current asset
-  maxInput: () => {
-    let currentReserve = market.currentReserve.abbrev;
-    let max = 0;
-    if (market.currentReserve && user.assets) {
-      // Depositing
-      if (user.tradeAction === 'deposit') {
-        max = user.walletBalances[currentReserve];
-      // Withdrawing
-      } else if (user.tradeAction === 'withdraw') {
-        let collateralBalance = 0;
-        let maxWithdraw = 0;
-        if (market.currentReserve && user.assets) {
-          collateralBalance = user.assets.tokens[market.currentReserve.abbrev]?.collateralBalance.uiAmountFloat;
-          maxWithdraw = user.obligation.borrowedValue
-            ? (user.obligation.depositedValue - (market.minColRatio * user.obligation.borrowedValue)) / market.reserves[market.currentReserve.abbrev].price
-              : collateralBalance;
-          if (maxWithdraw > collateralBalance) {
-            maxWithdraw = collateralBalance;
-          }
-        }
-        max = maxWithdraw;
-      // Borrowing
-      } else if (user.tradeAction === 'borrow') {
-        let maxBorrow = 0;
-        if (market.currentReserve && user.assets) {
-          const availableLiquidity = market.reserves[market.currentReserve.abbrev].availableLiquidity?.uiAmountFloat;
-          maxBorrow = ((user.obligation.depositedValue / market.minColRatio) - user.obligation.borrowedValue) / market.reserves[market.currentReserve.abbrev].price;
-          if (maxBorrow > availableLiquidity) {
-            maxBorrow = availableLiquidity;
-          }
-        }
-        // Check if available liquidity of a reserve is
-        // less than the most a user can borrow
-        const availableLiquidity = market.currentReserve.availableLiquidity.uiAmountFloat;
-        if (availableLiquidity < maxBorrow) {
-          max = availableLiquidity;
-        } else {
-          max = maxBorrow;
-        }
-      } else if (user.tradeAction === 'repay') {
-        // Check if wallet balance is less than the user owes
-        if (user.walletBalances[currentReserve] < user.loanBalances[currentReserve]) {
-          max = user.walletBalances[currentReserve]
-        } else {
-          max = user.loanBalances[currentReserve];
-        }
-      }
-    }
-    return max;
-  },
-
   // Transaction Logs
   transactionLogs: [],
 
@@ -126,7 +72,7 @@ export const USER = writable<User>({
       if (user.notifications[index] && user.notifications[index].text === n.text) {
         user.clearNotification(index);
       }
-    }, 4000);
+    }, 5000);
   },
   // Clear notification
   clearNotification: (i: number) => {

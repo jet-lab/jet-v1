@@ -126,9 +126,29 @@
     }
   };
 
+  // Get max input for current trade action and reserve
+  const maxInput = () => {
+    let maxInput = 0;
+
+    // Depositing
+    if ($USER.assets) {
+      if ($USER.tradeAction === 'deposit') {
+        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxDepositAmount;
+      } else if ($USER.tradeAction === 'withdraw') {
+        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxWithdrawAmount;
+      } else if ($USER.tradeAction === 'borrow') {
+        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxBorrowAmount;
+      } else if ($USER.tradeAction === 'repay') {
+        $USER.assets.tokens[$MARKET.currentReserve.abbrev].maxRepayAmount;
+      }
+    }
+
+    return maxInput;
+  };
+
   // Update input and adjusted ratio on slider change
   const sliderHandler = (e: any) => {
-    inputAmount = $USER.maxInput() * (e.detail.value / 100);
+    inputAmount = maxInput() * (e.detail.value / 100);
     adjustCollateralizationRatio();
   };
 
@@ -157,7 +177,7 @@
     // Withdrawing
     } else if (tradeAction === 'withdraw') {
       // User is withdrawing more than liquidity in market
-      if (tradeAmount.amount.gt($MARKET.currentReserve.availableLiquidity.amount)) {
+      if (tradeAmount.gt($MARKET.currentReserve.availableLiquidity)) {
         inputError = dictionary[$USER.language].cockpit.noLiquidity;
       // User is withdrawing more than they've deposited
       } else if (tradeAmount.uiAmountFloat > $USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
@@ -176,7 +196,7 @@
     // Borrowing
     } else if (tradeAction === 'borrow') {
       // User is borrowing more than liquidity in market
-      if (tradeAmount.amount.gt($MARKET.currentReserve.availableLiquidity.amount)) {
+      if (tradeAmount.gt($MARKET.currentReserve.availableLiquidity)) {
         inputError = dictionary[$USER.language].cockpit.noLiquidity;
       // User is below the minimum c-ratio
       } else if ($USER.obligation && $USER.obligation.colRatio <= $MARKET.minColRatio) {
@@ -267,7 +287,7 @@
         <div class="flex-centered">
           {#if $USER.walletInit}
             <p>
-              {currencyFormatter($USER.maxInput(), false, $MARKET.currentReserve.decimals)} 
+              {currencyFormatter(maxInput(), false, $MARKET.currentReserve.decimals)} 
               {$MARKET.currentReserve.abbrev}
             </p>
           {:else}
@@ -305,7 +325,7 @@
     <div class="trade-section flex-centered column">
       <Input type="number" currency
         bind:value={inputAmount}
-        maxInput={$USER.maxInput()}
+        maxInput={maxInput()}
         disabled={disabledInput}
         error={inputError}
         loading={sendingTrade}
