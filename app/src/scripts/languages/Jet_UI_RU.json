@@ -137,7 +137,7 @@
             "refresh": "Обновить",
             "originationFee": "Этот займ выдается с комиссией {{ORIGINATION FEE}}%",
             "headsup": "Внимание!",
-            "disclaimer": "Вы подключились к Jet Protocol mainnet. Не продолжайте, если Вы не ознакомились или не приняли условия пользования, или не готовы к потенциальным финансовым убыткам.",
+            "disclaimer": "Вы подключились к Jet Protocol mainnet. Не продолжайте, если Вы не ознакомились или не приняли условия пользования, или не готовы к потенциальным финансовым убыткам.  <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
             "accept": "Принять",
             "warning": "Внимание"
         }
