@@ -648,12 +648,13 @@ input[type=number] {
 @media screen and (max-width: 1100px) {
   body {
     width: 100%;
-    height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
+    min-height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
+    margin-bottom: calc(var(--mobile-nav-height) + var(--spacing-sm));
 	  margin-left: 0;
   }
   .view-container {
     width: clamp(250px, 90%, 1000px);
-    padding-bottom: calc(var(--spacing-md) + var(--mobile-nav-height));
+    padding-bottom: var(--spacing-sm);
   }
   .view-section {
     margin: var(--spacing-sm);

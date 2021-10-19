@@ -170,6 +170,9 @@
       width: 200px;
       font-size: 15px;
     }
+    .input-btn {
+      height: 41px;
+    }
     .currency input {
       width: 140px;
       padding-left: 30px !important;
@@ -185,8 +188,8 @@
     .currency span {
       font-size: 8px !important;
     }
-    .input-btn {
-      height: 37px;
+    .currency + .input-btn {
+      height: 43px;
     }
   }
 </style>

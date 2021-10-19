@@ -26,6 +26,6 @@
     opacity: 1;
   }
   span {
-    font-size: 12px;
+    font-size: 10px;
   }
 </style>

@@ -36,7 +36,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
               reserve.depositNoteExchangeRate = reserveStruct.depositNoteExchangeRate;
               reserve.loanNoteExchangeRate = reserveStruct.loanNoteExchangeRate;
 
-              deriveValues(reserve, user.assets ? user.assets.tokens[reserve.abbrev] : undefined);
+              deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
               break;
             }
           }
@@ -74,7 +74,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           reserve.accruedUntil = decoded.state.accruedUntil;
           reserve.config = decoded.config;
 
-          deriveValues(reserve);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         })
       }
@@ -88,7 +88,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.depositNoteMint = amount;
 
-          deriveValues(reserve);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         });
       }
@@ -102,7 +102,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.loanNoteMint = amount;
 
-          deriveValues(reserve);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         });
       }
@@ -116,7 +116,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.availableLiquidity = amount;
 
-          deriveValues(reserve, user.assets ? user.assets.tokens[reserve.abbrev] : undefined);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         });
       }
@@ -130,7 +130,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.tokenMint = amount;
 
-          deriveValues(reserve, user.assets ? user.assets.tokens[reserve.abbrev] : undefined);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         });
       }
@@ -144,7 +144,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
           let reserve = market.reserves[reserveMeta.abbrev];
           reserve.price = parsePriceData(account.data).price;
 
-          deriveValues(reserve, user.assets ? user.assets.tokens[reserve.abbrev] : undefined);
+          deriveValues(reserve, user.assets?.tokens[reserve.abbrev]);
           return market;
         });
       }
