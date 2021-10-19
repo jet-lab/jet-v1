@@ -323,10 +323,6 @@ export const getMoreJetTxnsDetails = async (maxTxnsToGet: number = 8, loadingOn 
     //keep track of itereated sigs and prevent infinite loop if no JET txn
     sigsIndex += 1;
   }
-  // Check if user has submitted new trades before all were loaded    
-  //probably won't need this because it loads really fast or user can just refresh it. 
-  // const newerLogs = transactionLogs ?? [];
-  // newerLogs.forEach(l => txLogs.unshift(l));
 
   //update and keep track of our current signature index and txn log count
   CountOfSigsAndHistoricTxns.update((data) => {
