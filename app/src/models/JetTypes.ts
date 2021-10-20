@@ -267,7 +267,8 @@ export interface User {
   position: Obligation,
 
   // Transaction logs
-  transactionLogs: TransactionLog[] | null,
+  transactionLogs: TransactionLog[],
+  transactionLogsInit: boolean,
   
   // Notifications
   notifications: Notification[],

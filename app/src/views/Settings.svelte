@@ -4,7 +4,7 @@
 <script lang="ts">
   import Select from 'svelte-select';
   import { USER } from '../store';
-  import { getMarketAndIDL, getTransactionLogs, disconnectWallet } from '../scripts/jet';
+  import { getMarketAndIDL, disconnectWallet, initTransactionLogs } from '../scripts/jet';
   import { setDark, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
@@ -22,7 +22,7 @@
       return user;
     });
     getMarketAndIDL();
-    getTransactionLogs();
+    initTransactionLogs();
   };
   
   // Check RPC input and set localStorage, restart app
@@ -38,7 +38,7 @@
       return user;
     });
     getMarketAndIDL();
-    getTransactionLogs();
+    initTransactionLogs();
     inputError = null;
     rpcNodeInput = null;
   };

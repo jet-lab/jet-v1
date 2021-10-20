@@ -205,6 +205,9 @@
   }
 
   @media screen and (max-width: 1100px) {
+    .modal-bg {
+      opacity: 1 !important;
+    }
     .modal, .reserve-detail {
       max-width: unset;
       height: calc((var(--vh, 1vh) * 95) - var(--mobile-nav-height));
