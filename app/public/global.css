@@ -50,6 +50,7 @@
   --spacing-sm: 8px;
   --spacing-md: 12px;
   --spacing-lg: 18px;
+  --spacing-xl: 24px;
 
   --border-radius: 20px;
   --round-radius: 50px;
@@ -58,6 +59,7 @@
   --secondary-btn-padding: 7px 10px 5px 10px;
 
   /* Slider variables */
+  --range-slider-bg: rgba(255, 255, 255, 0.25);
   --range-slider: var(--white);
   --range-handle-inactive: var(--white);
   --range-handle: var(--white);
@@ -69,6 +71,7 @@
   display: none !important;
 }
 body {
+  position: relative;
 	margin: 0;
   font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 	background: var(--white);
@@ -76,6 +79,8 @@ body {
 	overflow-x: hidden;
   letter-spacing: 0.25px;
   width: calc(100% - var(--nav-width));
+  min-height: calc(100vh - 30px);
+  padding-bottom: 30px;
   margin-left: var(--nav-width);
 }
 
@@ -106,15 +111,6 @@ span {
   text-align: center;
   max-width: 400px;
 }
-.info {
-  color: var(--black);
-  opacity: var(--disabled-opacity);
-  font-size: 9px !important;
-  cursor: pointer;
-}
-.info:hover {
-  opacity: 1;
-}
 *:focus-visible {
   outline: unset;
 }
@@ -126,7 +122,7 @@ span {
 }
 .disabled {
   cursor: not-allowed !important;
-  opacity: var(--disabled-opacity);
+  opacity: var(--disabled-opacity) !important;
 }
 .bicyclette {
   font-family: 'Bicyclette', 'Roboto', sans-serif;
@@ -142,6 +138,11 @@ span {
 /* Flexbox */
 .flex {
 	display: flex;
+}
+.flex-centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .align-center {
 	align-items: center;
@@ -179,14 +180,15 @@ span {
 
 /* Inputs */
 input {
+  width: 250px;
   padding: var(--spacing-md) var(--spacing-lg);
   margin: var(--spacing-xs) 0;
-  box-shadow: var(--neu-shadow-inset);
-  background: var(--grey);
+  box-shadow: var(--neu-shadow-inset-low);
+  background: var(--white);
   color: var(--input-color);
-  border-radius: 50px;
-  font-size: 20px;
+  font-size: 13px;
   border: none;
+  border-radius: 50px;
 }
 input::placeholder {
   opacity: var(--disabled-opacity);
@@ -201,82 +203,6 @@ input::-webkit-inner-spin-button {
 }
 input[type=number] {
   -moz-appearance: textfield;
-}
-.submit-input {
-  position: relative;
-}
-.submit-input input {
-  width: 250px;
-  border-top-right-radius: 0px;
-  border-bottom-right-radius: 0px;
-  padding-left: 50px;
-  padding-right: 80px;
-}
-.submit-input.disabled input{
-  cursor: not-allowed !important;
-}
-.submit-input img {
-  width: 25px;
-  height: auto;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: var(--spacing-md);
-  opacity: var(--disabled-opacity);
-}
-.submit-input .asset-abbrev-usd {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  right: var(--spacing-md);
-  padding: unset;
-}
-.submit-input span {
-  font-weight: 400 !important;
-  font-size: 15px !important;
-  color: var(--black) !important;
-}
-.submit-input .asset-abbrev-usd span:last-of-type {
-  font-size: 10px !important;
-}
-.submit-input input:focus + img, .submit-input.active img {
-  opacity: 1;
-}
-.submit-input.active input {
-  box-shadow: var(--neu-shadow-inset-low);
-}
-.input-error {
-  border-color: var(--failure);
-}
-.input-error::placeholder {
-  color: var(--failure);
-}
-.submit-input-btn {
-  height: 43px;
-  border: 2px solid var(--white);
-  border-left: none;
-  border-top-right-radius: 50px;
-  border-bottom-right-radius: 50px;
-  padding: 0 var(--spacing-md);
-  cursor: pointer;
-}
-.submit-input-btn:active, .submit-input-btn.active {
-  background: var(--white);
-}
-.submit-input-btn.disabled:active {
-  background: unset;
-}
-.submit-input-btn i {
-  color: var(--white);
-}
-.submit-input-btn:active i, .submit-input-btn.active i {
-  background-image: var(--gradient) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-}
-.submit-input-btn.disabled:active i {
-  color: var(--white);
-  -webkit-text-fill-color: unset !important;
 }
 
 /* Views */
@@ -429,15 +355,49 @@ input[type=number] {
 
 /* Slider component overrides */
 .rangeSlider {
-  width: 375px;
+  position: relative !important;
+  width: 400px !important;
+  height: 5px !important;
+  margin-top: var(--spacing-sm) !important;
+  margin-bottom: 35px !important;
+  background: var(--range-slider-bg) !important;
+  transition: unset !important;
+}
+.rangeBar {
+  height: 5px !important;
+  background: var(--white) !important;
 }
 .rangeFloat-suffix {
-  opacity: 1;
+  opacity: 1 !important;
 }
-.rangeSlider .rangeHandle, .rangeSlider .rangeNub, .rangeSlider .rangeHandle:before {
-  opacity: 1;
+.rangeSlider .rangeHandle {
+  width: 12px !important;
+  height: 12px !important;
+}
+.rangeSlider .rangeHandle, .rangeSlider .rangeNub {
+  opacity: 1 !important;
   transition: unset !important;
-  cursor: pointer;
+  cursor: pointer !important;
+}
+.rangeHandle:before {
+  display: none !important;
+}
+.rangeSlider .pip {
+  top: 0px !important;
+  width: 0px !important;
+}
+.rangeSlider .pipVal, .rangeSlider .pipVal-suffix {
+  opacity: 1 !important;
+  color: var(--white) !important;
+  font-size: 10px !important;
+  font-weight: unset !important;
+}
+.rangeSlider .pipVal {
+  top: 2px !important;
+}
+.rangeSlider.disabled, .rangeSlider.disabled .rangeNub {
+  opacity: var(--disabled-opacity) !important;
+  cursor: not-allowed !important;
 }
 
 /* Datatable component overrides */
@@ -553,7 +513,7 @@ input[type=number] {
 }
 .dt-table .dt-asset span:last-of-type {
   opacity: var(--disabled-opacity) !important;
-  font-size: 11px !important;
+  font-size: 10px !important;
   top: 34px !important;
 }
 .datatable-spacer td {
@@ -576,7 +536,12 @@ input[type=number] {
   opacity: 1 !important;
 }
 .dt-table .info {
+  opacity: var(--disabled-opacity) !important;
+  cursor: pointer !important;
   margin-left: 0px !important;
+}
+.dt-table .info:hover {
+  opacity: 1 !important;
 }
 .dt-table .dt-balance {
   opacity: 1 !important;
@@ -683,31 +648,13 @@ input[type=number] {
 @media screen and (max-width: 1100px) {
   body {
     width: 100%;
-    height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
+    min-height: calc((var(--vh, 1vh) * 100) - var(--mobile-nav-height));
+    margin-bottom: calc(var(--mobile-nav-height) + var(--spacing-sm));
 	  margin-left: 0;
-  }
-  .submit-input-container {
-    padding: var(--spacing-xs) 0;
-  }
-  .submit-input input {
-    width: 150px;
-    padding-left: 30px;
-    padding-right: 35px;
-    font-size: 15px;
-  }
-  .submit-input img {
-    width: 18px;
-    left: var(--spacing-sm);
-  }
-  .submit-input span {
-    font-size: 10px !important;
-  }
-  .submit-input-btn {
-    height: 37px;
   }
   .view-container {
     width: clamp(250px, 90%, 1000px);
-    padding-bottom: calc(var(--spacing-md) + var(--mobile-nav-height));
+    padding-bottom: var(--spacing-sm);
   }
   .view-section {
     margin: var(--spacing-sm);
@@ -755,7 +702,10 @@ input[type=number] {
     margin: var(--spacing-sm) 0;
   }
   .rangeSlider {
-    width: 225px;
+    width: 225px !important;
+  }
+  .rangeHandle {
+    top: 3px !important;
   }
   .dt-table {
     padding: unset !important;
@@ -764,7 +714,7 @@ input[type=number] {
     display: none !important;
   }
   .datatable th, .datatable td.reserve-detail {
-    font-size: 10px !important;
+    font-size: 9px !important;
   }
   .datatable th:first-of-type {
     min-width: unset !important;

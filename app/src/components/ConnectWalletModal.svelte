@@ -1,10 +1,10 @@
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import type { WalletProvider } from '../models/JetTypes';
-  import { CONNECT_WALLET, ASSETS, PREFERRED_LANGUAGE } from '../store';
+  import { USER } from '../store';
   import { getWalletAndAnchor } from '../scripts/jet';
   import { dictionary } from '../scripts/localization';
-  import Logo from '../components/Logo.svelte';
+  import Logo from './Logo.svelte';
 
   let walletChoice: string;
   const providers: WalletProvider[] = [
@@ -19,6 +19,11 @@
       url: "https://www.sollet.io/"
     },
     {
+      name: "Solflare",
+      logo: "img/wallets/solflare.png",
+      url: "https://solflare.com/"
+    },
+    {
       name: "Solong",
       logo: "img/wallets/solong.png",
       url: "https://solongwallet.com/"
@@ -27,34 +32,37 @@
       name: "Math Wallet",
       logo: "img/wallets/math_wallet.png",
       url: "https://mathwallet.org/en-us/"
-    }
+    },
   ];
 </script>
 
-{#if $CONNECT_WALLET && !$ASSETS}
+{#if $USER.connectingWallet && !$USER.wallet}
   <div class="modal-bg"
     transition:fade={{duration: 50}}
-    on:click={() => CONNECT_WALLET.set(false)}>
+    on:click={() => USER.update(user => {
+      user.connectingWallet = false;
+      return user;
+    })}>
   </div>
-  <div class="modal flex align-center justify-center column"
-    in:fly={{y: 50, duration: 500}}
+  <div class="modal flex-centered column"
+    in:fly={{y: 25, duration: 500}}
     out:fade={{duration: 50}}>
     <Logo width={120} />
     <span>
-      {dictionary[$PREFERRED_LANGUAGE].settings.worldOfDefi}
+      {dictionary[$USER.language].settings.worldOfDefi}
     </span>
     <div class="divider">
     </div>
-    <div class="wallets flex align-center justify-center column">
+    <div class="wallets flex-centered column">
       {#each providers as p}
-        <div class={`${p.name.toLowerCase()} wallet flex align-center justify-between`}
+        <div class="{p.name.toLowerCase()} wallet flex align-center justify-between"
           class:active={walletChoice === p.name} 
           on:click={() => {
             walletChoice = p.name;
             getWalletAndAnchor(p);
           }}>
-          <div class="flex align-center justify-center">
-            <img src={p.logo} alt={`${p.name} Logo`} />
+          <div class="flex-centered">
+            <img src={p.logo} alt="{p.name} Logo" />
             <p>
               {p.name}
             </p>
@@ -66,7 +74,10 @@
       {/each} 
     </div>
     <i class="jet-icons close"
-      on:click={() => CONNECT_WALLET.set(false)}>
+      on:click={() => USER.update(user => {
+        user.connectingWallet = false;
+        return user;
+      })}>
       ✕
     </i>
   </div>

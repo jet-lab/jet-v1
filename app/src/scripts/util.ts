@@ -1,24 +1,13 @@
 import { BN } from '@project-serum/anchor';
 import type { AccountInfo as TokenAccountInfo, MintInfo, u64 } from '@solana/spl-token';
-import type { Market, AssetStore, Obligation, Notification } from '../models/JetTypes';
-import { MARKET, ASSETS, DARK_THEME, WALLET, WALLET_INIT, NOTIFICATIONS, TRANSACTION_LOGS, CONNECT_WALLET } from '../store';
+import { USER } from '../store';
 
-let wallet: any;
-let market: Market | null;
-let assets: AssetStore | null;
-let notifications: Notification[];
-WALLET.subscribe(data => wallet = data);
-MARKET.subscribe(data => market = data);
-ASSETS.subscribe(data => assets = data);
-NOTIFICATIONS.subscribe(data => notifications = data);
-
-const NOTIFICATION_TIMEOUT = 4000;
-
-// If user's browser has dark theme preference, set app to dark theme right on init
-export const initDarkTheme = () => {
-  let darkTheme: boolean = localStorage.getItem('jetDark') === 'true';
+// Check for localStorage dark theme preference
+// and set if necessary
+export const checkDarkTheme = async () => {
+  const darkTheme = localStorage.getItem('jetDark') === 'true';
   if (darkTheme) {
-    setDark(true);
+    setDark(darkTheme);
   }
 };
 
@@ -35,6 +24,7 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 0.8)');
     document.documentElement.style.setProperty('--input-color', 'rgba(255, 255, 255, 0.8)');
+    document.documentElement.style.setProperty('--range-slider-bg', 'rgba(0, 0, 0, 0.25)');
   } else {
     document.documentElement.style.setProperty('--jet-green', '#3d9e83');
     document.documentElement.style.setProperty('--jet-blue', '#278db6');
@@ -46,25 +36,14 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 0.8)');
     document.documentElement.style.setProperty('--dark-shadow', 'rgba(175, 186, 214, 0.8)');
     document.documentElement.style.setProperty('--input-color', 'rgba(26, 73, 94, 0.8)');
+    document.documentElement.style.setProperty('--range-slider-bg', 'rgba(255, 255, 255, 0.25)');
   }
 
   localStorage.setItem('jetDark', JSON.stringify(darkTheme));
-  DARK_THEME.set(darkTheme);
-};
-
-// Disconnect user wallet
-export const disconnectWallet = () => {
-  if (wallet.disconnect) {
-    wallet.disconnect();
-  }
-  if (wallet.forgetAccounts) {
-    wallet.forgetAccounts();
-  }
-
-  WALLET.set(null);
-  ASSETS.set(null);
-  WALLET_INIT.set(false);
-  TRANSACTION_LOGS.set([]);
+  USER.update(user => {
+    user.darkTheme = darkTheme;
+    return user;
+  });
 };
 
 // Format USD or crypto with default or desired decimals
@@ -114,62 +93,6 @@ export const timeout = (ms: number): Promise<boolean> => {
   return new Promise((res) => {
     setTimeout(() => res(true), ms);
   });
-};
-
-// Notification store
-export const addNotification = (notification: Notification) => {
-  const notifs = notifications;
-  notifs.push(notification);
-  const index = notifs.indexOf(notification);
-  NOTIFICATIONS.set(notifs);
-  setTimeout(() => {
-    if (notifications[index] && notifications[index].text === notification.text) {
-      clearNotification(index);
-    }
-  }, NOTIFICATION_TIMEOUT);
-};
-export const clearNotification = (index: number): void => {
-  const notifs = notifications;
-  notifs.splice(index, 1);
-  NOTIFICATIONS.set(notifs);
-};
-
-// Calculate total value of deposits and borrowings, as well as c-ratio
-export const getObligationData = (): Obligation => {
-  let depositedValue: number = 0;
-  let borrowedValue: number = 0;
-  let colRatio = 0;
-  let utilizationRate = 0;
-
-  if (!assets || !market) {
-    return {
-      depositedValue,
-      borrowedValue,
-      colRatio,
-      utilizationRate
-    }
-  }
-
-  for (let t in assets.tokens) {
-    depositedValue += new TokenAmount(
-      assets.tokens[t].collateralBalance.amount,
-      market.reserves[t].decimals
-    ).uiAmountFloat * market.reserves[t].price;
-    borrowedValue += new TokenAmount(
-      assets.tokens[t].loanBalance.amount,
-      market.reserves[t].decimals
-    ).uiAmountFloat * market.reserves[t].price;
-
-    colRatio = borrowedValue ? depositedValue / borrowedValue : 0;
-    utilizationRate = depositedValue ? borrowedValue / depositedValue : 0;
-  }
-
-  return {
-    depositedValue,
-    borrowedValue,
-    colRatio,
-    utilizationRate
-  }
 };
 
 // Token Amounts
@@ -307,6 +230,22 @@ export class TokenAmount {
 
   public divn(b: number) {
     return new TokenAmount(this.amount.divn(b), this.decimals);
+  }
+
+  public lt(b: TokenAmount) {
+    return this.amount.lt(b.amount);
+  }
+
+  public gt(b: TokenAmount) {
+    return this.amount.gt(b.amount);
+  }
+
+  public eq(b: TokenAmount) {
+    return this.amount.eq(b.amount);
+  }
+
+  public isZero() {
+    return this.amount.isZero();
   }
 
   private do(b: TokenAmount, fn: (b: BN) => BN) {

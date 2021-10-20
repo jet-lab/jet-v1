@@ -4,7 +4,7 @@
   export let fullscreen: boolean = false;
 </script>
 
-<div class="loader flex align-center justify-center column"
+<div class="loader flex-centered column"
   class:button
   class:fullview
   class:fullscreen>
@@ -17,18 +17,17 @@
 
 <style>
   .loader {
-    left: var(--nav-width) !important;
+    left: 0 !important;
     top: 0 !important;
   }
   .fullview {
     position: absolute !important;
-    width: calc(100vw - var(--nav-width)) !important;
-    height: 100vh !important;
+    width: 100% !important;
+    height: 100% !important;
   }
   .fullscreen {
     position: absolute !important;
-    left: 0 !important;
-    width: 100vw !important;
+    width: calc(100% - var(--nav-width)) !important;
     height: 100vh !important;
   }
   .outer-circle {
@@ -86,11 +85,8 @@
 
   @media screen and (max-width: 1100px) {
     .fullscreen {
-      height: calc((var(--vh, 1vh) * 100)) !important;
-    }
-    .fullview {
       width: 100% !important;
-      left: 0 !important;
+      height: calc((var(--vh, 1vh) * 100)) !important;
     }
   }
 </style>
