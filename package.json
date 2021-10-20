@@ -39,6 +39,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/chai-as-promised": "^7.1.4",
+    "@types/lodash": "^4.14.175",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "tsconfig-paths": "^3.11.0",
