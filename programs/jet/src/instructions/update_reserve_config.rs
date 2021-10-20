@@ -3,12 +3,19 @@ use crate::state::*;
 
 #[derive(Accounts)]
 pub struct UpdateReserveConfig<'info> {
-    #[account(mut)]
+
+    #[account(has_one = owner)]
+    pub market: Loader<'info, Market>,
+
+    #[account(mut, has_one = market)]
     pub reserve: Loader<'info, Reserve>,
+
+    #[account(signer)]
+    pub owner: AccountInfo<'info>,
 }
 
 pub fn handler(ctx: Context<UpdateReserveConfig>, new_config: ReserveConfig) -> ProgramResult {
     let mut reserve = ctx.accounts.reserve.load_mut()?;
-    reserve.update_config(new_config);
+    reserve.config = new_config;
     Ok(())
 }
