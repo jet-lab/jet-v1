@@ -60,8 +60,9 @@ mod jet {
     /// Replace an existing reserve config
     pub fn update_reserve_config(
         ctx: Context<UpdateReserveConfig>,
-        new_config: ReserveConfig) -> ProgramResult {
-            instructions::update_reserve_config::handler(ctx, new_config)
+        new_config: ReserveConfig,
+    ) -> ProgramResult {
+        instructions::update_reserve_config::handler(ctx, new_config)
     }
 
     /// Initialize an account that can be used to store deposit notes

@@ -1,9 +1,8 @@
-use anchor_lang::prelude::*;
 use crate::state::*;
+use anchor_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct UpdateReserveConfig<'info> {
-
     #[account(has_one = owner)]
     pub market: Loader<'info, Market>,
 

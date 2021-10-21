@@ -939,7 +939,7 @@ mod tests {
         };
 
         assert_eq!(reserve.config.utilization_rate_1, 0);
-        
+
         reserve.update_config(new_config);
 
         assert_eq!(reserve.config.utilization_rate_1, 5000);

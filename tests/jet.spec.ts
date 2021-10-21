@@ -15,7 +15,10 @@ import {
 import { TestToken, TestUtils, toBN } from "./utils";
 import { BN } from "@project-serum/anchor";
 import { NodeWallet } from "@project-serum/anchor/dist/provider";
-import { CreateReserveParams, UpdateReserveConfigParams } from "libraries/ts/src/reserve";
+import {
+  CreateReserveParams,
+  UpdateReserveConfigParams,
+} from "libraries/ts/src/reserve";
 import * as serum from "@project-serum/serum";
 import { SerumUtils } from "./utils/serum";
 import { assert, expect, use as chaiUse } from "chai";
@@ -782,7 +785,6 @@ describe("jet", async () => {
 
     await wsol.reserve.updateReserveConfig(updateReserveConfigParams);
 
-    
     const fetchConfig = async () => {
       const config = (await loadReserve(wsol.reserve.address)).config;
 
@@ -804,8 +806,11 @@ describe("jet", async () => {
     };
     const fetchedConfig = await fetchConfig();
 
-    assert(isEqual(fetchedConfig, newConfig), "reserve config failed to update");
-  })
+    assert(
+      isEqual(fetchedConfig, newConfig),
+      "reserve config failed to update"
+    );
+  });
 
   it("user A fails to change wsol reserve config", async () => {
     const user = userA;
@@ -827,22 +832,20 @@ describe("jet", async () => {
 
     const tx = new anchor.web3.Transaction();
     tx.add(
-      program.instruction.updateReserveConfig(
-        newConfig,
-        {
-          accounts: {
-            market: jetMarket.address,
-            reserve: wsol.reserve.address,
-            owner: user.wallet.publicKey,
-          }}
-      )
+      program.instruction.updateReserveConfig(newConfig, {
+        accounts: {
+          market: jetMarket.address,
+          reserve: wsol.reserve.address,
+          owner: user.wallet.publicKey,
+        },
+      })
     );
-    
+
     let result = await client.program.provider.simulate(tx, [user.wallet]);
     assert.notStrictEqual(
       result.value.err,
       null,
       "expected instruction to fail"
     );
-  }) 
+  });
 });
