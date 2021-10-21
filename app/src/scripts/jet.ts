@@ -5,13 +5,14 @@ import { ASSOCIATED_TOKEN_PROGRAM_ID, NATIVE_MINT } from "@solana/spl-token";
 import { AccountLayout as TokenAccountLayout, Token, TOKEN_PROGRAM_ID, u64 } from "@solana/spl-token";
 import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
-import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
+import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, SlopeWallet, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
 import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
 import { subscribeToMarket, subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
 import { Buffer } from 'buffer';
+import bs58 from 'bs58';
 
 const SECONDS_PER_HOUR: BN = new BN(3600);
 const SECONDS_PER_DAY: BN = SECONDS_PER_HOUR.muln(24);
@@ -169,18 +170,29 @@ export const getMarketAndIDL = async (): Promise<void> => {
 export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void> => {
   // Cast solana injected window type
   const solWindow = window as unknown as SolWindow;
-  let wallet: Wallet | SolongWallet | MathWallet;
+  let wallet: Wallet | SolongWallet | MathWallet | SlopeWallet;
 
   // Wallet adapter or injected wallet setup
   if (provider.name === 'Phantom' && solWindow.solana?.isPhantom) {
     wallet = solWindow.solana as unknown as Wallet;
   } else if (provider.name === 'Solflare' && solWindow.solflare?.isSolflare) {
     wallet = solWindow.solflare as unknown as Wallet;
+  } else if(provider.name === 'Slope' && !!solWindow.Slope) {
+    wallet = new solWindow.Slope() as unknown as SlopeWallet;
+    const { data } = await wallet.connect();
+    if(data.publicKey) {
+      wallet.publicKey = new anchor.web3.PublicKey(data.publicKey);
+    }
+    wallet.on = (action: string, callback: any) => {if (callback) callback()};
+    wallet.signTransaction; 
+    console.log(wallet)
+  
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
     wallet.on = (action: string, callback: any) => {if (callback) callback()};
     wallet.connect = (action: string, callback: any) => {if (callback) callback()};
+    console.log(wallet);
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
@@ -201,6 +213,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
 
   // Set up wallet connection
   wallet.name = provider.name;
+  console.log(wallet)
   wallet.on('connect', async () => {
     //Set wallet object on user
     USER.update(user => {
@@ -220,8 +233,16 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     })
   });
   // Initiate wallet connection
-  await wallet.connect();
+  try {
+    await wallet.connect();
+  } catch (err) {
+    console.error(err)
+  }
 
+
+  console.log(user);
+
+  console.log('wallet after connect', wallet)
   // User must accept disclaimer upon mainnet launch
   if (!inDevelopment) {
     const accepted = localStorage.getItem('jetDisclaimer');
@@ -484,7 +505,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   if (!user.assets || !user.wallet || !program) {
     return [false, undefined];
   }
-
+  console.log('deposit called')
   const [ok, txid] = await refreshOldReserves();
   if (!ok) {
     return [false, txid]
@@ -638,6 +659,7 @@ export const deposit = async (abbrev: string, lamports: BN)
   const signers = [depositSourceKeypair].filter(signer => signer) as Keypair[];
 
   try {
+    console.log('about to send txn');
     return await sendTransaction(program.provider, ix, signers);
   } catch (err) {
     console.error(`Deposit error: ${transactionErrorToString(err)}`);

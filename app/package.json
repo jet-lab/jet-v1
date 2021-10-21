@@ -36,6 +36,7 @@
     "@solana/web3.js": "^1.29.2",
     "assert": "^2.0.0",
     "body-parser": "^1.19.0",
+    "bs58": "^4.0.1",
     "buffer": "^6.0.3",
     "buffer-layout": "^1.2.2",
     "cors": "^2.8.5",

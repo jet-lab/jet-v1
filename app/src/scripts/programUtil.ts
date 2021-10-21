@@ -267,7 +267,9 @@ export const sendTransaction = async (
   skipConfirmation?: boolean
 ): Promise<[ok: boolean, txid: string | undefined]> => {
   if (!provider.wallet?.publicKey) {
+    console.log('no pubkey');
     throw new Error("Wallet is not connected");
+    
   }
 
   // Building phase
@@ -325,6 +327,7 @@ export const sendAllTransactions = async (
   skipConfirmation?: boolean
 ): Promise<[ok: boolean, txid: string[]]> => {
   if (!provider.wallet?.publicKey) {
+    console.log('wallet not connected')
     throw new Error("Wallet is not connected");
   }
 
