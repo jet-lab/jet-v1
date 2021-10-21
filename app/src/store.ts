@@ -55,6 +55,7 @@ export const USER = writable<User>({
 
   // Transaction Logs
   transactionLogs: [],
+  transactionLogsInit: true,
 
   // Notifications
   notifications: [],
@@ -102,3 +103,9 @@ export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]> ([]);
 export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection> (undefined);
 export const ANCHOR_CODER = writable<anchor.Coder> (undefined);
 export const IDL_METADATA = writable<IdlMetadata> (undefined);
+
+
+//txn logs
+export const SignaturesFromAddress = writable<anchor.web3.ConfirmedSignatureInfo[]> ([]);
+export const TxnsHistoryLoading = writable<boolean> (false);
+export const CountOfSigsAndHistoricTxns = writable<[number, number]> ([0, 0]); 

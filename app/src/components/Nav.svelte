@@ -31,8 +31,7 @@
 </script>
 
 <!--Desktop-->
-<nav class="desktop flex flex align-center justify-between column" 
-  class:expanded>
+<nav class="desktop flex flex align-center justify-between column">
 	<div class="top flex align-center column">
     <div class="nav-logo-container flex-centered"
       on:click={() => window.open('https://jetprotocol.io/', '_blank')}>

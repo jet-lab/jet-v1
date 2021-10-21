@@ -29,6 +29,8 @@ let idl: any;
 let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
 let transactionLogConnection: anchor.web3.Connection;
+let confirmedSignatures: anchor.web3.ConfirmedSignatureInfo[];
+let currentSignaturesIndex: number = 0;
 let coder: anchor.Coder;
 PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
@@ -49,14 +51,6 @@ export const rollbar = new Rollbar({
     environment: inDevelopment ? 'devnet' : 'mainnet'
   }
 });
-
-// Record of instructions to their first 8 bytes for transaction logs
-const INSTRUCTION_BYTES: Record<string, number[]> = {
-  deposit: [242, 35, 198, 137, 82, 225, 242, 182],
-  withdraw: [183, 18, 70, 156, 148, 109, 161, 34],
-  borrow: [228, 253, 131, 202, 207, 116, 89, 18],
-  repay: [234, 103, 67, 82, 208, 234, 219, 166]
-};
 
 // Get IDL and market data
 export const getMarketAndIDL = async (): Promise<void> => {
@@ -213,8 +207,8 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       user.wallet = wallet;
       return user;
     });
-    // Begin fetching logs
-    getTransactionLogs();
+    // Begin fetching transaction logs
+    initTransactionLogs();
     // Get all asset pubkeys owned by wallet pubkey
     await getAssetPubkeys();
     // Subscribe to all asset accounts for those pubkeys
@@ -334,49 +328,77 @@ export const getAssetPubkeys = async (): Promise<void> => {
   }
 };
 
-// Get Jet transaction logs and associated UI data on wallet init
-export const getTransactionLogs = async (): Promise<void> => {
+// Get all confirmed signatures for wallet pubkey
+// TODO: call this again when user changes rpc node
+export const initTransactionLogs = async (): Promise<void>  => {
   if (!user.wallet) {
     return;
   }
 
-  // Establish solana connection and get all confirmed signatures
-  // associated with user's wallet pubkey
-  const txLogs: TransactionLog[] = [];
+  // Set up connection
   transactionLogConnection = user.rpcNode ? new anchor.web3.Connection(user.rpcNode)
-    : (inDevelopment ? new anchor.web3.Connection('https://api.devnet.solana.com/')  : connection);
-  const sigs = await transactionLogConnection.getConfirmedSignaturesForAddress2(user.wallet.publicKey, undefined, 'confirmed'); 
-  for (let sig of sigs) {
-    //Reset logs for load
-    USER.update(user => {
-      user.transactionLogs = null;
-      return user;
-    });
+    : (inDevelopment 
+        ? new anchor.web3.Connection('https://api.devnet.solana.com/')  
+          : new anchor.web3.Connection('https://api.mainnet-beta.solana.com/'));
 
-    // Get confirmed transaction from each signature
-    const log = await transactionLogConnection.getConfirmedTransaction(sig.signature, 'confirmed') as unknown as TransactionLog;
-    const detailedLog = log ? await getLogDetails(log, sig.signature) : null;
-    if (detailedLog) {
-      txLogs.push(detailedLog);
+  // Fetch all confirmed signatures
+  confirmedSignatures = await transactionLogConnection.getConfirmedSignaturesForAddress2(user.wallet.publicKey, undefined, 'confirmed');
+  // Get first 16 full detailed logs
+  await getTransactionsDetails(16);
+};
+
+// Get transaction details from confirmed signatures
+export const getTransactionsDetails = async (txAmount: number): Promise<void> => {
+  // Begin loading transaction logs
+  USER.update(user => {
+    user.transactionLogsInit = false;
+    return user;
+  });
+
+  // Iterate until get the last signature or add the amount of tx we called for
+  let logsCount = 0;
+  let newLogs: TransactionLog[] = [];
+  while (currentSignaturesIndex < confirmedSignatures.length && logsCount < txAmount) {
+    // Get current signature from index
+    const currentSignature = confirmedSignatures[currentSignaturesIndex]?.signature;
+    if (!currentSignature) {
+      return;
     }
+
+    // Get confirmed transaction for signature
+    const log = await transactionLogConnection.getConfirmedTransaction(currentSignature, 'confirmed') as unknown as TransactionLog;
+    const detailedLog = log ? await getLogDetails(log, currentSignature) : null;
+    if (detailedLog) {
+      newLogs.push(detailedLog);
+      logsCount++;
+    }
+
+    // Increment current index
+    currentSignaturesIndex++;
   }
 
-  // Check if user has submitted new trades before all were loaded
-  // Update global store
-  const newerLogs = user.transactionLogs ?? [];
-  newerLogs.forEach(l => txLogs.push(l));
+  // Add transaction logs and stop loading
   USER.update(user => {
-    user.transactionLogs = txLogs;
+    user.transactionLogs = [...user.transactionLogs, ...newLogs];
+    user.transactionLogsInit = true;
     return user;
   });
 };
 
 // Get UI data of a transaction log
 export let getLogDetails = async (log: TransactionLog, signature: string): Promise<TransactionLog | undefined> => {
+  // Record of instructions to their first 8 bytes for transaction logs
+  const instructionBytes: Record<string, number[]> = {
+    deposit: [242, 35, 198, 137, 82, 225, 242, 182],
+    withdraw: [183, 18, 70, 156, 148, 109, 161, 34],
+    borrow: [228, 253, 131, 202, 207, 116, 89, 18],
+    repay: [234, 103, 67, 82, 208, 234, 219, 166]
+  };
+
   // Use log messages to only surface transactions that utilize Jet
   for (let msg of log.meta.logMessages) {
     if (msg.indexOf(idl.metadata.address) !== -1) {
-      for (let progInst in INSTRUCTION_BYTES) {
+      for (let progInst in instructionBytes) {
         for (let inst of log.transaction.instructions) {
           // Get first 8 bytes from data
           const txInstBytes = [];
@@ -384,7 +406,7 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
             txInstBytes.push(inst.data[i]);
           }
           // If those bytes match any of our instructions label trade action
-          if (JSON.stringify(INSTRUCTION_BYTES[progInst]) === JSON.stringify(txInstBytes)) {
+          if (JSON.stringify(instructionBytes[progInst]) === JSON.stringify(txInstBytes)) {
             log.tradeAction = dictionary[user.language].transactions[progInst];
             // Determine asset and trade amount
             for (let pre of log.meta.preTokenBalances as any[]) {
@@ -433,7 +455,7 @@ export let addTransactionLog = async (signature: string) => {
   const txLogs = user.transactionLogs ?? [];
   //Reset logs for load
   USER.update(user => {
-    user.transactionLogs = null;
+    user.transactionLogsInit = false;
     return user;
   });
 
@@ -450,6 +472,7 @@ export let addTransactionLog = async (signature: string) => {
     txLogs.unshift(logDetail);
     USER.update(user => {
       user.transactionLogs = txLogs;
+      user.transactionLogsInit = true;
       return user;
     });
   }

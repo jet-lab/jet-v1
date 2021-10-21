@@ -606,6 +606,13 @@ input[type=number] {
   padding: unset !important;
   box-shadow: unset !important;
 }
+.transaction-logs .dt-table th {
+  padding-top: unset !important;
+  padding-bottom: unset !important;
+}
+.transaction-logs .datatable-divider {
+  margin-top: unset !important;
+}
 .transaction-logs .dt-table td, .transaction-logs .dt-table th {
   min-width: 90px !important;
 }

@@ -3,16 +3,16 @@
     "loading": {
         "transactions": "İşleminiz yapılıyor...",
         "connectingWallet": "Cüzdan bağlanıyor...",
-        "initializing": "Starting Jet Engines",
-        "fetchingReserves": "Fetching Reserve Data",
-        "fetchingAccount": "Fetching Account Data"
+        "initializing": "Jet Motorları Çalıştırılıyor",
+        "fetchingReserves": "Yedek Veriler Sağlanıyor",
+        "fetchingAccount": "Hesap Bilgisi Sağlanıyor"
     },
     "nav": {
         "cockpit": "Kokpit",
         "settings": "Ayarlar",
-        "collapse": "Kollaps",
+        "collapse": "Daralt",
         "getCopilotSuggestion": "Yardımcı pilot önerisi alın.",
-        "transactions": "Flight Logs"
+        "transactions": "Uçuş Kayıtları"
     },
     "cockpit": {
         "title": "Kokpit",
@@ -65,7 +65,7 @@
         "noDebtForRepay": "Hiç {{ASSET}} borcunuz yok.",
         "rejectTrade": "Bu ticaret, sizin yeni teminat oranınızı {{NEW-C-RATIO}}% minimum oranımız olan {{JET MIN C-RATIO}} altına düşürebilir. Borcun oluşturulması için ayrıca bir komisyon daha bulunmaktadır {{ORIGINATION FEE}}%. Hala borç almak istediğinize emin misiniz?",
         "insufficientLamports": "İşlem ücretlerini dahi karşılamayacak kadar çok SOL yatırıyorsunuz. Şu ankinden daha az bir miktar kullanarak yeniden deneyin. ",
-        "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation."
+        "stillUndercollateralized": "Yeni C-oranınız {{NEW-C-RATIO}}% hala Jet Protocol'ün minimum piyasa teminat oranı"
     },
     "settings": {
         "title": "Ayarlar",
@@ -81,8 +81,8 @@
         "defaultNode": "Jet varsayılan",
         "reset": "Sıfırla",
         "noUrl": "URL girin",
-        "disconnect": "Disconnect Wallet",
-        "connected": "Connected"
+        "disconnect": "Cüzdan Bağlantısını Sonlandır",
+        "connected": "Bağlandı"
     },
     "reserveDetail": {
         "reserveSize": "Rezerv Büyüklüğü",
@@ -137,22 +137,22 @@
             "refresh": "Yenile",
             "originationFee": "Bu borca ilişkin {{ORIGINATION FEE}}% kadar oluşturulma komisyonu bulunmaktadır. ",
             "headsup": "Dikkat buraya!",
-            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/>{{TERMS OF USE}} {{PRIVACY POLICY}}",
-            "accept": "Accept",
-            "warning": "WARNING"
+            "disclaimer": "JetProtocol mainnet'e erişiyorsunuz. Yeterince bilgiye sahip değilseniz ilerlemeyin, şartları veya olası kayıpları kabul etmeyin.  <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
+            "accept": "Kabul Et",
+            "warning": "UYARI"
         }
     },
     "transactions": {
-        "title": "Flight Logs",
-        "date": "Date",
-        "signature": "Signature",
-        "tradeAction": "Transaction",
-        "tradeAmount": "Amount",
-        "noTrades": "You have no logged transactions with Jet.",
-        "entries": "{start} to {end} of {rows}",
-        "deposit": "Deposit",
-        "withdraw": "Withdraw",
-        "borrow": "Borrow",
-        "repay": "Repay"
+        "title": "Uçuş Kayırları",
+        "date": "Tarih",
+        "signature": "İmza",
+        "tradeAction": "İşlem",
+        "tradeAmount": "Miktar",
+        "noTrades": "Jet ile herhangi bir kayda geçmiş işleminiz bulunamadı",
+        "entries": "{rows}'ların {start}'ından {end}'una kadar",
+        "deposit": "Yatır",
+        "withdraw": "Çek",
+        "borrow": "Ödünç Al",
+        "repay": "Geri Öde"
     }
 }
