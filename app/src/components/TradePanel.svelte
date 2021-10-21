@@ -336,7 +336,7 @@
     {/if}
     <div class="trade-section flex-centered column">
       <Input type="number" currency
-        value={inputAmount}
+        bind:value={inputAmount}
         maxInput={maxInput}
         disabled={disabledInput}
         error={inputError}

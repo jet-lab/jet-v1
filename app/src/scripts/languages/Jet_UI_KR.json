@@ -137,7 +137,7 @@
             "refresh": "새로고침",
             "originationFee": "이 대출에는 {{ORIGINATION FEE}}%의 수수료가 부과됩니다.",
             "headsup": "예의주시하세요!",
-            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/>{{TERMS OF USE}} {{PRIVACY POLICY}}",
+            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
             "accept": "Accept",
             "warning": "WARNING"
         }

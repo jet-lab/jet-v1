@@ -1,7 +1,7 @@
 import { BN } from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
 import { MintInfo, MintLayout, AccountInfo as TokenAccountInfo, AccountLayout as TokenAccountLayout } from "@solana/spl-token";
-import { AccountInfo, Commitment, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { AccountInfo, Commitment, ConfirmOptions, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Buffer } from "buffer";
 import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
@@ -149,7 +149,7 @@ export const getTokenAccountAndSubscribe = async function (
 ): Promise<number> {
   return await getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
-      if(account.data.length != 165){
+      if (account.data.length != 165) {
         console.log('account data length', account.data.length);
       }
       const decoded = parseTokenAccount(account, publicKey);
@@ -296,7 +296,7 @@ export const sendTransaction = async (
   const txid = await provider.connection.sendRawTransaction(
     rawTransaction,
     provider.opts
-    );
+  );
   console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`, transaction);
 
   // Confirming phase
@@ -349,14 +349,14 @@ export const sendAllTransactions = async (
   let signedTransactions: Transaction[] = [];
 
   try {
-    //solong does not have a signAllTransactions Func so we sign one by one
-    if (!provider.wallet.signAllTransactions) {
+    if (provider.wallet.signAllTransactions) {
+      signedTransactions = await provider.wallet.signAllTransactions(txs);
+    } else {
+      // Solong does not have a signAllTransactions Func so we sign one by one
       for (let i = 0; i < txs.length; i++) {
         const signedTxn = await provider.wallet.signTransaction(txs[i]);
         signedTransactions.push(signedTxn);
       }
-    } else {
-      signedTransactions = await provider.wallet.signAllTransactions(txs);
     }
   }
   catch (err) {
@@ -369,12 +369,21 @@ export const sendAllTransactions = async (
   console.log("Transactions", txs);
   let ok = true;
   const txids: string[] = [];
-  for (const transaction of signedTransactions) {
+  for (let i = 0; i < signedTransactions.length; i++) {
+    const transaction = signedTransactions[i];
+
+    // Transactions can be simulated against an old slot that
+    // does not include previously sent transactions. In most
+    // conditions only the first transaction can be simulated
+    // safely
+    const skipPreflightSimulation = i !== 0;
+    const opts: ConfirmOptions = {
+      ...provider.opts,
+      skipPreflight: skipPreflightSimulation
+    }
+
     const rawTransaction = transaction.serialize();
-    const txid = await provider.connection.sendRawTransaction(
-      rawTransaction,
-      provider.opts
-    );
+    const txid = await provider.connection.sendRawTransaction(rawTransaction, opts);
     console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`);
     txids.push(txid);
 
