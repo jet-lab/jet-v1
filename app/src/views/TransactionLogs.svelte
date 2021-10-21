@@ -6,7 +6,7 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { USER } from '../store';
   import { getTransactionsDetails } from '../scripts/jet';
-  import { totalAbbrev, shortenPubkey, timeout } from '../scripts/util';
+  import { totalAbbrev, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
 
