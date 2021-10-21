@@ -806,10 +806,37 @@ describe("jet", async () => {
 
     assert(isEqual(fetchedConfig, newConfig), "reserve config failed to update");
   })
-/*
+
   it("user A fails to change wsol reserve config", async () => {
     const user = userA;
-    const tx = await null;
+    const newConfig = {
+      utilizationRate1: 6500,
+      utilizationRate2: 7500,
+      borrowRate0: 10000,
+      borrowRate1: 20000,
+      borrowRate2: 30000,
+      borrowRate3: 40000,
+      minCollateralRatio: 15000,
+      liquidationPremium: 120,
+      manageFeeRate: 60,
+      manageFeeCollectionThreshold: new BN(11),
+      loanOriginationFee: 11,
+      liquidationSlippage: 350,
+      liquidationDexTradeMax: new BN(120),
+    } as ReserveConfig;
+
+    const tx = new anchor.web3.Transaction();
+    tx.add(
+      program.instruction.updateReserveConfig(
+        newConfig,
+        {
+          accounts: {
+            market: jetMarket.address,
+            reserve: wsol.reserve.address,
+            owner: user.wallet.publicKey,
+          }}
+      )
+    );
     
     let result = await client.program.provider.simulate(tx, [user.wallet]);
     assert.notStrictEqual(
@@ -817,5 +844,5 @@ describe("jet", async () => {
       null,
       "expected instruction to fail"
     );
-  }) */
+  }) 
 });
