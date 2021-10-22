@@ -842,9 +842,10 @@ describe("jet", async () => {
     );
 
     let result = await client.program.provider.simulate(tx, [user.wallet]);
-    assert.notStrictEqual(
-      result.value.err,
-      null,
+    const expectedErr = { InstructionError: [ 0, { Custom: 141 } ] }
+    
+    assert(
+      isEqual(result.value.err, expectedErr),
       "expected instruction to fail"
     );
   });
