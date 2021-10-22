@@ -139,5 +139,9 @@
     .sollet {
       display: flex;
     }
+    .slope {
+      display: flex;
+    }
+
   }
 </style>
