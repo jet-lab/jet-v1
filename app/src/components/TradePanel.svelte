@@ -270,8 +270,8 @@
           }}
           class="trade-select flex justify-center align-center"
           class:active={$USER.tradeAction === action}>
-          <p class="bicyclette">
-            {dictionary[$USER.language].cockpit[action]}
+          <p class="bicyclette-bold text-gradient">
+            {dictionary[$USER.language].cockpit[action].toUpperCase()}
           </p>
         </div>
       {/each}
@@ -377,9 +377,9 @@
     position: relative;
     width: 100%;
     padding-top: calc(var(--spacing-lg) * 1.75);
-    border-bottom-left-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-    box-shadow: var(--neu--datatable-bottom-shadow);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+    box-shadow: var(--neu--datatable-top-shadow);
     background: var(--gradient);
     overflow: hidden;
     z-index: 10;
@@ -394,9 +394,9 @@
   .trade-select {
     width: 25%;
     border-right: 1px solid var(--white);
+    box-shadow: inset 0px -5px 8px -5px rgba(0, 0, 0, 0.3);
     padding: var(--spacing-sm) 0;
-    background: rgba(255, 255, 255, 0.2);
-    opacity: var(--disabled-opacity);
+    background: var(--grey);
     cursor: pointer;
   }
   .trade-select:last-of-type {
@@ -404,14 +404,19 @@
   }
   .trade-select.active {
     background: unset;
-    opacity: 1;
+    box-shadow: unset;
   }
   .trade-select p {
     position: relative;
-    font-size: 16px;
+    font-size: 12px;
     letter-spacing: 0.5px;
     line-height: 17px;
-    color: var(--white);
+    opacity: var(--disabled-opacity) !important;
+  }
+  .trade-select.active p {
+    color: var(--white) !important;
+    -webkit-text-fill-color: unset !important;
+    opacity: 1 !important;
   }
   .trade-section {
     position: relative;
@@ -457,7 +462,8 @@
       justify-content: center;
     }
     .trade-select p {
-      font-size: 12px;
+      font-size: 9px;
+      line-height: 12px;
     }
     .trade-section {
       width: 100% !important;

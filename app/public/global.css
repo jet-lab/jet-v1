@@ -32,7 +32,7 @@
   --neu-shadow: -1.75px -1.75px 3.5px var(--light-shadow), 1.75px 1.75px 3.5px var(--dark-shadow);
   --neu-shadow-inset: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
   --neu-shadow-inset-low: inset -1px -1px 1.5px var(--light-shadow), inset 1px 1px 1.5px var(--dark-shadow);
-  --neu--datatable-top-shadow: -1.5px -2px 3.5px var(--light-shadow), 1.5px 1.5px 3.5px var(--dark-shadow);
+  --neu--datatable-top-shadow: -2.5px 0px 3.5px var(--light-shadow), 2px 1.5px 3.5px var(--dark-shadow);
   --neu--datatable-bottom-shadow: -3px 0px 2px var(--light-shadow), 1.5px 2.5px 3.5px var(--dark-shadow);
   --neu-datatable-inset-shadow: inset -1px -1px 1px var(--light-shadow), inset 1px 1px 1px var(--dark-shadow) !important;
   --neu-datatable-shadow: inset -1px -1px 1px var(--dark-shadow), inset 1px 1px 1px var(--light-shadow) !important;
@@ -40,6 +40,8 @@
   --neu-shadow-inset-failure: inset -2px -2px 2px #f58d8d, inset 2px 2px 2px #c94646;
   --neu-shadow-inset-gradient: inset -2px -2px 2.5px #36a3ce, inset 2px 2px 2.5px #28866c;
   --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #36a3ce, inset 1.5px 1.5px 2px #28866c;
+
+  --drop-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
 
   --disabled-opacity: 0.85;
 
@@ -404,13 +406,13 @@ input[type=number] {
 .datatable, .dt-table, .dt-table th, .dt-table td, .dt-table tbody, .dt-pagination {
   background: var(--white) !important;
   border: unset !important;
-  border-top-left-radius: var(--border-radius) !important;
-  border-top-right-radius: var(--border-radius) !important;
+  border-bottom-left-radius: var(--border-radius) !important;
+  border-bottom-right-radius: var(--border-radius) !important;
   padding: var(--spacing-sm) var(--spacing-md) !important;
   color: var(--black) !important;
 }
 .datatable {
-  box-shadow: var(--neu--datatable-top-shadow) !important;
+  box-shadow: var(--neu--datatable-bottom-shadow) !important;
   padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-xs) var(--spacing-sm) !important;
 }
 .dt-table {

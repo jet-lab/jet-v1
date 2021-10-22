@@ -167,6 +167,7 @@
         </div>
       </div>
     </div>
+    <TradePanel />
     <Datatable settings={tableSettings} data={$MARKET.reservesArray}>
       <thead>
         <th data-key="name">
@@ -326,7 +327,6 @@
         {/each}
       </tbody>
     </Datatable>
-    <TradePanel />
   </div>
   {#if reserveDetail}
     <ReserveDetail {reserveDetail}

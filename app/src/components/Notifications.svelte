@@ -43,7 +43,7 @@
     background: var(--failure);
     margin-top: var(--spacing-md);
     border-radius: var(--btn-radius);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--drop-shadow);;
     cursor: pointer;
   }
   .notification:active {
