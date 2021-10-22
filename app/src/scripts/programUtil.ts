@@ -345,7 +345,7 @@ export const sendAllTransactions = async (
   provider: anchor.Provider,
   transactions: InstructionAndSigner[],
   skipConfirmation?: boolean
-): Promise<[ok: TxnResponse, txid: string[]]> => {
+): Promise<[ok: TxnResponse, txid: string[] | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
   }
@@ -384,7 +384,7 @@ export const sendAllTransactions = async (
     } catch (err) {
       console.log('Signing All Transactions Failed', err);
     // wallet refused to sign
-      return [TxnResponse.Cancelled, ['cancelled']];
+      return [TxnResponse.Cancelled, null];
     }
   } else {
     try {
@@ -401,7 +401,7 @@ export const sendAllTransactions = async (
     catch (err) {
       console.log('Signing All Transactions Failed', err);
       // wallet refused to sign
-      return [TxnResponse.Cancelled, ['cancelled']];
+      return [TxnResponse.Cancelled, null];
     }
   }
 
