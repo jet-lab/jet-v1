@@ -55,7 +55,6 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
   });
   promises.push(promise);
 
-
   for (const reserveMeta of idlMeta.reserves) {
     // Reserve
     promise = getAccountInfoAndSubscribe(connection, reserveMeta.accounts.reserve, account => {

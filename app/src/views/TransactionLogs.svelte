@@ -6,7 +6,7 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { USER } from '../store';
   import { getTransactionsDetails } from '../scripts/jet';
-  import { totalAbbrev, shortenPubkey } from '../scripts/util';
+  import { totalAbbrev, shortenPubkey, timeout } from '../scripts/util';
   import { dictionary } from '../scripts/localization';  
   import Loader from '../components/Loader.svelte';
 
@@ -28,14 +28,19 @@
   };
 
   // Setup next button to fetch 8 more tx logs
-  onMount(() => {
-    document.querySelectorAll('.dt-pagination-buttons button').forEach((b) => {
-      if (b.innerHTML === '❯') {
-        b.addEventListener('click', () => {
-          getTransactionsDetails(8);
-        });
-      }
-    });
+  onMount(async () => {
+    let nextButton = null;
+    while (!nextButton) {
+      await timeout(1000);
+      document.querySelectorAll('.dt-pagination-buttons button').forEach((b) => {
+        if (b.innerHTML === '❯') {
+          nextButton = b;
+          nextButton.addEventListener('click', () => {
+            getTransactionsDetails(8);
+          });
+        }
+      });
+    }
   });
 </script>
 
