@@ -299,13 +299,14 @@ export const sendTransaction = async (
       }
       transaction.addSignature(new PublicKey(data.publicKey), bs58.decode(data.signature));
     } catch (err) {
-      console.log(err);
+      console.log('Signing Transactions Failed', err);
       return [false, 'cancelled'];
     }
   } else {
     try {
       transaction = await provider.wallet.signTransaction(transaction);
     } catch (err) {
+      console.log('Signing Transactions Failed', err);
       // wallet refused to sign
       return [false, 'cancelled'];
     }
@@ -380,7 +381,7 @@ export const sendAllTransactions = async (
         signedTransactions.push(txs[i])
       }   
     } catch (err) {
-      console.log('Sign All Transactions Failed', err);
+      console.log('Signing All Transactions Failed', err);
     // wallet refused to sign
       return [false, ['cancelled']];
     }
@@ -397,7 +398,7 @@ export const sendAllTransactions = async (
       }
     }
     catch (err) {
-      console.log('Sign All Transactions Failed', err);
+      console.log('Signing All Transactions Failed', err);
       // wallet refused to sign
       return [false, ['cancelled']];
     }
