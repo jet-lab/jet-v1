@@ -190,7 +190,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solana.getAccount());
     wallet.on = (action: string, callback: any) => {if (callback) callback()};
     wallet.connect = (action: string, callback: any) => {if (callback) callback()};
-    console.log(wallet);
   } else if (provider.name === 'Solong' && solWindow.solong) {
     wallet = solWindow.solong as unknown as SolongWallet;
     wallet.publicKey = new anchor.web3.PublicKey(await solWindow.solong.selectAccount());
@@ -211,7 +210,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
 
   // Set up wallet connection
   wallet.name = provider.name;
-  console.log(wallet)
   wallet.on('connect', async () => {
     //Set wallet object on user
     USER.update(user => {
@@ -237,9 +235,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     console.error(err)
   }
 
-
-
-  console.log('wallet after connect', wallet)
   // User must accept disclaimer upon mainnet launch
   if (!inDevelopment) {
     const accepted = localStorage.getItem('jetDisclaimer');
@@ -500,13 +495,10 @@ export let addTransactionLog = async (signature: string) => {
 export const deposit = async (abbrev: string, lamports: BN)
   : Promise<[ok: boolean, txid: string | undefined]> => {
   if (!user.assets || !user.wallet || !program) {
-    console.log('bad deposit')
     return [false, undefined];
   }
-  console.log('deposit called');
   const [ok, txid] = await refreshOldReserves();
   if (!ok) {
-    console.log('bad refresh')
     return [false, txid]
   }
 
@@ -658,7 +650,6 @@ export const deposit = async (abbrev: string, lamports: BN)
   const signers = [depositSourceKeypair].filter(signer => signer) as Keypair[];
 
   try {
-    console.log('about to send txn');
     return await sendTransaction(program.provider, ix, signers);
   } catch (err) {
     console.error(`Deposit error: ${transactionErrorToString(err)}`);
