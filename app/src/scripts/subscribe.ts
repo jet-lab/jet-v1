@@ -337,9 +337,6 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
     if (asset.maxBorrowAmount > reserve.availableLiquidity.uiAmountFloat) {
       asset.maxBorrowAmount = reserve.availableLiquidity.uiAmountFloat;
     }
-    if (reserve.availableLiquidity.uiAmountFloat < asset.maxBorrowAmount) {
-      asset.maxBorrowAmount = reserve.availableLiquidity.uiAmountFloat;
-    }
 
     // Max repay
     if (user.walletBalances[reserve.abbrev] < asset.loanBalance.uiAmountFloat) {

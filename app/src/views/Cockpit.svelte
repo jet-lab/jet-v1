@@ -107,7 +107,7 @@
             {#key $USER.position.colRatio}
               <h1 class="view-header"
               style="margin-bottom: -20px; {$USER.wallet
-                ? ($USER.position.borrowedValue && ($USER.position.colRatio <= $MARKET.minColRatio) 
+                ? ($USER.position.borrowedValue && (Math.floor($USER.position.colRatio) <= $MARKET.minColRatio) 
                   ? 'color: var(--failure);' 
                     : 'color: var(--success);')
                   : ''}">
