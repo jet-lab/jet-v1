@@ -184,8 +184,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
       wallet.publicKey = new anchor.web3.PublicKey(data.publicKey);
     }
     wallet.on = (action: string, callback: any) => {if (callback) callback()};
-    wallet.signTransaction; 
-    console.log(wallet)
   
   } else if (provider.name === 'Math Wallet' && solWindow.solana?.isMathWallet) {
     wallet = solWindow.solana as unknown as MathWallet;
@@ -240,7 +238,6 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
   }
 
 
-  console.log(user);
 
   console.log('wallet after connect', wallet)
   // User must accept disclaimer upon mainnet launch
@@ -503,11 +500,13 @@ export let addTransactionLog = async (signature: string) => {
 export const deposit = async (abbrev: string, lamports: BN)
   : Promise<[ok: boolean, txid: string | undefined]> => {
   if (!user.assets || !user.wallet || !program) {
+    console.log('bad deposit')
     return [false, undefined];
   }
-  console.log('deposit called')
+  console.log('deposit called');
   const [ok, txid] = await refreshOldReserves();
   if (!ok) {
+    console.log('bad refresh')
     return [false, txid]
   }
 

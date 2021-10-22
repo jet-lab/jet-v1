@@ -3,10 +3,18 @@ import * as anchor from "@project-serum/anchor";
 import { MintInfo, MintLayout, AccountInfo as TokenAccountInfo, AccountLayout as TokenAccountLayout } from "@solana/spl-token";
 import { AccountInfo, Commitment, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
+import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes, User } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./util";
 import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
+import { USER } from '../store';
+import bs58 from 'bs58';
+
+let user: User;
+USER.subscribe((data) => {
+  user = data;
+})
+
 
 // Find PDA functions and jet algorithms that are reimplemented here
 
@@ -267,11 +275,9 @@ export const sendTransaction = async (
   skipConfirmation?: boolean
 ): Promise<[ok: boolean, txid: string | undefined]> => {
   if (!provider.wallet?.publicKey) {
-    console.log('no pubkey');
     throw new Error("Wallet is not connected");
     
   }
-
   // Building phase
   let transaction = new Transaction();
   transaction.instructions = instructions;
@@ -284,16 +290,28 @@ export const sendTransaction = async (
   if (signers && signers.length > 0) {
     transaction.partialSign(...signers)
   }
-  try {
-    transaction = await provider.wallet.signTransaction(transaction);
-  }
-  catch (ex) {
-    // wallet refused to sign
-    return [false, 'cancelled'];
+   //Slope wallet funcs only take bs58 strings
+  if (user.wallet?.name === 'Slope') {
+    try {
+      const { msg, data } = await provider.wallet.signTransaction(bs58.encode(transaction.serializeMessage()) as any);
+      if (!data.publicKey || !data.signature) {
+        throw new Error("Transaction Signing Failed");
+      }
+      transaction.addSignature(new PublicKey(data.publicKey), bs58.decode(data.signature));
+    } catch (err) {
+      console.log(err);
+      return [false, 'cancelled'];
+    }
+  } else {
+    try {
+      transaction = await provider.wallet.signTransaction(transaction);
+    } catch (err) {
+      // wallet refused to sign
+      return [false, 'cancelled'];
+    }
   }
 
   // Sending phase
-  console.log(`Transaction`, transaction);
   const rawTransaction = transaction.serialize();
   const txid = await provider.connection.sendRawTransaction(
     rawTransaction,
@@ -327,7 +345,6 @@ export const sendAllTransactions = async (
   skipConfirmation?: boolean
 ): Promise<[ok: boolean, txid: string[]]> => {
   if (!provider.wallet?.publicKey) {
-    console.log('wallet not connected')
     throw new Error("Wallet is not connected");
   }
 
@@ -350,22 +367,40 @@ export const sendAllTransactions = async (
 
   // Signing phase
   let signedTransactions: Transaction[] = [];
-
-  try {
-    //solong does not have a signAllTransactions Func so we sign one by one
-    if (!provider.wallet.signAllTransactions) {
-      for (let i = 0; i < txs.length; i++) {
-        const signedTxn = await provider.wallet.signTransaction(txs[i]);
-        signedTransactions.push(signedTxn);
+  //Slope wallet funcs only take bs58 strings
+  if (user.wallet?.name === 'Slope') { 
+    try {
+      const { msg, data } = await provider.wallet.signAllTransactions(txs.map((txn) => bs58.encode(txn.serializeMessage())) as any);
+      const txnsLen = txs.length;
+      if(!data.publicKey || data.signatures?.length !== txnsLen) {
+        throw new Error("Transactions Signing Failed");
       }
-    } else {
-      signedTransactions = await provider.wallet.signAllTransactions(txs);
-    }
-  }
-  catch (err) {
-    console.log('Sign All Transactions Failed', err);
+      for (let i = 0; i < txnsLen; i++) {
+        txs[i].addSignature(new PublicKey(data.publicKey), bs58.decode(data.signatures[i]));
+        signedTransactions.push(txs[i])
+      }   
+    } catch (err) {
+      console.log('Sign All Transactions Failed', err);
     // wallet refused to sign
-    return [false, ['cancelled']];
+      return [false, ['cancelled']];
+    }
+  } else {
+    try {
+      //solong does not have a signAllTransactions Func so we sign one by one
+      if (!provider.wallet.signAllTransactions) {
+        for (let i = 0; i < txs.length; i++) {
+          const signedTxn = await provider.wallet.signTransaction(txs[i]);
+          signedTransactions.push(signedTxn);
+        }
+      } else {
+        signedTransactions = await provider.wallet.signAllTransactions(txs);
+      }
+    }
+    catch (err) {
+      console.log('Sign All Transactions Failed', err);
+      // wallet refused to sign
+      return [false, ['cancelled']];
+    }
   }
 
   // Sending phase
