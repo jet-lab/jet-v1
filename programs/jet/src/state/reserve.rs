@@ -185,10 +185,6 @@ impl Reserve {
         &self.unwrap_state(current_slot).outstanding_debt
     }
 
-    pub fn update_config(&mut self, new_config: ReserveConfig) {
-        self.config = new_config;
-    }
-
     #[cfg(test)]
     fn unwrap_outstanding_debt_mut(&mut self, current_slot: u64) -> &mut Number {
         &mut self.unwrap_state_mut(current_slot).outstanding_debt
@@ -912,36 +908,5 @@ mod tests {
         let fees = reserve.collect_accrued_fees(0, deposit_note_value);
 
         assert_eq!(fees, 2_397_288);
-    }
-
-    #[test]
-    fn update_reserve_config_works() {
-        let mut reserve = Reserve::zeroed();
-
-        let new_config = ReserveConfig {
-            utilization_rate_1: 5000,
-            utilization_rate_2: 9000,
-            borrow_rate_0: 50,
-            borrow_rate_1: 3000,
-            borrow_rate_2: 6000,
-            borrow_rate_3: 9000,
-            manage_fee_rate: 1000,
-            manage_fee_collection_threshold: 1,
-
-            min_collateral_ratio: 50,
-            liquidation_premium: 0,
-            liquidation_slippage: 50,
-            loan_origination_fee: 0,
-            liquidation_dex_trade_max: 50,
-
-            _reserved0: 0,
-            _reserved1: [0; 24],
-        };
-
-        assert_eq!(reserve.config.utilization_rate_1, 0);
-
-        reserve.update_config(new_config);
-
-        assert_eq!(reserve.config.utilization_rate_1, 5000);
     }
 }
