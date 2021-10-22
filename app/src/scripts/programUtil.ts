@@ -4,6 +4,7 @@ import { MintInfo, MintLayout, AccountInfo as TokenAccountInfo, AccountLayout as
 import { AccountInfo, Commitment, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Buffer } from "buffer";
 import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes, User } from "../models/JetTypes";
+import { TxnResponse } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./util";
 import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
@@ -273,7 +274,7 @@ export const sendTransaction = async (
   instructions: TransactionInstruction[],
   signers?: Signer[],
   skipConfirmation?: boolean
-): Promise<[ok: boolean, txid: string | undefined]> => {
+): Promise<[ok: TxnResponse, txid: string | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
     
@@ -300,15 +301,15 @@ export const sendTransaction = async (
       transaction.addSignature(new PublicKey(data.publicKey), bs58.decode(data.signature));
     } catch (err) {
       console.log('Signing Transactions Failed', err);
-      return [false, 'cancelled'];
+      return [TxnResponse.Cancelled, null];
     }
   } else {
     try {
       transaction = await provider.wallet.signTransaction(transaction);
     } catch (err) {
-      console.log('Signing Transactions Failed', err);
+      console.log('Signing Transactions Failed', err, [TxnResponse.Failed, null]);
       // wallet refused to sign
-      return [false, 'cancelled'];
+      return [TxnResponse.Cancelled, null];
     }
   }
 
@@ -321,7 +322,7 @@ export const sendTransaction = async (
   console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`, transaction);
 
   // Confirming phase
-  let ok = true;
+  let res = TxnResponse.Success;
   if (!skipConfirmation) {
     const status = (
       await provider.connection.confirmTransaction(
@@ -331,11 +332,11 @@ export const sendTransaction = async (
     ).value;
 
     if (status?.err) {
-      ok = false;
+      res = TxnResponse.Failed;
     }
   }
 
-  return [ok, txid];
+  return [res, txid];
 };
 
 export interface InstructionAndSigner { ix: TransactionInstruction[], signers?: Signer[] };
@@ -344,7 +345,7 @@ export const sendAllTransactions = async (
   provider: anchor.Provider,
   transactions: InstructionAndSigner[],
   skipConfirmation?: boolean
-): Promise<[ok: boolean, txid: string[]]> => {
+): Promise<[ok: TxnResponse, txid: string[]]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
   }
@@ -383,7 +384,7 @@ export const sendAllTransactions = async (
     } catch (err) {
       console.log('Signing All Transactions Failed', err);
     // wallet refused to sign
-      return [false, ['cancelled']];
+      return [TxnResponse.Cancelled, ['cancelled']];
     }
   } else {
     try {
@@ -400,13 +401,13 @@ export const sendAllTransactions = async (
     catch (err) {
       console.log('Signing All Transactions Failed', err);
       // wallet refused to sign
-      return [false, ['cancelled']];
+      return [TxnResponse.Cancelled, ['cancelled']];
     }
   }
 
   // Sending phase
   console.log("Transactions", txs);
-  let ok = true;
+  let res = TxnResponse.Success;
   const txids: string[] = [];
   for (const transaction of signedTransactions) {
     const rawTransaction = transaction.serialize();
@@ -427,11 +428,11 @@ export const sendAllTransactions = async (
       ).value;
 
       if (status?.err) {
-        ok = false;
+        res = TxnResponse.Failed;
       }
     }
   }
-  return [ok, txids];
+  return [res, txids];
 };
 
 export const explorerUrl = (txid: string) => {

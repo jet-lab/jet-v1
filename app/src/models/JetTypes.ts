@@ -511,3 +511,9 @@ export interface CopilotAlert {
     onClick: () => void
   }
 };
+
+export enum TxnResponse {
+  Success = 'SUCCESS',
+  Failed = 'TRANSACTION ERROR',
+  Cancelled = 'CANCELLED'
+}
