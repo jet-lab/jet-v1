@@ -1178,7 +1178,7 @@ export const airdrop = async (abbrev: string, lamports: BN)
         console.error(`Airdrop error: ${transactionErrorToString(confirmation.value.err.toString())}`);
         return [TxnResponse.Failed, txid];
       } else {
-        return [TxnResponse.Failed, txid];
+        return [TxnResponse.Success, txid];
       }
     } catch (error) {
       console.error(`Airdrop error: ${transactionErrorToString(error)}`);
