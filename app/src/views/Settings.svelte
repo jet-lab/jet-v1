@@ -80,7 +80,7 @@
         {/if}
       </div>
       <Input type="text"
-        value={rpcNodeInput} 
+        bind:value={rpcNodeInput} 
         placeholder="ex: https://api.devnet.solana.com/"
         submit={checkRPC}
         error={inputError}
