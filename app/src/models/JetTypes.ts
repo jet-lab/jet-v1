@@ -514,6 +514,6 @@ export interface CopilotAlert {
 
 export enum TxnResponse {
   Success = 'SUCCESS',
-  Failed = 'Failed',
+  Failed = 'FAILED',
   Cancelled = 'CANCELLED'
 }
