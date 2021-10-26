@@ -76,6 +76,10 @@ pub fn handler(ctx: Context<RefreshReserve>) -> ProgramResult {
     if oracle.agg.price < 0 {
         return Err(ErrorCode::InvalidOraclePrice.into());
     }
+    if oracle.twac.val > reserve.config.confidence_threshold as i64 {
+        msg!("pyth confidence range outside threshold");
+        return Err(ErrorCode::InvalidOraclePrice.into());
+    }
 
     let market_reserves = market.reserves_mut();
     let reserve_info = market_reserves.get_mut(reserve.index);

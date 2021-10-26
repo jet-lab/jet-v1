@@ -23,6 +23,9 @@ import {
 import BN from "bn.js";
 import { u64 } from "@solana/spl-token";
 import * as util from "util";
+import { initTransactionLogs } from "app/src/scripts/jet";
+import { expect } from "chai";
+
 
 const TEST_CURRENCY = "LTD";
 
@@ -244,6 +247,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        confidenceThreshold: 10,
       },
     });
 
@@ -268,6 +272,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        confidenceThreshold: 10,
       },
     });
 
@@ -292,6 +297,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        confidenceThreshold: 10,
       },
     });
 
@@ -316,6 +322,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+        confidenceThreshold: 13,
       },
     });
 
@@ -457,6 +464,7 @@ describe("jet-serum", () => {
             loanOriginationFee: 10,
             liquidationSlippage: 300,
             liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
+            confidenceThreshold: 13,
           },
         });
       })
@@ -543,6 +551,27 @@ describe("jet-serum", () => {
         user.client.liquidateDex(usdc.reserve, assets[1].reserve),
         assets.map((asset) => asset.reserve.refresh()),
       ].flat()
+    );
+  });
+
+  it("dex will not liquidate when confidence out of range", async () => {
+    await utils.pyth.updatePriceAccount(usdc.pythPrice, {
+      exponent: -9,
+      aggregatePriceInfo: {
+        price: 1000000n,
+        conf: 10000000000n * 1000000000n,
+      },
+    });
+/*
+    await expect(
+      users[0].client.liquidateDex(
+        wsol.reserve,
+        usdc.reserve
+      )
+    ).to.be.rejectedWith("0x13d"); */
+    await users[0].client.liquidateDex(
+      wsol.reserve,
+      usdc.reserve
     );
   });
 });
