@@ -516,4 +516,13 @@ export enum TxnResponse {
   Success = 'SUCCESS',
   Failed = 'FAILED',
   Cancelled = 'CANCELLED'
-}
+};
+
+export interface SlopeTxn {
+  msg: string;
+  data: {
+      publicKey?: string;
+      signature?: string;
+      signatures?: string[];
+  };
+};
