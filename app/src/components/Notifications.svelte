@@ -1,18 +1,17 @@
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import { navigate } from 'svelte-navigator';
-  import { NOTIFICATIONS } from '../store';
-  import { clearNotification } from '../scripts/util';
+  import { USER } from '../store';
 </script>
 
-{#if $NOTIFICATIONS.length}
-  <div class="notifications flex align-center justify-center column">
-    {#each $NOTIFICATIONS as n, i}
-      <div class="notification flex align-center justify-center"
+{#if $USER.notifications?.length}
+  <div class="notifications flex-centered column">
+    {#each $USER.notifications as n, i}
+      <div class="notification flex-centered"
         class:success={n.success}
-        in:fly={{y: 50, duration: 500}}
+        in:fly={{y: 25, duration: 500}}
         out:fade={{duration: 50}}>
-        <div class="copilot-img flex align-center justify-center"
+        <div class="copilot-img flex-centered"
           on:click={() => {if (n.success) navigate("/transactions")}}>
           <img src="img/copilot/copilot.png" 
             alt="Copilot Icon"
@@ -22,7 +21,7 @@
           {@html n.text}
         </p>
         <i class="jet-icons close"
-          on:click={() => clearNotification(i)}>
+          on:click={() => $USER.clearNotification(i)}>
           ✕
         </i>
       </div>
@@ -44,7 +43,7 @@
     background: var(--failure);
     margin-top: var(--spacing-md);
     border-radius: var(--btn-radius);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--drop-shadow);;
     cursor: pointer;
   }
   .notification:active {
@@ -70,9 +69,10 @@
   }
   p {
     font-size: 14px;
-    max-width: 270px;
+    max-width: 215px;
     padding: var(--spacing-sm);
     color: var(--white);
+    border-right: 1px solid var(--white);
     opacity: 1;
   }
   img {

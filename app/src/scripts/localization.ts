@@ -1,5 +1,4 @@
 import type { Locale } from '../models/JetTypes';
-import { INIT_FAILED, LOCALE, PREFERRED_LANGUAGE } from '../store';
 import * as Jet_UI_EN from './languages/Jet_UI_EN.json';
 import * as Jet_Definitions_EN from './languages/Jet_Definitions_EN.json';
 import * as Jet_UI_ZH from './languages/Jet_UI_ZH.json';
@@ -10,6 +9,7 @@ import * as Jet_UI_RU from './languages/Jet_UI_RU.json';
 import * as Jet_Definitions_RU from './languages/Jet_Definitions_RU.json';
 import * as Jet_UI_TR from './languages/Jet_UI_TR.json';
 import * as Jet_Definitions_TR from './languages/Jet_Definitions_TR.json';
+import { USER } from '../store';
 
 // Check to see if user's locale is special case of Crimea
 const isCrimea = (locale: Locale): boolean => {
@@ -24,8 +24,9 @@ const isCrimea = (locale: Locale): boolean => {
 // Get user's preferred language from browser
 // Use fallback if not
 export const getLocale = async (): Promise<void> => {
-  let locale: Locale | null;
-  let language = window.navigator.languages[1];
+  let locale: Locale | null = null;
+  let language: string = window.navigator.languages[1];
+  let geobanned: boolean = false;
   let preferredLanguage = localStorage.getItem('jetPreferredLanguage');
   if (!Object.keys(dictionary).includes(language)) {
     language = 'en';
@@ -39,30 +40,25 @@ export const getLocale = async (): Promise<void> => {
       method: 'GET',
       headers: {'Content-Type': 'application/json'}
     });
-
     locale = await resp.json();
     geoBannedCountries.forEach(c => {
-      if (!locale?.country || c.code === locale?.country) {
+      if (c.code === locale?.country) {
         // If country is Ukraine, checks if first two digits
         // of the postal code further match Crimean postal codes.
-        if (locale?.country === "UA") {
-          if(isCrimea(locale)) {
-            INIT_FAILED.set({ geobanned: true })
-          }
-        } else {
-          INIT_FAILED.set({ geobanned: true });
+        if (locale?.country !== "UA" || isCrimea(locale)) {
+          geobanned = true;
         }
       }
     });
-
-    // Set language and locale
-    PREFERRED_LANGUAGE.set(language);
-    LOCALE.set(locale ?? null);
   } catch (err) {
     console.log(err);
   }
 
-  return;
+  USER.update(user => {
+    user.locale = locale;
+    user.geobanned = geobanned;
+    return user;
+  });
 };
 
 // Banned countries

@@ -1,12 +1,21 @@
 import { BN } from "@project-serum/anchor";
 import * as anchor from "@project-serum/anchor";
 import { MintInfo, MintLayout, AccountInfo as TokenAccountInfo, AccountLayout as TokenAccountLayout } from "@solana/spl-token";
-import { AccountInfo, Commitment, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
+import { AccountInfo, Commitment, ConfirmOptions, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes } from "../models/JetTypes";
+import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes, User, SlopeTxn } from "../models/JetTypes";
+import { TxnResponse } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./util";
-import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg, addTransactionLog } from "./jet";
+import { inDevelopment, getCustomProgramErrorCode, getErrNameAndMsg } from "./jet";
+import { USER } from '../store';
+import bs58 from 'bs58';
+
+let user: User;
+USER.subscribe((data) => {
+  user = data;
+})
+
 
 // Find PDA functions and jet algorithms that are reimplemented here
 
@@ -149,7 +158,7 @@ export const getTokenAccountAndSubscribe = async function (
 ): Promise<number> {
   return await getAccountInfoAndSubscribe(connection, publicKey, (account, context) => {
     if (account != null) {
-      if(account.data.length != 165){
+      if (account.data.length != 165) {
         console.log('account data length', account.data.length);
       }
       const decoded = parseTokenAccount(account, publicKey);
@@ -265,11 +274,11 @@ export const sendTransaction = async (
   instructions: TransactionInstruction[],
   signers?: Signer[],
   skipConfirmation?: boolean
-): Promise<[ok: boolean, txid: string | undefined]> => {
+): Promise<[res: TxnResponse, txid: string | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
+    
   }
-
   // Building phase
   let transaction = new Transaction();
   transaction.instructions = instructions;
@@ -282,25 +291,38 @@ export const sendTransaction = async (
   if (signers && signers.length > 0) {
     transaction.partialSign(...signers)
   }
-  try {
-    transaction = await provider.wallet.signTransaction(transaction);
-  }
-  catch (ex) {
-    // wallet refused to sign
-    return [false, 'cancelled'];
+   //Slope wallet funcs only take bs58 strings
+  if (user.wallet?.name === 'Slope') {
+    try {
+      const { msg, data } = await provider.wallet.signTransaction(bs58.encode(transaction.serializeMessage()) as any) as unknown as SlopeTxn;
+      if (!data.publicKey || !data.signature) {
+        throw new Error("Transaction Signing Failed");
+      }
+      transaction.addSignature(new PublicKey(data.publicKey), bs58.decode(data.signature));
+    } catch (err) {
+      console.log('Signing Transactions Failed', err);
+      return [TxnResponse.Cancelled, null];
+    }
+  } else {
+    try {
+      transaction = await provider.wallet.signTransaction(transaction);
+    } catch (err) {
+      console.log('Signing Transactions Failed', err, [TxnResponse.Failed, null]);
+      // wallet refused to sign
+      return [TxnResponse.Cancelled, null];
+    }
   }
 
   // Sending phase
-  console.log(`Transaction`, transaction);
   const rawTransaction = transaction.serialize();
   const txid = await provider.connection.sendRawTransaction(
     rawTransaction,
     provider.opts
-    );
+  );
   console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`, transaction);
 
   // Confirming phase
-  let ok = true;
+  let res = TxnResponse.Success;
   if (!skipConfirmation) {
     const status = (
       await provider.connection.confirmTransaction(
@@ -310,11 +332,11 @@ export const sendTransaction = async (
     ).value;
 
     if (status?.err) {
-      ok = false;
+      res = TxnResponse.Failed;
     }
   }
 
-  return [ok, txid];
+  return [res, txid];
 };
 
 export interface InstructionAndSigner { ix: TransactionInstruction[], signers?: Signer[] };
@@ -323,7 +345,7 @@ export const sendAllTransactions = async (
   provider: anchor.Provider,
   transactions: InstructionAndSigner[],
   skipConfirmation?: boolean
-): Promise<[ok: boolean, txid: string[]]> => {
+): Promise<[res: TxnResponse, txid: string[] | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
   }
@@ -347,34 +369,61 @@ export const sendAllTransactions = async (
 
   // Signing phase
   let signedTransactions: Transaction[] = [];
-
-  try {
-    //solong does not have a signAllTransactions Func so we sign one by one
-    if (!provider.wallet.signAllTransactions) {
-      for (let i = 0; i < txs.length; i++) {
-        const signedTxn = await provider.wallet.signTransaction(txs[i]);
-        signedTransactions.push(signedTxn);
+  //Slope wallet funcs only take bs58 strings
+  if (user.wallet?.name === 'Slope') { 
+    try {
+      const { msg, data } = await provider.wallet.signAllTransactions(txs.map((txn) => bs58.encode(txn.serializeMessage())) as any) as unknown as SlopeTxn;
+      const txnsLen = txs.length;
+      if(!data.publicKey || data.signatures?.length !== txnsLen) {
+        throw new Error("Transactions Signing Failed");
       }
-    } else {
-      signedTransactions = await provider.wallet.signAllTransactions(txs);
-    }
-  }
-  catch (err) {
-    console.log('Sign All Transactions Failed', err);
+      for (let i = 0; i < txnsLen; i++) {
+        txs[i].addSignature(new PublicKey(data.publicKey), bs58.decode(data.signatures[i]));
+        signedTransactions.push(txs[i])
+      }   
+    } catch (err) {
+      console.log('Signing All Transactions Failed', err);
     // wallet refused to sign
-    return [false, ['cancelled']];
+      return [TxnResponse.Cancelled, null];
+    }
+  } else {
+    try {
+      //solong does not have a signAllTransactions Func so we sign one by one
+      if (!provider.wallet.signAllTransactions) {
+        for (let i = 0; i < txs.length; i++) {
+          const signedTxn = await provider.wallet.signTransaction(txs[i]);
+          signedTransactions.push(signedTxn);
+        }
+      } else {
+        signedTransactions = await provider.wallet.signAllTransactions(txs);
+      }
+    }
+    catch (err) {
+      console.log('Signing All Transactions Failed', err);
+      // wallet refused to sign
+      return [TxnResponse.Cancelled, null];
+    }
   }
 
   // Sending phase
   console.log("Transactions", txs);
-  let ok = true;
+  let res = TxnResponse.Success;
   const txids: string[] = [];
-  for (const transaction of signedTransactions) {
+  for (let i = 0; i < signedTransactions.length; i++) {
+    const transaction = signedTransactions[i];
+
+    // Transactions can be simulated against an old slot that
+    // does not include previously sent transactions. In most
+    // conditions only the first transaction can be simulated
+    // safely
+    const skipPreflightSimulation = i !== 0;
+    const opts: ConfirmOptions = {
+      ...provider.opts,
+      skipPreflight: skipPreflightSimulation
+    }
+
     const rawTransaction = transaction.serialize();
-    const txid = await provider.connection.sendRawTransaction(
-      rawTransaction,
-      provider.opts
-    );
+    const txid = await provider.connection.sendRawTransaction(rawTransaction, opts);
     console.log(`Transaction ${explorerUrl(txid)} ${rawTransaction.byteLength} of 1232 bytes...`);
     txids.push(txid);
 
@@ -388,11 +437,11 @@ export const sendAllTransactions = async (
       ).value;
 
       if (status?.err) {
-        ok = false;
+        res = TxnResponse.Failed;
       }
     }
   }
-  return [ok, txids];
+  return [res, txids];
 };
 
 export const explorerUrl = (txid: string) => {

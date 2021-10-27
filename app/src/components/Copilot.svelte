@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import { COPILOT, PREFERRED_LANGUAGE } from '../store';
+  import { COPILOT, USER } from '../store';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
 
@@ -17,12 +17,12 @@
 </script>
 
 {#if $COPILOT}
-  <div class="modal-bg flex align-center justify-center"
+  <div class="modal-bg flex-centered"
     on:click={() => acceptJetDisclaimer ? COPILOT.set(null) : null}
     transition:fade={{duration: 50}}>
   </div>
-  <div class="copilot modal flex align-center justify-center column"
-    in:fly={{y: 50, duration: 500}}
+  <div class="copilot modal flex-centered column"
+    in:fly={{y: 25, duration: 500}}
     out:fade={{duration: 50}}>
     {#if $COPILOT.alert || $COPILOT.suggestion}
       <img src="img/copilot/copilot_white.png" 
@@ -38,7 +38,7 @@
     <div class="copilot-body modal-section flex align-start justify-center column">
       {#if $COPILOT.suggestion}
         <h1 class="bicyclette modal-section text-gradient">
-          {dictionary[$PREFERRED_LANGUAGE].copilot.header}
+          {dictionary[$USER.language].copilot.header}
         </h1>
         {#if $COPILOT.suggestion.overview}
           <h2 class="bicyclette modal-section" 
@@ -56,9 +56,9 @@
             {@html $COPILOT.suggestion.solution}
           </span>
         {/if}
-        <div class="button flex align-center justify-center">
+        <div class="button flex-centered">
           {#if $COPILOT.suggestion.action}
-            <Button text={$COPILOT.suggestion.action.text ?? dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+            <Button text={$COPILOT.suggestion.action.text ?? dictionary[$USER.language].copilot.okay} 
               onClick={() => {
                 $COPILOT?.suggestion?.action?.onClick();
                 COPILOT.set(null);
@@ -67,7 +67,7 @@
               small
             />
           {:else}
-            <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+            <Button text={dictionary[$USER.language].copilot.okay} 
               onClick={() => COPILOT.set(null)}
               error={!$COPILOT.suggestion?.good}
               small
@@ -81,8 +81,8 @@
         <span class="modal-section">
           {@html $COPILOT.definition.definition}
         </span>
-        <div class="button flex align-center justify-center">
-          <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+        <div class="button flex-centered">
+          <Button text={dictionary[$USER.language].copilot.okay} 
             onClick={() => COPILOT.set(null)}
             small
           />
@@ -95,7 +95,7 @@
         <span class="modal-section">
           {@html $COPILOT.alert.text}
         </span>
-        <div class="button flex align-center justify-center">
+        <div class="button flex-centered">
           {#if $COPILOT.alert.action}
             <Button text={$COPILOT.alert.action.text} 
               onClick={() => {
@@ -106,7 +106,7 @@
               small
             />
           {:else}
-            <Button text={dictionary[$PREFERRED_LANGUAGE].copilot.okay} 
+            <Button text={dictionary[$USER.language].copilot.okay} 
               onClick={() => COPILOT.set(null)}
               error={!$COPILOT.alert?.good}
               small
@@ -138,7 +138,7 @@
     overflow: hidden;
     flex-wrap: nowrap;
     z-index: 103;
-    padding: var(--spacing-md);
+    padding: 0 var(--spacing-md);
   }
   .copilot-body {
     max-width: 250px;

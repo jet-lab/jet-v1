@@ -100,6 +100,13 @@ export interface ReserveDexMarketAccounts {
   vaultSigner: PublicKey;
 }
 
+export interface UpdateReserveConfigParams {
+  config: ReserveConfig;
+  reserve: PublicKey;
+  market: PublicKey;
+  owner: Keypair;
+}
+
 export class JetReserve {
   private conn: Connection;
 
@@ -175,6 +182,17 @@ export class JetReserve {
       pcVault: dexMarket.quoteVault,
       vaultSigner,
     };
+  }
+
+  async updateReserveConfig(params: UpdateReserveConfigParams): Promise<void> {
+    await this.client.program.rpc.updateReserveConfig(params.config, {
+      accounts: {
+        market: params.market,
+        reserve: params.reserve,
+        owner: params.owner.publicKey,
+      },
+      signers: [params.owner],
+    });
   }
 
   static async load(

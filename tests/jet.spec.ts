@@ -15,7 +15,10 @@ import {
 import { TestToken, TestUtils, toBN } from "./utils";
 import { BN } from "@project-serum/anchor";
 import { NodeWallet } from "@project-serum/anchor/dist/provider";
-import { CreateReserveParams } from "libraries/ts/src/reserve";
+import {
+  CreateReserveParams,
+  UpdateReserveConfigParams,
+} from "libraries/ts/src/reserve";
 import * as serum from "@project-serum/serum";
 import { SerumUtils } from "./utils/serum";
 import { assert, expect, use as chaiUse } from "chai";
@@ -23,6 +26,7 @@ import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
 import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
+import isEqual from "lodash";
 
 chaiUse(chaiAsPromised.default);
 
@@ -752,6 +756,97 @@ describe("jet", async () => {
     assert.equal(
       finalBalanceA.add(finalBalanceB).add(vaultBalance).toString(),
       bn(2 * initialTokenAmount).toString()
+    );
+  });
+
+  it("market owner changes wsol reserve config", async () => {
+    const newConfig = {
+      utilizationRate1: 6500,
+      utilizationRate2: 7500,
+      borrowRate0: 10000,
+      borrowRate1: 20000,
+      borrowRate2: 30000,
+      borrowRate3: 40000,
+      minCollateralRatio: 15000,
+      liquidationPremium: 120,
+      manageFeeRate: 60,
+      manageFeeCollectionThreshold: new BN(11),
+      loanOriginationFee: 11,
+      liquidationSlippage: 350,
+      liquidationDexTradeMax: new BN(120),
+    } as ReserveConfig;
+
+    const updateReserveConfigParams = {
+      config: newConfig,
+      reserve: wsol.reserve.address,
+      market: jetMarket.address,
+      owner: marketOwner,
+    } as UpdateReserveConfigParams;
+
+    await wsol.reserve.updateReserveConfig(updateReserveConfigParams);
+
+    const fetchConfig = async () => {
+      const config = (await loadReserve(wsol.reserve.address)).config;
+
+      return {
+        utilizationRate1: config.utilizationRate1,
+        utilizationRate2: config.utilizationRate2,
+        borrowRate0: config.borrowRate0,
+        borrowRate1: config.borrowRate1,
+        borrowRate2: config.borrowRate2,
+        borrowRate3: config.borrowRate3,
+        minCollateralRatio: config.minCollateralRatio,
+        liquidationPremium: config.liquidationPremium,
+        manageFeeRate: config.manageFeeRate,
+        manageFeeCollectionThreshold: config.manageFeeCollectionThreshold,
+        loanOriginationFee: config.loanOriginationFee,
+        liquidationSlippage: config.liquidationSlippage,
+        liquidationDexTradeMax: new BN(config.liquidationDexTradeMax),
+      } as ReserveConfig;
+    };
+    const fetchedConfig = await fetchConfig();
+
+    assert(
+      isEqual(fetchedConfig, newConfig),
+      "reserve config failed to update"
+    );
+  });
+
+  it("user A fails to change wsol reserve config", async () => {
+    const user = userA;
+    const newConfig = {
+      utilizationRate1: 6500,
+      utilizationRate2: 7500,
+      borrowRate0: 10000,
+      borrowRate1: 20000,
+      borrowRate2: 30000,
+      borrowRate3: 40000,
+      minCollateralRatio: 15000,
+      liquidationPremium: 120,
+      manageFeeRate: 60,
+      manageFeeCollectionThreshold: new BN(11),
+      loanOriginationFee: 11,
+      liquidationSlippage: 350,
+      liquidationDexTradeMax: new BN(120),
+    } as ReserveConfig;
+
+    const tx = new anchor.web3.Transaction();
+    tx.add(
+      program.instruction.updateReserveConfig(newConfig, {
+        accounts: {
+          market: jetMarket.address,
+          reserve: wsol.reserve.address,
+          owner: user.wallet.publicKey,
+        },
+      })
+    );
+
+    let result = await client.program.provider.simulate(tx, [user.wallet]);
+    const expectedErr = { InstructionError: [ 0, { Custom: 141 } ] }
+    
+    assert(
+      isEqual(result.value.err, expectedErr),
+      "expected instruction to fail"
     );
   });
 });

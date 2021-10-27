@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { CopilotDefinition } from '../models/JetTypes';
-  import { COPILOT } from '../store';
+  import { onMount } from 'svelte';
   import { timeout } from '../scripts/util';
+  import Info from './Info.svelte';
 
   export let percentage: number;
   export let text: string = '';
-  export let percentageDefinition: CopilotDefinition;
+  export let term: string;
 
   let percent: number = 0;
   const animatePercent = async () => {
@@ -16,10 +16,9 @@
     }
   };
 
-  // Reactive statement to update percentage
-  $: if (percentage) {
+  onMount(() => {
     animatePercent();
-  }
+  });
 </script>
 
 <div class="chart">
@@ -30,27 +29,23 @@
         a 15.9155 15.9155 0 0 1 0 -31.831"
     />
     <path
-      stroke-dasharray={`${percent}, 100`}
+      stroke-dasharray="{percent}, 100"
       d="M18 2.0845
         a 15.9155 15.9155 0 0 1 0 31.831
         a 15.9155 15.9155 0 0 1 0 -31.831"
     />
   </svg>
   <div class="inset-chart-shadow"></div>
-  <div class="chart-info flex align-center justify-center column">
+  <div class="chart-info flex-centered column">
     <h2 class="modal-header">
       {percentage > 1 ? Math.floor(percentage) : Math.ceil(percentage)}%
     </h2>
     {#if text}
       <span>
         {text}
-        {#if Object.keys(percentageDefinition)}
-          <i on:click={() => COPILOT.set({
-            definition: percentageDefinition
-          })} 
-            class="info fas fa-info-circle">
-          </i>
-      {/if}
+        {#if term}
+          <Info {term} />
+        {/if}
       </span>
     {/if}
   </div>
@@ -94,9 +89,6 @@
   span {
     font-size: 10px;
     margin-top: -10px;
-  }
-  i {
-    margin: unset;
   }
 
   @media screen and (max-width: 1100px) {

@@ -12,20 +12,20 @@
   style={maxWidth ? `max-width: ${maxWidth}` : ''}
   on:click={() => onClick()}>
   {#if native}
-    <div class="crypto flex align-center justify-center"
+    <div class="crypto flex-centered"
       class:active={!active}>
       <i class="jet-icons">
         ❍
       </i>
     </div>
-    <div class="usd flex align-center justify-center"
+    <div class="usd flex-centered"
       class:active>
       <i class="jet-icons">
         ❏
       </i>
     </div>
   {:else}
-    <div class="toggle flex align-center justify-center">
+    <div class="toggle flex-centered">
       <i class="jet-icons"
         class:text-gradient={active}>
         {icon}

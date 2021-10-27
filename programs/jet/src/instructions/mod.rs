@@ -34,6 +34,7 @@ pub mod liquidate;
 pub mod liquidate_dex;
 pub mod refresh_reserve;
 pub mod repay;
+pub mod update_reserve_config;
 pub mod withdraw;
 pub mod withdraw_collateral;
 
@@ -53,5 +54,6 @@ pub use refresh_reserve::*;
 pub use repay::*;
 pub use set_market_flags::*;
 pub use set_market_owner::*;
+pub use update_reserve_config::*;
 pub use withdraw::*;
 pub use withdraw_collateral::*;

@@ -57,6 +57,14 @@ mod jet {
         instructions::init_reserve::handler(ctx, bump, config)
     }
 
+    /// Replace an existing reserve config
+    pub fn update_reserve_config(
+        ctx: Context<UpdateReserveConfig>,
+        new_config: ReserveConfig,
+    ) -> ProgramResult {
+        instructions::update_reserve_config::handler(ctx, new_config)
+    }
+
     /// Initialize an account that can be used to store deposit notes
     pub fn init_deposit_account(ctx: Context<InitializeDepositAccount>, bump: u8) -> ProgramResult {
         instructions::init_deposit_account::handler(ctx, bump)

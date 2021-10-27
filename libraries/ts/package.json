@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Library for interacting with the Jet on-chain programs",
   "main": "./lib/index.js",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "dependencies": {
     "tslint": "^6.1.3",
     "typescript": "^4.3.5",
