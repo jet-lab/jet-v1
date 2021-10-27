@@ -174,7 +174,7 @@ pub fn repay<'info, T: RepayContext<'info>>(
     let payoff_notes = std::cmp::min(payoff_notes, token::accessor::amount(loan_account)?);
     let payoff_tokens = std::cmp::min(
         reserve_info.loan_notes_to_tokens(payoff_notes, Rounding::Up),
-        reserve.unwrap_outstanding_debt(clock.slot).as_u64(0)
+        reserve.unwrap_outstanding_debt(clock.slot).as_u64(0),
     );
 
     // Burn the debt that's being repaid
