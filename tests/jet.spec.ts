@@ -26,7 +26,8 @@ import * as chaiAsPromised from "chai-as-promised";
 import * as splToken from "@solana/spl-token";
 import { ReserveAccount, ReserveStateStruct } from "app/src/models/JetTypes";
 import { ReserveStateLayout } from "app/src/scripts/layout";
-import isEqual from "lodash";
+import { isEqualWith } from "lodash";
+
 
 chaiUse(chaiAsPromised.default);
 
@@ -60,6 +61,26 @@ describe("jet", async () => {
 
   function bn(z: number): BN {
     return new BN(z);
+  }
+
+  function compareReserveConfig(a: ReserveConfig, b: ReserveConfig): boolean {
+  
+    const keys = Object.keys(a);
+    for (let key in keys) {
+  
+      let aField = a[keys[key]];
+      let bField = b[keys[key]];
+  
+      if (BN.isBN(aField)) {
+        if (aField.cmp(bField) != 0) {
+          return false;
+        }
+      } else if (aField != bField) {
+        return false;
+      }
+    }
+  
+    return true;
   }
 
   async function checkBalance(tokenAccount: PublicKey): Promise<BN> {
@@ -810,7 +831,7 @@ describe("jet", async () => {
     const fetchedConfig = await fetchConfig();
 
     assert(
-      isEqual(fetchedConfig, newConfig),
+      compareReserveConfig(fetchedConfig, newConfig),
       "reserve config failed to update"
     );
   });
@@ -849,7 +870,7 @@ describe("jet", async () => {
     const expectedErr = { InstructionError: [ 0, { Custom: 141 } ] }
     
     assert(
-      isEqual(result.value.err, expectedErr),
+      isEqualWith(result.value.err, expectedErr),
       "expected instruction to fail"
     );
   });
