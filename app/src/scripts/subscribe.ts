@@ -6,23 +6,29 @@ import type * as anchor from "@project-serum/anchor";
 import { BN } from "@project-serum/anchor";
 import { parsePriceData } from "@pythnetwork/client";
 import type { Market, User, Asset, IdlMetadata, Reserve } from "../models/JetTypes";
-import { MARKET, USER } from "../store";
+import { ANCHOR_CODER, CONNECTION, IDL_METADATA, MARKET, USER } from "../store";
 import { getAccountInfoAndSubscribe, getMintInfoAndSubscribe, getTokenAccountAndSubscribe, parseMarketAccount, parseObligationAccount, parseReserveAccount, SOL_DECIMALS, getCcRate, getBorrowRate, getDepositRate } from "./programUtil";
 import { TokenAmount } from "./util";
 import { MarketReserveInfoList } from "./layout";
 
 let market: Market;
 let user: User;
+let idlMetadata: IdlMetadata;
+let connection: Connection;
+let coder: anchor.Coder
 MARKET.subscribe(data => market = data);
 USER.subscribe(data => user = data);
+IDL_METADATA.subscribe(data => idlMetadata = data)
+CONNECTION.subscribe(data => connection = data)
+ANCHOR_CODER.subscribe(data => coder = data)
 
-export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor.web3.Connection, coder: anchor.Coder) => {
+export const subscribeToMarket = async () => {
   let promise: Promise<number>;
   const promises: Promise<number>[] = [];
 
   // Market subscription 
   let timeStart = Date.now();
-  promise = getAccountInfoAndSubscribe(connection, idlMeta.market.market, account => {
+  promise = getAccountInfoAndSubscribe(connection, idlMetadata.market.market, account => {
     if (account != null) {
       MARKET.update(market => {
         console.assert(MarketReserveInfoList.span == 12288);
@@ -55,7 +61,7 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
   });
   promises.push(promise);
 
-  for (const reserveMeta of idlMeta.reserves) {
+  for (const reserveMeta of idlMetadata.reserves) {
     // Reserve
     promise = getAccountInfoAndSubscribe(connection, reserveMeta.accounts.reserve, account => {
       if (account != null) {
@@ -154,10 +160,10 @@ export const subscribeToMarket = async (idlMeta: IdlMetadata, connection: anchor
   return await Promise.all(promises);
 };
 
-export const subscribeToAssets = async (connection: Connection, coder: anchor.Coder, wallet: anchor.web3.PublicKey) => {
+export const subscribeToAssets = async () => {
   let promise: Promise<number>;
   let promises: Promise<number>[] = [];
-  if (!user.assets) {
+  if (!user.assets || !user.wallet) {
     return;
   }
 
@@ -178,7 +184,7 @@ export const subscribeToAssets = async (connection: Connection, coder: anchor.Co
   promises.push(promise);
 
   // Wallet native SOL balance
-  promise = getAccountInfoAndSubscribe(connection, wallet, account => {
+  promise = getAccountInfoAndSubscribe(connection, user.wallet.publicKey, account => {
     USER.update(user => {
       if (user.assets) {
         // Need to be careful constructing a BN from a number.

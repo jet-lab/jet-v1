@@ -27,6 +27,7 @@ export interface CustomProgramError {
 
 // Market
 export interface Market {
+  marketInit: boolean,
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
@@ -241,6 +242,7 @@ export interface User {
   // Wallet
   connectingWallet: boolean,
   wallet: Wallet | MathWallet | SolongWallet | SlopeWallet | null,
+  /** True when all wallet account subscriptions have returned data at least once. */
   walletInit: boolean,
   tradeAction: string,
 

@@ -7,8 +7,8 @@ import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
 import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, SlopeWallet, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
 import { TxnResponse } from "../models/JetTypes";
-import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, ANCHOR_WEB3_CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
-import { subscribeToMarket, subscribeToAssets } from './subscribe';
+import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
+import { subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
@@ -37,7 +37,7 @@ PROGRAM.subscribe(data => program = data);
 MARKET.subscribe(data => market = data);
 USER.subscribe(data => user = data);
 CUSTOM_PROGRAM_ERRORS.subscribe(data => customProgramErrors = data);
-ANCHOR_WEB3_CONNECTION.subscribe(data => connection = data);
+CONNECTION.subscribe(data => connection = data);
 ANCHOR_CODER.subscribe(data => coder = data);
 
 // Development / Devnet identifier
@@ -54,18 +54,18 @@ export const rollbar = new Rollbar({
 });
 
 // Get IDL and market data
-export const getMarketAndIDL = async (): Promise<void> => {
+export const getIDLAndAnchorAndMarketPubkeys = async (): Promise<void> => {
   // Fetch IDL and preferred RPC Node
   const idlPath = "idl/" + jetIdl + "/jet.json";
   console.log(`Loading IDL from ${idlPath}`)
   const resp = await fetch(idlPath);
   idl = await resp.json();
-  IDL_METADATA.set(parseIdlMetadata(idl.metadata));
+  const idlMetadata = parseIdlMetadata(idl.metadata);
+  IDL_METADATA.set(idlMetadata);
   CUSTOM_PROGRAM_ERRORS.set(idl.errors);
 
-  // Establish web3 connection
-  const idlMetadata = parseIdlMetadata(idl.metadata);
-  coder = new anchor.Coder(idl);
+  // Construct account coder
+  ANCHOR_CODER.set(new anchor.Coder(idl));
 
   // Establish and test web3 connection
   // If error log it and display failure component
@@ -75,29 +75,19 @@ export const getMarketAndIDL = async (): Promise<void> => {
       preferredNode ?? idlMetadata.cluster, 
       (anchor.Provider.defaultOptions()).commitment
     );
-    ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    CONNECTION.set(anchorConnection);
     USER.update(user => {
       user.rpcNode = preferredNode;
       return user;
     });
   } catch {
     const anchorConnection = new anchor.web3.Connection(idlMetadata.cluster, (anchor.Provider.defaultOptions()).commitment);
-    ANCHOR_WEB3_CONNECTION.set(anchorConnection);
+    CONNECTION.set(anchorConnection);
     localStorage.removeItem('jetPreferredNode');
     USER.update(user => {
       user.rpcNode = null;
       return user;
     });
-  }
-  
-  ANCHOR_CODER.set(new anchor.Coder(idl));
-  try {
-    await connection.getVersion();
-  } catch (err) {
-    console.error(`Unable to connect: ${err}`)
-    rollbar.critical(`Unable to connect: ${err}`);
-    INIT_FAILED.set(true);
-    return;
   }
 
   // Setup reserve structures
@@ -161,9 +151,6 @@ export const getMarketAndIDL = async (): Promise<void> => {
     market.currentReserve = reserves.SOL;
     return market;
   });
-
-  // Subscribe to market 
-  await subscribeToMarket(idlMetadata, connection, coder);
 };
 
 // Connect to user's wallet
@@ -221,7 +208,7 @@ export const getWalletAndAnchor = async (provider: WalletProvider): Promise<void
     // Get all asset pubkeys owned by wallet pubkey
     await getAssetPubkeys();
     // Subscribe to all asset accounts for those pubkeys
-    await subscribeToAssets(connection, coder, wallet.publicKey);
+    await subscribeToAssets();
     // Init wallet for UI display
     USER.update(user => {
       user.walletInit = true;
