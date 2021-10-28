@@ -9,6 +9,9 @@ export const INIT_FAILED = writable<boolean> (false);
 
 // Market
 export const MARKET = writable<Market>({
+  /** True when all market and reserve account subscriptions have returned data at least once. */
+  marketInit: false,
+
   // Accounts
   accountPubkey: {} as PublicKey,
   authorityPubkey: {} as PublicKey,
@@ -24,7 +27,7 @@ export const MARKET = writable<Market>({
   reservesArray: [],
   currentReserve: {} as Reserve,
 
-  // Native vs USD UI values
+  /** Native vs USD UI values */
   nativeValues: true,
 });
 
@@ -100,6 +103,6 @@ export const COPILOT = writable<Copilot | null> (null);
 // Program
 export const PROGRAM = writable<anchor.Program | null> (null);
 export const CUSTOM_PROGRAM_ERRORS = writable<CustomProgramError[]> ([]);
-export const ANCHOR_WEB3_CONNECTION = writable<anchor.web3.Connection> (undefined);
+export const CONNECTION = writable<anchor.web3.Connection> (undefined);
 export const ANCHOR_CODER = writable<anchor.Coder> (undefined);
 export const IDL_METADATA = writable<IdlMetadata> (undefined);

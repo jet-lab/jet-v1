@@ -4,7 +4,7 @@
 <script lang="ts">
   import Select from 'svelte-select';
   import { USER } from '../store';
-  import { getMarketAndIDL, disconnectWallet, initTransactionLogs } from '../scripts/jet';
+  import { getIDLAndAnchorAndMarketPubkeys, disconnectWallet, initTransactionLogs } from '../scripts/jet';
   import { setDark, shortenPubkey } from '../scripts/util';
   import { dictionary } from '../scripts/localization';
   import Button from '../components/Button.svelte';
@@ -15,13 +15,13 @@
   let inputError: string | null = null;
 
   // Reset connection to default
-  const resetRPC = () => {
+  const resetRPC = async () => {
     localStorage.removeItem('jetPreferredNode');
     USER.update(user => {
       user.rpcPing = 0;
       return user;
     });
-    getMarketAndIDL();
+    await getIDLAndAnchorAndMarketPubkeys();
     initTransactionLogs();
   };
   
@@ -37,7 +37,7 @@
       user.rpcPing = 0;
       return user;
     });
-    getMarketAndIDL();
+    await getIDLAndAnchorAndMarketPubkeys();
     initTransactionLogs();
     inputError = null;
     rpcNodeInput = null;

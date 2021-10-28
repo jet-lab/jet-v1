@@ -3,7 +3,7 @@ import * as anchor from "@project-serum/anchor";
 import { MintInfo, MintLayout, AccountInfo as TokenAccountInfo, AccountLayout as TokenAccountLayout } from "@solana/spl-token";
 import { AccountInfo, Commitment, ConfirmOptions, Connection, Context, PublicKey, Signer, Transaction, TransactionInstruction } from "@solana/web3.js";
 import { Buffer } from "buffer";
-import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes, User } from "../models/JetTypes";
+import type { HasPublicKey, IdlMetadata, JetMarketReserveInfo, MarketAccount, ObligationAccount, ObligationPositionStruct, ReserveAccount, ReserveConfigStruct, ReserveStateStruct, ToBytes, User, SlopeTxn } from "../models/JetTypes";
 import { TxnResponse } from "../models/JetTypes";
 import { MarketReserveInfoList, PositionInfoList, ReserveStateLayout } from "./layout";
 import { TokenAmount } from "./util";
@@ -274,7 +274,7 @@ export const sendTransaction = async (
   instructions: TransactionInstruction[],
   signers?: Signer[],
   skipConfirmation?: boolean
-): Promise<[ok: TxnResponse, txid: string | null]> => {
+): Promise<[res: TxnResponse, txid: string | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
     
@@ -294,7 +294,7 @@ export const sendTransaction = async (
    //Slope wallet funcs only take bs58 strings
   if (user.wallet?.name === 'Slope') {
     try {
-      const { msg, data } = await provider.wallet.signTransaction(bs58.encode(transaction.serializeMessage()) as any);
+      const { msg, data } = await provider.wallet.signTransaction(bs58.encode(transaction.serializeMessage()) as any) as unknown as SlopeTxn;
       if (!data.publicKey || !data.signature) {
         throw new Error("Transaction Signing Failed");
       }
@@ -345,7 +345,7 @@ export const sendAllTransactions = async (
   provider: anchor.Provider,
   transactions: InstructionAndSigner[],
   skipConfirmation?: boolean
-): Promise<[ok: TxnResponse, txid: string[] | null]> => {
+): Promise<[res: TxnResponse, txid: string[] | null]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
   }
@@ -372,7 +372,7 @@ export const sendAllTransactions = async (
   //Slope wallet funcs only take bs58 strings
   if (user.wallet?.name === 'Slope') { 
     try {
-      const { msg, data } = await provider.wallet.signAllTransactions(txs.map((txn) => bs58.encode(txn.serializeMessage())) as any);
+      const { msg, data } = await provider.wallet.signAllTransactions(txs.map((txn) => bs58.encode(txn.serializeMessage())) as any) as unknown as SlopeTxn;
       const txnsLen = txs.length;
       if(!data.publicKey || data.signatures?.length !== txnsLen) {
         throw new Error("Transactions Signing Failed");

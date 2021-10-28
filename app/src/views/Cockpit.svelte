@@ -89,11 +89,13 @@
         <h2 class="view-subheader">
           {dictionary[$USER.language].cockpit.totalValueLocked}
         </h2>
-        {#key $MARKET.totalValueLocked}
-          <h1 class="view-header text-gradient">
-            {totalAbbrev($MARKET.totalValueLocked)}
+        <h1 class="view-header text-gradient">
+            {#if $MARKET.marketInit}
+              {totalAbbrev($MARKET.totalValueLocked)}
+            {:else}
+              --
+            {/if}
           </h1>
-        {/key}
       </div>
       <div class="trade-position-snapshot flex-centered">
         <div class="trade-position-ratio flex align-start justify-center column">
@@ -103,28 +105,26 @@
             </h2>
             <Info term="collateralizationRatio" />
           </div>
-          {#if $USER.walletInit}
-            {#key $USER.position.colRatio}
-              <h1 class="view-header"
-              style="margin-bottom: -20px; {$USER.wallet
-                ? ($USER.position.borrowedValue && (Math.floor($USER.position.colRatio) <= $MARKET.minColRatio) 
-                  ? 'color: var(--failure);' 
-                    : 'color: var(--success);')
-                  : ''}">
-                {#if $USER.position.borrowedValue && $USER.position.colRatio > 10}
-                  &gt;1000
-                {:else if $USER.position.borrowedValue && $USER.position.colRatio < 10}
-                  {currencyFormatter($USER.position.colRatio * 100, false, 1)}
-                {:else}
-                  ∞
-                {/if}
-                {#if $USER.position.borrowedValue}
-                  <span style="color: inherit; padding-left: 2px;">
-                    %
-                  </span>
-                {/if}
-              </h1>
-            {/key}
+          {#if $USER.walletInit && $MARKET.marketInit}
+            <h1 class="view-header"
+            style="margin-bottom: -20px; {$USER.wallet
+              ? ($USER.position.borrowedValue && (Math.floor($USER.position.colRatio) <= $MARKET.minColRatio) 
+                ? 'color: var(--failure);' 
+                  : 'color: var(--success);')
+                : ''}">
+              {#if $USER.position.borrowedValue && $USER.position.colRatio > 10}
+                &gt;1000
+              {:else if $USER.position.borrowedValue && $USER.position.colRatio < 10}
+                {currencyFormatter($USER.position.colRatio * 100, false, 1)}
+              {:else}
+                ∞
+              {/if}
+              {#if $USER.position.borrowedValue}
+                <span style="color: inherit; padding-left: 2px;">
+                  %
+                </span>
+              {/if}
+            </h1>
           {:else}
             <p>
               --
@@ -137,11 +137,9 @@
               {dictionary[$USER.language].cockpit.totalDepositedValue}
             </h2>
             {#if $USER.walletInit}
-              {#key $USER.position.depositedValue}
-                <p class="bicyclette text-gradient">
-                  {totalAbbrev($USER.position.depositedValue ?? 0)}
-                </p>
-              {/key}
+              <p class="bicyclette text-gradient">
+                {totalAbbrev($USER.position.depositedValue ?? 0)}
+              </p>
             {:else}
               <p class="bicyclette">
                 --
@@ -153,11 +151,9 @@
               {dictionary[$USER.language].cockpit.totalBorrowedValue}
             </h2>
             {#if $USER.walletInit}
-              {#key $USER.position.borrowedValue}
-                <p class="bicyclette text-gradient">
-                  {totalAbbrev($USER.position.borrowedValue ?? 0)}
-                </p>
-              {/key}
+              <p class="bicyclette text-gradient">
+                {totalAbbrev($USER.position.borrowedValue ?? 0)}
+              </p>
             {:else}
               <p class="bicyclette">
                 --
@@ -227,7 +223,12 @@
                 {$rows[i].name}
               </span>
               <span>
-                ≈ {currencyFormatter($rows[i].price, true, 2)}
+                ≈ 
+                {#if $MARKET.marketInit}
+                  {currencyFormatter($rows[i].price, true, 2)}
+                {:else}
+                  --
+                {/if}
               </span>
             </td>
             <td on:click={() => reserveDetail = $rows[i]} 
@@ -235,18 +236,30 @@
               {$rows[i].abbrev} {dictionary[$USER.language].cockpit.detail}
             </td>
             <td>
-              {totalAbbrev(
-                $rows[i].availableLiquidity.uiAmountFloat,
-                $rows[i].price,
-                $MARKET.nativeValues,
-                2
-              )}
+              {#if $MARKET.marketInit}
+                {totalAbbrev(
+                  $rows[i].availableLiquidity.uiAmountFloat,
+                  $rows[i].price,
+                  $MARKET.nativeValues,
+                  2
+                )}
+              {:else}
+                --
+              {/if}
             </td>
             <td>
-              {$rows[i].depositRate ? ($rows[i].depositRate * 100).toFixed(2) : 0}%
+              {#if $MARKET.marketInit}
+                {$rows[i].depositRate ? ($rows[i].depositRate * 100).toFixed(2) : 0}%
+              {:else}
+                --%
+              {/if}
             </td>
             <td class="datatable-border-right">
-              {$rows[i].borrowRate ? ($rows[i].borrowRate * 100).toFixed(2) : 0}%
+              {#if $MARKET.marketInit}
+                {$rows[i].borrowRate ? ($rows[i].borrowRate * 100).toFixed(2) : 0}%
+              {:else}
+                --%
+              {/if}
             </td>
             <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
               class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
@@ -255,12 +268,16 @@
                   && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
-                  {totalAbbrev(
-                    $USER.walletBalances[$rows[i].abbrev] ?? 0,
-                    $rows[i].price,
-                    $MARKET.nativeValues,
-                    3
-                  )}
+                  {#if $MARKET.marketInit}
+                    {totalAbbrev(
+                      $USER.walletBalances[$rows[i].abbrev] ?? 0,
+                      $rows[i].price,
+                      $MARKET.nativeValues,
+                      3
+                    )}
+                  {:else}
+                    --
+                  {/if}
                 {/if}
               {:else}
                   --
@@ -274,12 +291,16 @@
                   && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
-                  {totalAbbrev(
-                    $USER.collateralBalances[$rows[i].abbrev] ?? 0,
-                    $rows[i].price,
-                    $MARKET.nativeValues,
-                    3
-                  )}
+                  {#if $MARKET.marketInit}
+                    {totalAbbrev(
+                      $USER.collateralBalances[$rows[i].abbrev] ?? 0,
+                      $rows[i].price,
+                      $MARKET.nativeValues,
+                      3
+                    )}
+                  {:else}
+                    --
+                  {/if}
                 {/if}
               {:else}
                   --
@@ -293,12 +314,16 @@
                   && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
                   ~0
                 {:else}
-                  {totalAbbrev(
-                    $USER.loanBalances[$rows[i].abbrev] ?? 0,
-                    $rows[i].price,
-                    $MARKET.nativeValues,
-                    3
-                  )}
+                  {#if $MARKET.marketInit}
+                    {totalAbbrev(
+                      $USER.loanBalances[$rows[i].abbrev] ?? 0,
+                      $rows[i].price,
+                      $MARKET.nativeValues,
+                      3
+                    )}
+                  {:else}
+                    --
+                  {/if}
                 {/if}
               {:else}
                 --
