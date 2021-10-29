@@ -11,21 +11,6 @@ export interface ToBytes {
   toBytes(): Uint8Array;
 };
 
-// Solana injected window object
-export interface SolWindow extends Window {
-  solana: {
-    isPhantom?: boolean,
-    isMathWallet?: boolean,
-    getAccount: () => Promise<string>,
-  },
-  solong: {
-    selectAccount: () => Promise<string>,
-  },
-  solflare: {
-    isSolflare?: boolean
-  }
-};
-
 //Idl Metadata
 export interface IdlMetadata {
   address: PublicKey;
@@ -42,6 +27,7 @@ export interface CustomProgramError {
 
 // Market
 export interface Market {
+  marketInit: boolean,
   accountPubkey: PublicKey,
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
@@ -255,7 +241,8 @@ export interface User {
 
   // Wallet
   connectingWallet: boolean,
-  wallet: Wallet | MathWallet | SolongWallet | null,
+  wallet: Wallet | MathWallet | SolongWallet | SlopeWallet | null,
+  /** True when all wallet account subscriptions have returned data at least once. */
   walletInit: boolean,
   tradeAction: string,
 
@@ -281,6 +268,25 @@ export interface User {
   navExpanded: boolean,
   rpcNode: string | null,
   rpcPing: number
+};
+
+
+// Solana injected window object
+export interface SolWindow extends Window {
+  solana: {
+    isPhantom?: boolean,
+    isMathWallet?: boolean,
+    getAccount: () => Promise<string>,
+  },
+  solong: {
+    selectAccount: () => Promise<string>,
+  },
+  solflare: {
+    isSolflare?: boolean
+  },
+  Slope: {
+    new (): SlopeWallet;
+  }
 };
 
 // Wallet
@@ -311,6 +317,36 @@ export interface MathWallet {
   disconnect: Function,
   forgetAccounts: Function
 };
+
+export interface SlopeWallet {
+  name: string,
+  publicKey: any,
+  on: Function,
+  forgetAccounts: Function,
+  connect(): Promise<{
+      msg: string;
+      data: {
+          publicKey?: string;
+      };
+  }>;
+  disconnect(): Promise<{ msg: string }>;
+  signTransaction(message: string): Promise<{
+      msg: string;
+      data: {
+          publicKey?: string;
+          signature?: string;
+      };
+  }>;
+  signAllTransactions(messages: string[]): Promise<{
+      msg: string;
+      data: {
+          publicKey?: string;
+          signatures?: string[];
+      };
+  }>;
+  signMessage(message: Uint8Array): Promise<{ data: { signature: string } }>;
+}
+
 export interface WalletProvider {
   name: string,
   logo: string,
@@ -476,4 +512,19 @@ export interface CopilotAlert {
     text: string,
     onClick: () => void
   }
+};
+
+export enum TxnResponse {
+  Success = 'SUCCESS',
+  Failed = 'FAILED',
+  Cancelled = 'CANCELLED'
+};
+
+export interface SlopeTxn {
+  msg: string;
+  data: {
+      publicKey?: string;
+      signature?: string;
+      signatures?: string[];
+  };
 };

@@ -33,6 +33,11 @@
       logo: "img/wallets/math_wallet.png",
       url: "https://mathwallet.org/en-us/"
     },
+    {
+      name: "Slope",
+      logo: "img/wallets/slope.png",
+      url: "https://chrome.google.com/webstore/detail/slope-finance-wallet/pocmplpaccanhmnllbbkpgfliimjljgo"
+    }
   ];
 </script>
 
@@ -134,5 +139,9 @@
     .sollet {
       display: flex;
     }
+    .slope {
+      display: flex;
+    }
+
   }
 </style>

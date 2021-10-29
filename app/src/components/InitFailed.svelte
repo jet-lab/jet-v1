@@ -1,6 +1,6 @@
 <script>
   import { USER } from '../store';
-  import { getMarketAndIDL } from '../scripts/jet';
+  import { getIDLAndAnchorAndMarketPubkeys } from '../scripts/jet';
   import { dictionary } from '../scripts/localization';
   import Button from './Button.svelte';
 </script>
@@ -26,13 +26,13 @@
     </p>
     <Button small
       text={dictionary[$USER.language].settings.reset}
-      onClick={() => {
+      onClick={async () => {
         localStorage.removeItem('jetPreferredNode');
         USER.update(user => {
           user.rpcPing = 0;
           return user;
         });
-        getMarketAndIDL();
+        await getIDLAndAnchorAndMarketPubkeys();
       }} />
   {/if}
 </div>
