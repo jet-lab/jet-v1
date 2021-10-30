@@ -55,6 +55,7 @@
         "noMarket": "We were unable to initialize the Jet marketplace.",
         "txSuccess": "Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received.",
         "txFailed": "Transaction failed.",
+        "txCancelled": "Transaction cancelled.",
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
