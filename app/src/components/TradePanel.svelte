@@ -18,12 +18,20 @@
   let sendingTrade: boolean;
 
   // Adjust interface
-  const adjustInterface = () => {
-    inputAmount = null;
-    inputError = '';
-    checkDisabledInput();
-    getMaxInput();
-    adjustCollateralizationRatio();
+  const adjustInterface = (res?: TxnResponse) => {
+    if(res === undefined || res === TxnResponse.Success) {
+      inputAmount = null;
+      inputError = '';
+      checkDisabledInput();
+      getMaxInput();
+      adjustCollateralizationRatio();
+    } else {
+      inputAmount = null;
+      checkDisabledInput();
+      getMaxInput();
+      adjustCollateralizationRatio();
+    }
+    
   };
 
   // Check if user input should be disabled
@@ -213,6 +221,11 @@
       if (tradeAmount.uiAmountFloat > $USER.loanBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.oweLess;
       // Otherwise, send repay
+      } else if (tradeAmount.uiAmountFloat > $USER.walletBalances[$MARKET.currentReserve.abbrev]) {
+        
+        inputError = dictionary[$USER.language].cockpit.notEnoughAsset
+          .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
+          console.log(inputError)
       } else {
         // If user is repaying all, use loan notes
         const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
@@ -232,17 +245,19 @@
       });
       const lastTxn = txids[txids.length - 1]
       addTransactionLog(lastTxn);
-      adjustInterface();
+      adjustInterface(res);
     } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txFailed
       });
+      adjustInterface(res);
     } else if (res === TxnResponse.Cancelled) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txCancelled
       });
+      adjustInterface(res);
     }
 
     // End trade submit
@@ -347,7 +362,7 @@
         bind:value={inputAmount}
         maxInput={maxInput}
         disabled={disabledInput}
-        error={inputError}
+        bind:error={inputError}
         loading={sendingTrade}
         keyUp={() => {
           // If input is negative, reset to zero
