@@ -21,8 +21,8 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--grey', '#504f4f');
     document.documentElement.style.setProperty('--light-grey', '#494848');
     document.documentElement.style.setProperty('--white', '#444444');
-    document.documentElement.style.setProperty('--light-shadow', 'rgba(82, 82, 82, 0.8)');
-    document.documentElement.style.setProperty('--dark-shadow', 'rgba(54, 54, 54, 0.8)');
+    document.documentElement.style.setProperty('--light-shadow', 'rgb(82, 82, 82)');
+    document.documentElement.style.setProperty('--dark-shadow', 'rgb(54, 54, 54)');
     document.documentElement.style.setProperty('--input-color', 'rgba(255, 255, 255, 0.8)');
     document.documentElement.style.setProperty('--range-slider-bg', 'rgba(0, 0, 0, 0.25)');
   } else {
@@ -33,8 +33,8 @@ export const setDark = (darkTheme: boolean): void => {
     document.documentElement.style.setProperty('--grey', '#d8dfec');
     document.documentElement.style.setProperty('--light-grey', '#e1e7f1');
     document.documentElement.style.setProperty('--white', '#e5ebf4');
-    document.documentElement.style.setProperty('--light-shadow', 'rgba(255, 255, 255, 0.8)');
-    document.documentElement.style.setProperty('--dark-shadow', 'rgba(175, 186, 214, 0.8)');
+    document.documentElement.style.setProperty('--light-shadow', 'rgb(255, 255, 255)');
+    document.documentElement.style.setProperty('--dark-shadow', 'rgb(175, 186, 214)');
     document.documentElement.style.setProperty('--input-color', 'rgba(26, 73, 94, 0.8)');
     document.documentElement.style.setProperty('--range-slider-bg', 'rgba(255, 255, 255, 0.25)');
   }
