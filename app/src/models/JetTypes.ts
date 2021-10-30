@@ -466,16 +466,35 @@ export interface TransactionLog {
   signature: string,
   tradeAction: string,
   tradeAmount: TokenAmount,
-  transaction: {
-    feePayer: PublicKey,
-    instructions: TransactionInstruction[],
-    nonceInfo: any,
-    recentBlockhash: string,
+  transaction: { 
+    message: {
+      /** The message header, identifying signed and read-only `accountKeys` */
+      header: {
+        numRequiredSignatures: number;
+        numReadonlySignedAccounts: number;
+        numReadonlyUnsignedAccounts: number;
+      }
+      /** All the account keys used by this transaction */
+      accountKeys: string[];
+      /** The hash of a recent ledger block */
+      recentBlockhash: string;
+      /** Instructions that will be executed in sequence and committed in one atomic transaction if all succeed. */
+      instructions: CompiledInstruction[];
+    },
     signatures: string[]
   },
   tokenAbbrev: string,
   tokenDecimals: number,
   tokenPrice: number
+};
+
+export interface CompiledInstruction {
+  /** Index into the transaction keys array indicating the program account that executes this instruction */
+  programIdIndex: number;
+  /** Ordered indices into the transaction keys array indicating which accounts to pass to the program */
+  accounts: number[];
+  /** The program input data encoded as base 58 */
+  data: string;
 };
 
 // Notifications
