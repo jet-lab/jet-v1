@@ -5,7 +5,7 @@
   import { currencyFormatter, TokenAmount, Amount } from '../scripts/util';
   import { checkTradeWarning } from '../scripts/copilot';
   import { dictionary } from '../scripts/localization'; 
-  import { TxnResponse } from '../models/JetTypes'
+  import { TxnResponse } from '../models/JetTypes';
   import Input from './Input.svelte';
   import Info from './Info.svelte';
 
@@ -220,13 +220,12 @@
       // User is repaying more than they owe
       if (tradeAmount.uiAmountFloat > $USER.loanBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.oweLess;
-      // Otherwise, send repay
+        // User input amount is larger than wallet balance
       } else if (tradeAmount.uiAmountFloat > $USER.walletBalances[$MARKET.currentReserve.abbrev]) {
-        
         inputError = dictionary[$USER.language].cockpit.notEnoughAsset
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
-          console.log(inputError)
       } else {
+         // Otherwise, send repay
         // If user is repaying all, use loan notes
         const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
           ? Amount.loanNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].loanNoteBalance.amount)
