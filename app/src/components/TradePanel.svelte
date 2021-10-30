@@ -161,7 +161,7 @@
 
     let tradeAction = $USER.tradeAction;
     let tradeAmount = TokenAmount.tokens(inputAmount.toString(), $MARKET.currentReserve.decimals);
-    let res: TxnResponse = TxnResponse.Success;
+    let res: TxnResponse = TxnResponse.Failed;
     let txids: string[] = [];
     sendingTrade = true;
     // Depositing

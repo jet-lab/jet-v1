@@ -331,7 +331,7 @@ export const sendTransaction = async (
       )
     ).value;
 
-    if (status?.err) {
+    if (status?.err && txid.length) {
       res = TxnResponse.Failed;
     }
   }
