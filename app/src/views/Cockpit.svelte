@@ -6,7 +6,7 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token'; 
   import type { Reserve } from '../models/JetTypes';
-  import { TxnResponse } from '../models/JetTypes':
+  import { TxnResponse } from '../models/JetTypes';
   import { INIT_FAILED, MARKET, USER } from '../store';
   import { inDevelopment, airdrop } from '../scripts/jet';
   import { currencyFormatter, totalAbbrev, TokenAmount } from '../scripts/util';;
