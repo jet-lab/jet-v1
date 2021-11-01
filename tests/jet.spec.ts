@@ -232,7 +232,7 @@ describe("jet", async () => {
       loanOriginationFee: 10,
       liquidationSlippage: 300,
       liquidationDexTradeMax: new BN(100),
-      confidenceThreshold: 10,
+      confidenceThreshold: 1000,
     } as ReserveConfig;
   });
 
@@ -796,7 +796,7 @@ describe("jet", async () => {
       loanOriginationFee: 11,
       liquidationSlippage: 350,
       liquidationDexTradeMax: new BN(120),
-      confidenceThreshold: 13,
+      confidenceThreshold: 1500,
     } as ReserveConfig;
 
     const updateReserveConfigParams = {
@@ -852,7 +852,7 @@ describe("jet", async () => {
       loanOriginationFee: 11,
       liquidationSlippage: 350,
       liquidationDexTradeMax: new BN(120),
-      confidenceThreshold: 13,
+      confidenceThreshold: 1500,
     } as ReserveConfig;
 
     const tx = new anchor.web3.Transaction();
