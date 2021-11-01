@@ -18,20 +18,12 @@
   let sendingTrade: boolean;
 
   // Adjust interface
-  const adjustInterface = (res?: TxnResponse) => {
-    if(res === undefined || res === TxnResponse.Success) {
-      inputAmount = null;
-      inputError = '';
-      checkDisabledInput();
-      getMaxInput();
-      adjustCollateralizationRatio();
-    } else {
-      inputAmount = null;
-      checkDisabledInput();
-      getMaxInput();
-      adjustCollateralizationRatio();
-    }
-    
+  const adjustInterface = () => {
+    inputError = ''
+    inputAmount = null;
+    checkDisabledInput();
+    getMaxInput();
+    adjustCollateralizationRatio();
   };
 
   // Check if user input should be disabled
@@ -220,18 +212,25 @@
       // User is repaying more than they owe
       if (tradeAmount.uiAmountFloat > $USER.loanBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.oweLess;
-        // User input amount is larger than wallet balance
+      // User input amount is larger than wallet balance
       } else if (tradeAmount.uiAmountFloat > $USER.walletBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.notEnoughAsset
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
+      // Otherwise, send repay
       } else {
-         // Otherwise, send repay
         // If user is repaying all, use loan notes
         const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
           ? Amount.loanNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].loanNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
         [res, txids] = await repay($MARKET.currentReserve.abbrev, repayAmount);
       }
+    }
+
+    // If input error, remove trade amount and return
+    if (inputError) {
+      inputAmount = null;
+      sendingTrade = false;
+      return;
     }
     
     // Notify user of successful/unsuccessful trade
@@ -242,23 +241,22 @@
           .replaceAll('{{TRADE ACTION}}', tradeAction)
           .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount.uiAmountFloat} ${$MARKET.currentReserve.abbrev}`)
       });
-      const lastTxn = txids[txids.length - 1]
+      const lastTxn = txids[txids.length - 1];
       addTransactionLog(lastTxn);
-      adjustInterface(res);
     } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txFailed
       });
-      adjustInterface(res);
     } else if (res === TxnResponse.Cancelled) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txCancelled
       });
-      adjustInterface(res);
     }
 
+    // Readjust interface
+    adjustInterface();
     // End trade submit
     sendingTrade = false;
   };
