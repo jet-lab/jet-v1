@@ -13,6 +13,7 @@ import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress
 import { Amount, timeout, TokenAmount } from './util';
 import { dictionary } from './localization';
 import { Buffer } from 'buffer';
+import bs58 from 'bs58';
 
 const SECONDS_PER_HOUR: BN = new BN(3600);
 const SECONDS_PER_DAY: BN = SECONDS_PER_HOUR.muln(24);
@@ -29,7 +30,6 @@ let user: User;
 let idl: any;
 let customProgramErrors: CustomProgramError[];
 let connection: anchor.web3.Connection;
-let transactionLogConnection: anchor.web3.Connection;
 let confirmedSignatures: anchor.web3.ConfirmedSignatureInfo[];
 let currentSignaturesIndex: number = 0;
 let coder: anchor.Coder;
@@ -335,14 +335,8 @@ export const initTransactionLogs = async (): Promise<void>  => {
     return;
   }
 
-  // Set up connection
-  transactionLogConnection = user.rpcNode ? new anchor.web3.Connection(user.rpcNode)
-    : (inDevelopment 
-        ? new anchor.web3.Connection('https://api.devnet.solana.com/')  
-          : new anchor.web3.Connection('https://api.mainnet-beta.solana.com/'));
-
   // Fetch all confirmed signatures
-  confirmedSignatures = await transactionLogConnection.getConfirmedSignaturesForAddress2(user.wallet.publicKey, undefined, 'confirmed');
+  confirmedSignatures = await connection.getSignaturesForAddress(user.wallet.publicKey, undefined, 'confirmed');
   // Get first 16 full detailed logs
   await getTransactionsDetails(16);
 };
@@ -366,7 +360,7 @@ export const getTransactionsDetails = async (txAmount: number): Promise<void> =>
     }
 
     // Get confirmed transaction for signature
-    const log = await transactionLogConnection.getConfirmedTransaction(currentSignature, 'confirmed') as unknown as TransactionLog;
+    const log = await connection.getTransaction(currentSignature, {commitment: 'confirmed'}) as unknown as TransactionLog;
     const detailedLog = log ? await getLogDetails(log, currentSignature) : null;
     if (detailedLog) {
       newLogs.push(detailedLog);
@@ -399,11 +393,12 @@ export let getLogDetails = async (log: TransactionLog, signature: string): Promi
   for (let msg of log.meta.logMessages) {
     if (msg.indexOf(idl.metadata.address) !== -1) {
       for (let progInst in instructionBytes) {
-        for (let inst of log.transaction.instructions) {
+        for (let inst of log.transaction.message.instructions) {
           // Get first 8 bytes from data
           const txInstBytes = [];
           for (let i = 0; i < 8; i++) {
-            txInstBytes.push(inst.data[i]);
+            //need to decode bs58 first
+            txInstBytes.push(bs58.decode(inst.data)[i]);
           }
           // If those bytes match any of our instructions label trade action
           if (JSON.stringify(instructionBytes[progInst]) === JSON.stringify(txInstBytes)) {
@@ -462,7 +457,7 @@ export let addTransactionLog = async (signature: string) => {
   // Keep trying to get confirmed log (may take a few seconds for validation)
   let log: TransactionLog | null = null;
   while (!log) {
-    log = await transactionLogConnection.getConfirmedTransaction(signature, 'confirmed') as unknown as TransactionLog | null;
+    log = await connection.getTransaction(signature, {commitment: 'confirmed'}) as unknown as TransactionLog | null;
     timeout(2000);
   }
 
