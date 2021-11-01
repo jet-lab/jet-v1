@@ -272,7 +272,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
-        confidenceThreshold: 10,
+        confidenceThreshold: 1000,
       },
     });
 
@@ -297,7 +297,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
-        confidenceThreshold: 10,
+        confidenceThreshold: 1000,
       },
     });
 
@@ -322,7 +322,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
-        confidenceThreshold: 13,
+        confidenceThreshold: 1500,
       },
     });
 
@@ -464,7 +464,7 @@ describe("jet-serum", () => {
             loanOriginationFee: 10,
             liquidationSlippage: 300,
             liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
-            confidenceThreshold: 13,
+            confidenceThreshold: 1500,
           },
         });
       })
