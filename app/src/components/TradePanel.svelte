@@ -219,6 +219,13 @@
         [ok, txid] = await repay($MARKET.currentReserve.abbrev, repayAmount);
       }
     }
+
+    // If input error, remove trade amount and return
+    if (inputError) {
+      inputAmount = null;
+      sendingTrade = false;
+      return;
+    }
     
     // Notify user of successful/unsuccessful trade
     if (ok && txid) {
