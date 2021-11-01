@@ -393,7 +393,7 @@
   }
   .trade-select {
     width: 25%;
-    border-right: 1px solid var(--white);
+    border-right: 2px solid var(--white);
     box-shadow: inset 0px -5px 8px -5px rgba(0, 0, 0, 0.3);
     padding: var(--spacing-sm) 0;
     background: var(--grey);

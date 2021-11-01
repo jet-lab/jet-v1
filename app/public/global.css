@@ -14,6 +14,7 @@
 
 /* General styling & root variables */
 :root {
+  /* Colors */
   --black: #444444;
   --dark-grey: #949494;
   --grey: #d8dfec;
@@ -27,35 +28,51 @@
   --input-color: rgba(26, 73, 94, 0.7);
   --gradient: linear-gradient(135deg, var(--jet-green) 25%, var(--jet-blue) 85%);
 
-  --light-shadow: rgba(255, 255, 255, 0.8);
-  --dark-shadow: rgba(175, 186, 214, 0.8);
+  /* Base shadow elements */
+  --light-shadow: rgb(255, 255, 255);
+  --dark-shadow: rgb(175, 186, 214);
+
+  /* Regular neu shadows */
   --neu-shadow: -1.75px -1.75px 3.5px var(--light-shadow), 1.75px 1.75px 3.5px var(--dark-shadow);
-  --neu-shadow-inset: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
+  
+  /* Inset neu shadows */
   --neu-shadow-inset-low: inset -1px -1px 1.5px var(--light-shadow), inset 1px 1px 1.5px var(--dark-shadow);
+  --neu-shadow-inset: inset -1.5px -1.5px 2px var(--light-shadow), inset 1.5px 1.5px 2px var(--dark-shadow);
+
+  /* Datatable neu shadows */
   --neu--datatable-top-shadow: -2.5px 0px 3.5px var(--light-shadow), 2px 1.5px 3.5px var(--dark-shadow);
   --neu--datatable-bottom-shadow: -3px 0px 2px var(--light-shadow), 1.5px 2.5px 3.5px var(--dark-shadow);
   --neu-datatable-inset-shadow: inset -1px -1px 1px var(--light-shadow), inset 1px 1px 1px var(--dark-shadow) !important;
   --neu-datatable-shadow: inset -1px -1px 1px var(--dark-shadow), inset 1px 1px 1px var(--light-shadow) !important;
+
+  /* Color neu shadows */
   --neu-shadow-inset-success: inset -2px -2px 2px #78d6bb, inset 2px 2px 2px #28866c;
   --neu-shadow-inset-failure: inset -2px -2px 2px #f58d8d, inset 2px 2px 2px #c94646;
   --neu-shadow-inset-gradient: inset -2px -2px 2.5px #36a3ce, inset 2px 2px 2.5px #28866c;
   --neu-shadow-inset-gradient-low: inset -1.5px -1.5px 2px #36a3ce, inset 1.5px 1.5px 2px #28866c;
 
+  /* Drop shadow */
   --drop-shadow: 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.2);
 
+  /* Disabled elements */
   --disabled-opacity: 0.85;
 
+  /* Nav sizing */
   --nav-width: 60px;
   --mobile-nav-height: 60px;
 
+  /* Standardized spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
   --spacing-lg: 18px;
   --spacing-xl: 24px;
 
+  /* Border variables */
   --border-radius: 20px;
   --round-radius: 50px;
+
+  /* Button variables */
   --btn-radius: 7px;
   --btn-padding: 7px 20px 5px 20px;
   --secondary-btn-padding: 7px 10px 5px 10px;
