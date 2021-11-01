@@ -247,7 +247,7 @@ describe("jet-serum", () => {
         loanOriginationFee: 10,
         liquidationSlippage: 300,
         liquidationDexTradeMax: new BN(1000 * LAMPORTS_PER_SOL),
-        confidenceThreshold: 10,
+        confidenceThreshold: 500,
       },
     });
 
@@ -558,20 +558,16 @@ describe("jet-serum", () => {
     await utils.pyth.updatePriceAccount(usdc.pythPrice, {
       exponent: -9,
       aggregatePriceInfo: {
-        price: 1000000n,
-        conf: 10000000000n * 1000000000n,
+        price: 1000000000n,
+        conf: 60000000n, // 600 bps or 6% of the price of USDC
       },
     });
-/*
+
     await expect(
       users[0].client.liquidateDex(
         wsol.reserve,
         usdc.reserve
       )
-    ).to.be.rejectedWith("0x13d"); */
-    await users[0].client.liquidateDex(
-      wsol.reserve,
-      usdc.reserve
-    );
+    ).to.be.rejectedWith("0x131");
   });
 });
