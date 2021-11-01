@@ -55,6 +55,7 @@
         "noMarket": "Jet pazaryerini başlatamadık.",
         "txSuccess": "Başarılı! {{AMOUNT AND ASSET}} tutarındaki  {{TRADE ACTION}} alındı. <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>'da işleme göz atın.",
         "txFailed": "İşlem başarısız. Neyin yanlış gittiğinden emin değilim, lütfen daha sonra tekrar deneyin veya bizimle iletişime geçin.",
+        "txCancelled": "Transaction cancelled.",
         "max": "Maksimum",
         "assetIsCurrentBorrow": "{{ASSET}} ödünç aldınız ve bu nedenle yatıramazsınız.",
         "belowMinCRatio": "Teminatınız yetersiz. Likidasyondan kaçınmak için para yatırın veya borcunuzu geri ödeyin.",
