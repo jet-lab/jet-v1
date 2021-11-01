@@ -361,7 +361,7 @@
         bind:value={inputAmount}
         maxInput={maxInput}
         disabled={disabledInput}
-        bind:error={inputError}
+        error={inputError}
         loading={sendingTrade}
         keyUp={() => {
           // If input is negative, reset to zero
