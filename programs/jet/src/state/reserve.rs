@@ -97,7 +97,7 @@ pub struct ReserveConfig {
     /// assets from this reserve as collateral.
     pub liquidation_slippage: u16,
 
-    /// Represented as a percentage of the Price
+    /// Represented as a percentage of the Price in basis points
     /// confidence values above this will not be accepted
     pub confidence_threshold: u16,
 
