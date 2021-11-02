@@ -1,6 +1,6 @@
 name: build
 env:
-  cli-id: anchor-v0.16.dev-75c2085-solana-1.7.8
+  cli-id: anchor-v0.18.dev-7b86aed-solana-1.8.5
 on:
   push:
     branches:
@@ -34,7 +34,7 @@ jobs:
 
       - id: install-solana-tools
         if: steps.cache-cli-deps.outputs.cache-hit != 'true'
-        run: sh -c "$(curl -sSfL https://release.solana.com/v1.7.8/install)"
+        run: sh -c "$(curl -sSfL https://release.solana.com/v1.8.5/install)"
 
       - run: echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$PATH" >> $GITHUB_ENV
 

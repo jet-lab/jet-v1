@@ -865,7 +865,6 @@ describe("jet", async () => {
         manageFeeRate: config.manageFeeRate,
         manageFeeCollectionThreshold: config.manageFeeCollectionThreshold,
         loanOriginationFee: config.loanOriginationFee,
-        liquidationSlippage: config.liquidationSlippage,
         liquidationDexTradeMax: new BN(config.liquidationDexTradeMax),
         confidenceThreshold: config.confidenceThreshold,
       } as ReserveConfig;

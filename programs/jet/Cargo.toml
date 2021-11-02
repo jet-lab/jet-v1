@@ -18,7 +18,7 @@ default = []
 
 [dependencies]
 anchor-lang = { git = "https://github.com/jet-lab/anchor" }
-anchor-spl = { git = "https://github.com/jet-lab/anchor" }
+anchor-spl = { git = "https://github.com/jet-lab/anchor", features = ["dex"] }
 solana-program = "1.7"
 thiserror = "1.0"
 bytemuck = { version = "1.7", features = ["derive"] }

@@ -94,9 +94,8 @@ pub struct ReserveConfig {
     /// The fee rate applied as interest owed on new loans
     pub loan_origination_fee: u16,
 
-    /// Sets the slippage amount for trades on the DEX when liquidating
-    /// assets from this reserve as collateral.
-    pub liquidation_slippage: u16,
+    /// unused
+    pub _reserved0: u16,
 
     /// Represented as a percentage of the Price
     /// confidence values above this will not be accepted

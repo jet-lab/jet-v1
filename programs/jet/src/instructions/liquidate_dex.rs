@@ -328,36 +328,120 @@ struct SwapPlan {
     /// which may be less than the total collateral sold due to fees.
     loan_repay_value: Number,
 
+    /// The _actual_ amount of collateral tokens that can be used in
+    /// the trade to buy back loaned tokens. This can be less than the
+    /// total sellable amount when:
+    ///
+    ///     * the collateral account being liquidated is of a lesser value
+    ///       compared to the overall collateral available within the account
+    ///
+    ///     * the loan account being liquidated is of a lesser value compared
+    ///       to the overall loans on the account.
+    collateral_tokens_tradable: Number,
+
     /// The worst price to accept for the trade
     limit_price: Number,
 
     /// The kind of trade that should be executed
     kind: SwapKind,
+
+    /// The acceptable slippage for the trade
+    slippage: Number,
 }
 
-struct SwapCalculator<'a> {
+struct SwapCalculator<'a, 'info> {
     market: &'a Market,
     loan_reserve: &'a Reserve,
     collateral_reserve: &'a Reserve,
+    loan_account: &'a AccountInfo<'info>,
+    collateral_account: &'a AccountInfo<'info>,
     obligation: &'a Obligation,
+    collateral_reserve_info: &'a CachedReserveInfo,
+    loan_reserve_info: &'a CachedReserveInfo,
 }
 
-impl<'a> SwapCalculator<'a> {
+impl<'a, 'info> SwapCalculator<'a, 'info> {
+    fn new(
+        market: &'a Market,
+        loan_reserve: &'a Reserve,
+        collateral_reserve: &'a Reserve,
+        loan_account: &'a AccountInfo<'info>,
+        collateral_account: &'a AccountInfo<'info>,
+        obligation: &'a Obligation,
+    ) -> SwapCalculator<'a, 'info> {
+        let clock = Clock::get().unwrap();
+        let collateral_reserve_info = market
+            .reserves()
+            .get_cached(collateral_reserve.index, clock.slot);
+        let loan_reserve_info = market.reserves().get_cached(loan_reserve.index, clock.slot);
+
+        SwapCalculator {
+            market,
+            loan_reserve,
+            collateral_reserve,
+            loan_account,
+            collateral_account,
+            obligation,
+            collateral_reserve_info,
+            loan_reserve_info,
+        }
+    }
+
+    fn max_collateral_tradable(&self, sellable_value: Number) -> Result<Number, ProgramError> {
+        let liquidation_fee = Number::from_bps(self.collateral_reserve.config.liquidation_premium);
+
+        // calculate max number of tokens that can be sold from this account
+        let max_collateral_tokens = sellable_value / self.collateral_reserve_info.price;
+
+        // calculate current number of tokens that the account has
+        let cur_collateral_tokens = self
+            .collateral_reserve
+            .amount(token::accessor::amount(&self.collateral_account)?)
+            * self.collateral_reserve_info.deposit_note_exchange_rate;
+
+        // calculate an approximate for the amount of collateral tokens needed to pay off
+        // the current loan balance
+        let loan_value = self
+            .loan_reserve
+            .amount(token::accessor::amount(&self.loan_account)?)
+            * self.loan_reserve_info.loan_note_exchange_rate
+            * self.loan_reserve_info.price;
+
+        let max_sellable_tokens =
+            loan_value * (Number::ONE + liquidation_fee) / self.collateral_reserve_info.price;
+
+        // get the configurable limit thats sets an upper bound on tokens traded
+        // in a single order
+        let reserve_sell_limit = match self.collateral_reserve.config.liquidation_dex_trade_max {
+            0 => self.collateral_reserve.amount(std::u64::MAX),
+            n => Number::from(n),
+        };
+
+        // Limit the amount of tokens sold to the lesser of either:
+        //  * the total value of the collateral allowed to be sold to cover this debt position
+        //  * the total collateral tokens available to the position being liquidated
+        //  * the total collateral necessary to repay the loan
+        //  * the hard limit of token amounts to execute in a single trade, as configured in the reserve
+        let tradable_tokens = [
+            max_collateral_tokens,
+            cur_collateral_tokens,
+            max_sellable_tokens,
+            reserve_sell_limit,
+        ]
+        .iter()
+        .min()
+        .cloned()
+        .unwrap();
+
+        Ok(tradable_tokens)
+    }
+
     /// Calculate the plan for swapping the collateral for debt
     fn plan(&self) -> Result<SwapPlan, ProgramError> {
         let clock = Clock::get()?;
         let min_c_ratio = Number::from_bps(self.loan_reserve.config.min_collateral_ratio);
         let liquidation_fee = Number::from_bps(self.collateral_reserve.config.liquidation_premium);
-        let slippage = Number::from_bps(self.collateral_reserve.config.liquidation_slippage);
-
-        let collateral_reserve_info = self
-            .market
-            .reserves()
-            .get_cached(self.collateral_reserve.index, clock.slot);
-        let loan_reserve_info = self
-            .market
-            .reserves()
-            .get_cached(self.loan_reserve.index, clock.slot);
+        let slippage = liquidation_fee / (Number::ONE + liquidation_fee);
 
         let collateral_value = self
             .obligation
@@ -385,8 +469,8 @@ impl<'a> SwapCalculator<'a> {
 
         let collateral_sellable_value = limit_fraction * collateral_value;
         let loan_repay_value = collateral_sellable_value / (Number::ONE + liquidation_fee);
-        let normal_limit_price =
-            (Number::ONE - slippage) * (collateral_reserve_info.price / loan_reserve_info.price);
+        let normal_limit_price = (Number::ONE - slippage)
+            * (self.collateral_reserve_info.price / self.loan_reserve_info.price);
 
         let (kind, limit_price) = if self.loan_reserve.token_mint == self.market.quote_token_mint {
             (SwapKind::Sell, normal_limit_price)
@@ -397,11 +481,15 @@ impl<'a> SwapCalculator<'a> {
             return Err(ErrorCode::Disallowed.into());
         };
 
+        let collateral_tokens_tradable = self.max_collateral_tradable(collateral_sellable_value)?;
+
         Ok(SwapPlan {
             collateral_sellable_value,
+            collateral_tokens_tradable,
             loan_repay_value,
             limit_price,
             kind,
+            slippage,
         })
     }
 }
@@ -413,12 +501,14 @@ fn calculate_collateral_swap_plan(internal: &LiquidateDex) -> Result<SwapPlan, P
     let obligation = internal.obligation.load()?;
     let market = internal.market.load()?;
 
-    let calculator = SwapCalculator {
-        market: &market,
-        loan_reserve: &loan_reserve,
-        collateral_reserve: &collateral_reserve,
-        obligation: &obligation,
-    };
+    let calculator = SwapCalculator::new(
+        &market,
+        &loan_reserve,
+        &collateral_reserve,
+        &internal.loan_account,
+        &internal.collateral_account,
+        &obligation,
+    );
 
     calculator.plan()
 }
@@ -431,30 +521,10 @@ fn execute_plan<'info>(
     source_dex_market: &DexMarketAccounts<'info>,
     target_dex_market: &DexMarketAccounts<'info>,
     plan: &SwapPlan,
-) -> Result<Number, ProgramError> {
-    let clock = Clock::get()?;
+) -> Result<(), ProgramError> {
     let market = internal.market.load()?;
     let collateral_reserve = internal.collateral_reserve.load()?;
     let loan_reserve = internal.loan_reserve.load()?;
-    let collateral_reserve_info = market
-        .reserves()
-        .get_cached(collateral_reserve.index, clock.slot);
-
-    let max_collateral_tokens = plan.collateral_sellable_value / collateral_reserve_info.price;
-    let cur_collateral_tokens = collateral_reserve
-        .amount(token::accessor::amount(&internal.collateral_account)?)
-        * collateral_reserve_info.deposit_note_exchange_rate;
-
-    // Limit the amount of tokens sold to the lesser of either:
-    //  * the total value of the collateral allowed to be sold to cover this debt position
-    //  * the total collateral tokens available to the position being liquidated
-    //  * the hard limit of token amounts to execute in a single trade, as configured in the reserve
-    let reserve_sell_limit = match collateral_reserve.config.liquidation_dex_trade_max {
-        0 => collateral_reserve.amount(std::u64::MAX),
-        n => Number::from(n),
-    };
-    let cur_sellable_tokens = std::cmp::min(max_collateral_tokens, cur_collateral_tokens);
-    let max_tradable_tokens = std::cmp::min(cur_sellable_tokens, reserve_sell_limit);
 
     let get_dex_client = |dex_market, coin_wallet, pc_wallet| DexClient {
         market: &market,
@@ -485,11 +555,10 @@ fn execute_plan<'info>(
 
             dex_client.sell(
                 limit_price,
-                max_tradable_tokens.as_u64(collateral_reserve.exponent),
+                plan.collateral_tokens_tradable
+                    .as_u64_rounded(collateral_reserve.exponent),
             )?;
             dex_client.settle()?;
-
-            Ok(max_tradable_tokens)
         }
 
         SwapKind::Buy => {
@@ -507,13 +576,14 @@ fn execute_plan<'info>(
 
             dex_client.buy(
                 limit_price,
-                max_tradable_tokens.as_u64(collateral_reserve.exponent),
+                plan.collateral_tokens_tradable
+                    .as_u64_rounded(collateral_reserve.exponent),
             )?;
             dex_client.settle()?;
-
-            Ok(max_tradable_tokens)
         }
     }
+
+    Ok(())
 }
 
 /// Verify that the amount of tokens we received for selling some collateral is acceptable
@@ -521,6 +591,7 @@ fn verify_proceeds(
     internal: &LiquidateDex,
     proceeds: u64,
     collateral_tokens_sold: Number,
+    slippage: Number,
 ) -> Result<(), ProgramError> {
     let clock = Clock::get()?;
     let market = internal.market.load()?;
@@ -535,7 +606,6 @@ fn verify_proceeds(
     let proceeds_value = loan_info.price * loan_reserve.amount(proceeds);
     let collateral_value = collateral_info.price * collateral_tokens_sold;
 
-    let slippage = Number::from_bps(collateral_reserve.config.liquidation_slippage);
     let min_value = collateral_value * (Number::ONE - slippage);
 
     if proceeds_value < min_value {
@@ -631,8 +701,8 @@ fn handler<'info>(
     // Calculate the quote value of collateral that needs to be sold
     let plan = calculate_collateral_swap_plan(internal)?;
 
-    // Sell the collateral
-    let collateral_tokens_sold = execute_plan(internal, source_market, target_market, &plan)?;
+    // Trade the the collateral
+    execute_plan(internal, source_market, target_market, &plan)?;
 
     msg!("collateral sold");
 
@@ -640,7 +710,12 @@ fn handler<'info>(
         token::accessor::amount(&internal.loan_reserve_vault)?.saturating_sub(loan_reserve_tokens);
 
     // Ensure we got an ok deal with the collateral swap
-    verify_proceeds(internal, loan_reserve_proceeds, collateral_tokens_sold)?;
+    verify_proceeds(
+        internal,
+        loan_reserve_proceeds,
+        plan.collateral_tokens_tradable,
+        plan.slippage,
+    )?;
 
     msg!("swap is ok");
 
@@ -649,7 +724,7 @@ fn handler<'info>(
         internal,
         &plan,
         loan_reserve_proceeds,
-        collateral_tokens_sold,
+        plan.collateral_tokens_tradable,
     )?;
 
     msg!("liquidation complete!");
