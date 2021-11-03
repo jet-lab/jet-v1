@@ -65,7 +65,8 @@
         "noDebtForRepay": "Вы не дожны {{ASSET}}.",
         "rejectTrade": "Сделка понизит ваш коэфициент залог {{NEW-C-RATIO}}%, что будет ниже \n минимального уровня {{JET MIN C-RATIO}}.",
         "insufficientLamports": "Вы пытаетесь внести на депозит все Sol. У Вас не останется \"лампорт\" на комиссию. Уменьшите сумму Sol и попытайтесь снова ",
-        "stillUndercollateralized": "Ваш новый К-рейтинг {{NEW-C-RATIO}}% ниже минимального уровня на Jet's протоколе-  {{JET MIN C-RATIO}}%. Пожалуйста, оплатите больше, чтобы избежать ликвидации."
+        "stillUndercollateralized": "Ваш новый К-рейтинг {{NEW-C-RATIO}}% ниже минимального уровня на Jet's протоколе-  {{JET MIN C-RATIO}}%. Пожалуйста, оплатите больше, чтобы избежать ликвидации.",
+        "txCancelled": "Transaction cancelled."
     },
     "settings": {
         "title": "Настройки",
