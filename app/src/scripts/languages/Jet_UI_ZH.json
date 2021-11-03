@@ -65,7 +65,8 @@
         "noDebtForRepay": "您不欠任何 {{ASSET}}.",
         "rejectTrade": "这个交易手续会降低您的质押率到 {{NEW-C-RATIO}}%, 而且会比我们的对低质押率限制 {{JET MIN C-RATIO}} 还低.",
         "insufficientLamports": "您这交易会存进您全部的SOL 您的交易费会不够! 请您输入低一点的金额",
-        "stillUndercollateralized": "您的新 {{NEW-C-RATIO}}% C-Ratio 仍低于 Jet 的最低市场抵押比率 {{JET MIN C-RATIO}}% 。 请考虑偿还更多，以避免清算。"
+        "stillUndercollateralized": "您的新 {{NEW-C-RATIO}}% C-Ratio 仍低于 Jet 的最低市场抵押比率 {{JET MIN C-RATIO}}% 。 请考虑偿还更多，以避免清算。",
+        "txCancelled": "Transaction cancelled."
     },
     "settings": {
         "title": "设定",
