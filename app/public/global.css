@@ -344,7 +344,6 @@ input[type=number] {
 }
 .dropdown-select .listContainer {
   width: 124px !important;
-  max-height: 200px !important;
   box-shadow: var(--neu-shadow) !important;
   padding: unset!important;
   background: var(--white) !important;
