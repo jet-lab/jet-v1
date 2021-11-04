@@ -139,7 +139,7 @@
             </h2>
             {#if $USER.walletInit}
               <p class="bicyclette text-gradient">
-                {totalAbbrev($USER.position.depositedValue ?? 0)}
+                {currencyFormatter($USER.position.depositedValue ?? 0, true)}
               </p>
             {:else}
               <p class="bicyclette">
@@ -153,7 +153,7 @@
             </h2>
             {#if $USER.walletInit}
               <p class="bicyclette text-gradient">
-                {totalAbbrev($USER.position.borrowedValue ?? 0)}
+                {currencyFormatter($USER.position.borrowedValue ?? 0, true)}
               </p>
             {:else}
               <p class="bicyclette">
