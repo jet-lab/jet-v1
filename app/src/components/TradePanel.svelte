@@ -370,7 +370,7 @@
         }}
         submit={() => {
           // Check for no input
-          if (!inputAmount) {
+          if (!inputAmount || inputAmount <= 0) {
             inputError = dictionary[$USER.language].cockpit.noInputAmount;
             inputAmount = null;
             return;
