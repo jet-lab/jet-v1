@@ -77,7 +77,7 @@ pub fn handler(ctx: Context<RefreshReserve>) -> ProgramResult {
         return Err(ErrorCode::InvalidOraclePrice.into());
     }
     let threshold = Number::from_bps(reserve.config.confidence_threshold)
-        .saturating_mul(Number::from_decimal(oracle.twap.val, oracle.expo));
+        * Number::from_decimal(oracle.twap.val, oracle.expo);
     if oracle.agg.conf > threshold.as_u64_ceil(oracle.expo) {
         msg!("pyth confidence range outside threshold");
         return Err(ErrorCode::InvalidOraclePrice.into());

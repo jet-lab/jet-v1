@@ -559,7 +559,10 @@ describe("jet-serum", () => {
       exponent: -9,
       aggregatePriceInfo: {
         price: 1000000000n,
-        conf: 60000000n, // 600 bps or 6% of the price of USDC
+        conf: 60000000n, // 100 bps or 1% of the price of USDC
+      },
+      twap: {
+        valueComponent: 1000000000n,
       },
     });
 

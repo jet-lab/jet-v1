@@ -232,7 +232,7 @@ describe("jet", async () => {
       loanOriginationFee: 10,
       liquidationSlippage: 300,
       liquidationDexTradeMax: new BN(100),
-      confidenceThreshold: 10,
+      confidenceThreshold: 200,
     } as ReserveConfig;
   });
 
@@ -374,7 +374,49 @@ describe("jet", async () => {
     await jetMarket.setFlags(new splToken.u64(0));
   });
 
+  it("user B fails to borrow usdc when pyth confidence out of range", async () => {
+    await testUtils.pyth.updatePriceAccount(usdc.pythPrice, {
+      exponent: -9,
+      aggregatePriceInfo: {
+        price: 1000000000n,
+        conf: 60000000n, // 600 bps or 6% of the price of USDC
+      },
+      twap: {
+        valueComponent: 1000000000n,
+      },
+    });
+
+    const user = userB;
+    const asset = usdc;
+    const usdcBorrow = usdcDeposit * 0.8;
+    const amount = Amount.tokens(usdcBorrow);
+    const tokenAccountKey =
+      user.tokenAccounts[asset.token.publicKey.toBase58()];
+
+    await jetMarket.refresh();
+    await wsol.reserve.refresh();
+    await expect(
+      user.client.borrow(
+        asset.reserve,
+        tokenAccountKey,
+        amount
+      )
+    ).to.be.rejectedWith("0x131");
+  });
+
   it("user B borrows usdc", async () => {
+    // return pyth to acceptable confidence
+    await testUtils.pyth.updatePriceAccount(usdc.pythPrice, {
+      exponent: -9,
+      aggregatePriceInfo: {
+        price: 1000000000n,
+        conf: 10000000n, // 100 bps or 1% of the price of USDC
+      },
+      twap: {
+        valueComponent: 1000000000n,
+      },
+    });
+
     const user = userB;
     const asset = usdc;
     const usdcBorrow = usdcDeposit * 0.8;

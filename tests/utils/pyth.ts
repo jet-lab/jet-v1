@@ -27,6 +27,7 @@ export interface Price {
     exponent?: number;
     currentSlot?: bigint;
     validSlot?: bigint;
+    twap?: Ema;
     productAccountKey?: PublicKey;
     nextPriceAccountKey?: PublicKey;
     aggregatePriceUpdaterAccountKey?: PublicKey;
@@ -54,6 +55,12 @@ export interface Product {
     size?: number;
     priceAccount?: PublicKey;
     attributes?: Record<string, string>;
+}
+
+export interface Ema {
+    valueComponent?: bigint;
+    numerator?: bigint;
+    denominator?: bigint;
 }
 
 export class PythUtils {
@@ -96,6 +103,7 @@ export class PythUtils {
         const buf = Buffer.alloc(512);
         const d = getPriceDataWithDefaults(data);
         d.aggregatePriceInfo = getPriceInfoWithDefaults(d.aggregatePriceInfo);
+        d.twap = getEmaWithDefaults(d.twap);
 
         writePriceBuffer(buf, 0, d);
         await this.config.store(account, 0, buf);
@@ -129,6 +137,9 @@ function writePriceBuffer(buf: Buffer, offset: number, data: Price) {
     buf.writeUInt32LE(data.priceComponents.length, offset + 24);
     buf.writeBigUInt64LE(data.currentSlot, offset + 32);
     buf.writeBigUInt64LE(data.validSlot, offset + 40);
+    buf.writeBigInt64LE(data.twap.valueComponent, offset + 48);
+    buf.writeBigInt64LE(data.twap.numerator, offset + 56);
+    buf.writeBigInt64LE(data.twap.denominator, offset + 64);
     writePublicKeyBuffer(buf, offset + 112, data.productAccountKey);
     writePublicKeyBuffer(buf, offset + 144, data.nextPriceAccountKey);
     writePublicKeyBuffer(
@@ -212,6 +223,7 @@ function getPriceDataWithDefaults({
     exponent = 0,
     currentSlot = 0n,
     validSlot = 0n,
+    twap = {},
     productAccountKey = PublicKey.default,
     nextPriceAccountKey = PublicKey.default,
     aggregatePriceUpdaterAccountKey = PublicKey.default,
@@ -226,6 +238,7 @@ function getPriceDataWithDefaults({
         exponent,
         currentSlot,
         validSlot,
+        twap,
         productAccountKey,
         nextPriceAccountKey,
         aggregatePriceUpdaterAccountKey,
@@ -247,6 +260,18 @@ function getPriceInfoWithDefaults({
         status,
         corpAct,
         pubSlot,
+    };
+}
+
+function getEmaWithDefaults({
+    valueComponent = 0n,
+    denominator = 0n,
+    numerator = 0n,
+}: Ema): Ema {
+    return {
+        valueComponent,
+        denominator,
+        numerator,
     };
 }
 
