@@ -1,0 +1,159 @@
+{
+    "language": "Deutsch",
+    "loading": {
+        "transactions": "Sende Transaktionen...",
+        "connectingWallet": "Verbinde mit Wallet...",
+        "initializing": "Starte Düsentriebwerk",
+        "fetchingReserves": "Lade Reserve-Daten",
+        "fetchingAccount": "Lade Account-Daten"
+    },
+    "nav": {
+        "cockpit": "Cockpit",
+        "settings": "Einstellungen",
+        "collapse": "Einklappen",
+        "getCopilotSuggestion": "Vorschlag vom Co-Piloten holen",
+        "transactions": "Flugbuch"
+    },
+    "cockpit": {
+        "title": "Cockpit",
+        "asset": "Asset",
+        "detail": "Details",
+        "native": "Nativ",
+        "totalValueLocked": "Totaler Marktwert",
+        "totalBorrowed": "Total ausgeliehen",
+        "availableLiquidity": "Verfügbare Liquidität",
+        "amountDeposited": "Eingezahlt",
+        "amountBorrowed": "Ausgeliehen",
+        "depositRate": "Habenzins",
+        "borrowRate": "Sollzins",
+        "airdrop": "Airdrop",
+        "totalDepositedValue": "Ihr eingezahlter Wert",
+        "totalBorrowedValue": "Ihr ausgeliehener Wert",
+        "yourRatio": "Ihr Besicherungsgrad",
+        "collateralizationRatio": "Besicherungsgrad",
+        "noInputAmount": "Betrag eingeben.",
+        "adjustedCollateralization": "Angepasster Besicherungsgrad",
+        "deposit": "Einzahlen",
+        "walletBalance": "Wallet-Guthaben",
+        "noDepositAmount": "Betrag eingeben.",
+        "notEnoughAsset": "Nicht genügend {{ASSET}}.",
+        "withdraw": "Auszahlen",
+        "availableFunds": "Verfügbare Mittel",
+        "lessFunds": "Mittel nicht ausreichend",
+        "borrow": "Ausleihen",
+        "maxBorrowAmount": "Maximaler Ausleihebetrag",
+        "assetIsCurrentDeposit": "Sie haben {{ASSET}} einbezahlt und können ihn aus diesem Grund nicht ausleihen.",
+        "noLiquidity": "Unzureichende Liquidität",
+        "minCRatio": "Dies wird Ihre Position auf den minimalen Besicherungsgrad setzen und somit Ihr Account im Liquidiationsbereich platzieren. Sind Sie sicher?",
+        "belowMinRatio": "Ihre Position ist unzureichend gedeckt. Tätigen Sie eine Einzahlung oder Rückzahlung, um eine Liquidation zu vermeiden.",
+        "subjectToLiquidation": "Diese Transaktion senkt Ihren Besicherungsgrad auf {{NEW-C-RATIO}}%, was eine Liquidation Ihrer Position möglich macht. Möchten Sie trotzdem ausleihen?",
+        "confirm": "Bestätigen",
+        "repay": "Zurückzahlen",
+        "amountOwed": "Schulden",
+        "oweLess": "Sie schulden weniger.",
+        "geobanned": "Jet Protocol ist nicht verfügbar in Ihrer Region.",
+        "noMarket": "Der Jet-Marktplatz konnte nicht initialisiert werden.",
+        "txSuccess": "Ihr(e) {{TRADE ACTION}} von {{AMOUNT AND ASSET}} wurde erhalten.",
+        "txFailed": "Transaktion fehlgeschlagen.",
+        "max": "Max",
+        "assetIsCurrentBorrow": "Sie haben {{ASSET}} ausgeliehen und können ihn aus diesem Grund nicht einzahlen.",
+        "belowMinCRatio": "Ihr Account ist untergedeckt. Machen Sie eine Einzahlung oder Rückzahlung, um eine Liquidation zu vermeiden.",
+        "search": "Markt suchen...",
+        "noBalanceForDeposit": "Sie haben keine {{ASSET}} in Ihrer Wallet für eine Einzahlung.",
+        "noDepositsForBorrow": "Sie müssen Sicherheiten einzahlen, um ausleihen zu konnen.",
+        "noDepositsForWithdraw": "Sie haben keine {{ASSET}} eingezahlt, welche ausgezahlt werden können.",
+        "noDebtForRepay": "Sie schulden keine {{ASSET}}.",
+        "rejectTrade": "Diese Transaktion würde Ihr Besicherungsgrad auf {{NEW-C-RATIO}}% senken, was unter unserem Minimum von {{JET MIN C-RATIO}} wäre. Möchten Sie trotzdem ausleihen?",
+        "insufficientLamports": "Sie zahlen alle Ihre SOL ein, ohne Lamports für Transaktionsgebühren übrig zu lassen! Bitte erneut versuchen mit einem wenig kleineren Betrag.",
+        "stillUndercollateralized": "Ihr neuer Besicherungsgrad von {{NEW-C-RATIO}}% ist immer noch unter Jet's minimalen Besicherungsgrad von {{JET MIN C-RATIO}}%. Bitte erwägen Sie eine weitere Rückzahlung, um eine Liquidation zu vermeiden.",
+        "txCancelled": "Transaction cancelled."
+    },
+    "settings": {
+        "title": "Einstellungen",
+        "wallet": "Wallet",
+        "connect": "Wallet verbinden",
+        "worldOfDefi": "Verbinden Sie Ihre Wallet mit der DeFi-Welt.",
+        "theme": "Theme",
+        "light": "Hell",
+        "dark": "Dunkel",
+        "language": "Sprache",
+        "rpcNode": "RPC Node",
+        "current": "Aktuell",
+        "defaultNode": "Jet Standard",
+        "reset": "Zurücksetzen",
+        "noUrl": "URL eingeben",
+        "disconnect": "Wallet trennen",
+        "connected": "verbunden"
+    },
+    "reserveDetail": {
+        "reserveSize": "Grösse der Reserve",
+        "availableLiquidity": "Verfügbare Liquidität",
+        "utilisationRate": "Nutzungsquote",
+        "viewHistory": "Verlauf",
+        "totalBorrowed": "Total ausgeliehen",
+        "maximumLTV": "Maximale Beleihungsquote",
+        "liquidationPremium": "Liquidationszuschlag",
+        "tradeAsset": "{{ASSET}} handeln",
+        "minimumCollateralizationRatio": "Minimaler Besicherungsgrad"
+    },
+    "copilot": {
+        "name": "Co-Pilot",
+        "header": "Hey, Co-Pilot hier.",
+        "okay": "Okay",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "Ihr Account ist ungesund.",
+                "detail": "Ihr Besicherungsgrad (Total eingezahlter Wert / Total ausgeliehener Wert) ist {{C-RATIO}}%, was {{RATIO BELOW AMOUNT}}% weniger als der minimale Besicherungsgrad vom Jet-Marktplatz von {{JET MIN C-RATIO}}% ist.",
+                "solution": "Um Ihre Position zu korrigieren, können Sie mehr Sicherheiten einzahlen, aber ich schlage Ihnen die Rückzahlung der Schulden im Cockpit vor.",
+                "actionText": "Zum Cockpit"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "Sie sind gefährlich nahe an einer Liquidation.",
+                    "detail": "Ihr Besicherungsgrad (Total eingezahlter Wert / Total ausgeliehener Wert) ist {{C-RATIO}}%, was innerhalb von 10% vom minimalen Besicherungsgrad vom Jet-Marktplatz von {{JET MIN C-RATIO}}% ist.",
+                    "solution": "Um eine Liquidiation zu vermeiden, können Sie mehr Sicherheiten einzahlen.",
+                    "actionText": "Einzahlen"
+                },
+                "twentyPercent": {
+                    "overview": "Behalten Sie ein Auge auf Ihren Besicherungsgrad.",
+                    "detail": "Ihr Besicherungsgrad (Total eingezahlter Wert / Total ausgeliehener Wert) ist {{C-RATIO}}%, was weniger als 20% über dem minimalen Besicherungsgrad vom Jet-Marktplatz von {{JET MIN C-RATIO}}% ist.",
+                    "solution": "Erhöhen Sie Ihren Besicherungsgrad zu gesunden Levels von 20% oder mehr, indem Sie mehr Sicherheiten einzahlen.",
+                    "actionText": "Einzahlen"
+                }
+            },
+            "deposit": {
+                "overview": "{{BEST DEPOSIT RATE NAME}} sieht momentan gut aus.",
+                "detail": "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> hat momentan den besten <b class='bold'>Habenzins</b> auf dem Marktplatz mit <b class='bold'>{{DEPOSIT RATE}}%</b>, und Ihr Account ist in gutem Zustand - somit empfehlen wir das Hinzufügen von Sicherheiten durch die Einzahlung eines Teils Ihrer <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
+                "actionText": "Machen wir es"
+            },
+            "healthy": {
+                "overview": "Der Himmel ist klar.",
+                "detail": "Ihr Account ist in gutem Zustand und gesund übergedeckt, lassen Sie mich den Markt anschauen und prüfen, ob ich gute Bewegungen vorschlagen kann. Kommen Sie später vorbei!"
+            }
+        },
+        "alert": {
+            "failed": "Mayday!",
+            "success": "Erfolg!",
+            "airdropSuccess": "Wir haben Ihnen {{UI AMOUNT}} {{RESERVE ABBREV}} geschenkt.",
+            "refresh": "Aktualisieren",
+            "originationFee": "Eine Gebühr von {{ORIGINATION FEE}}% ist mit diesem Kredit verknüpft.",
+            "headsup": "Achtung!",
+            "disclaimer": "Sie sind im Begriff, das Jet Protocol Mainnet zu betreten. Fahren Sie nicht fort, wenn Sie die Nutzungsbedindungen sowie das Potential für finanzielle Verluste nicht verstehen und akzeptieren.<br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">NUTZUNGSBEDINGUNGEN</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">DATENSCHUTZBESTIMMUNGEN</a>",
+            "accept": "Akzeptieren",
+            "warning": "WARNUNG"
+        }
+    },
+    "transactions": {
+        "title": "Flugbuch",
+        "date": "Datum",
+        "signature": "Signatur",
+        "tradeAction": "Transaktion",
+        "tradeAmount": "Betrag",
+        "noTrades": "Sie haben keine erfassten Transaktionen mit Jet.",
+        "entries": "{start} bis {end} von {rows}",
+        "deposit": "Einzahlung",
+        "withdraw": "Auszahlung",
+        "borrow": "Ausleihen",
+        "repay": "Zurückzahlen"
+    }
+}

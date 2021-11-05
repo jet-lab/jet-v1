@@ -274,7 +274,7 @@ export const sendTransaction = async (
   instructions: TransactionInstruction[],
   signers?: Signer[],
   skipConfirmation?: boolean
-): Promise<[res: TxnResponse, txid: string | null]> => {
+): Promise<[res: TxnResponse, txid: string[]]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
     
@@ -301,7 +301,7 @@ export const sendTransaction = async (
       transaction.addSignature(new PublicKey(data.publicKey), bs58.decode(data.signature));
     } catch (err) {
       console.log('Signing Transactions Failed', err);
-      return [TxnResponse.Cancelled, null];
+      return [TxnResponse.Cancelled, []];
     }
   } else {
     try {
@@ -309,7 +309,7 @@ export const sendTransaction = async (
     } catch (err) {
       console.log('Signing Transactions Failed', err, [TxnResponse.Failed, null]);
       // wallet refused to sign
-      return [TxnResponse.Cancelled, null];
+      return [TxnResponse.Cancelled, []];
     }
   }
 
@@ -331,12 +331,11 @@ export const sendTransaction = async (
       )
     ).value;
 
-    if (status?.err) {
+    if (status?.err && txid.length) {
       res = TxnResponse.Failed;
     }
   }
-
-  return [res, txid];
+  return [res, [txid]];
 };
 
 export interface InstructionAndSigner { ix: TransactionInstruction[], signers?: Signer[] };
@@ -345,7 +344,7 @@ export const sendAllTransactions = async (
   provider: anchor.Provider,
   transactions: InstructionAndSigner[],
   skipConfirmation?: boolean
-): Promise<[res: TxnResponse, txid: string[] | null]> => {
+): Promise<[res: TxnResponse, txids: string[]]> => {
   if (!provider.wallet?.publicKey) {
     throw new Error("Wallet is not connected");
   }
@@ -384,7 +383,7 @@ export const sendAllTransactions = async (
     } catch (err) {
       console.log('Signing All Transactions Failed', err);
     // wallet refused to sign
-      return [TxnResponse.Cancelled, null];
+      return [TxnResponse.Cancelled, []];
     }
   } else {
     try {
@@ -401,7 +400,7 @@ export const sendAllTransactions = async (
     catch (err) {
       console.log('Signing All Transactions Failed', err);
       // wallet refused to sign
-      return [TxnResponse.Cancelled, null];
+      return [TxnResponse.Cancelled, []];
     }
   }
 

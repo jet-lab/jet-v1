@@ -5,6 +5,7 @@
   import { currencyFormatter, TokenAmount, Amount } from '../scripts/util';
   import { checkTradeWarning } from '../scripts/copilot';
   import { dictionary } from '../scripts/localization'; 
+  import { TxnResponse } from '../models/JetTypes';
   import Input from './Input.svelte';
   import Info from './Info.svelte';
 
@@ -18,8 +19,8 @@
 
   // Adjust interface
   const adjustInterface = () => {
+    inputError = ''
     inputAmount = null;
-    inputError = '';
     checkDisabledInput();
     getMaxInput();
     adjustCollateralizationRatio();
@@ -160,7 +161,8 @@
 
     let tradeAction = $USER.tradeAction;
     let tradeAmount = TokenAmount.tokens(inputAmount.toString(), $MARKET.currentReserve.decimals);
-    let ok, txid;
+    let res: TxnResponse = TxnResponse.Cancelled;
+    let txids: string[] = [];
     sendingTrade = true;
     // Depositing
     if (tradeAction === 'deposit') {
@@ -171,7 +173,7 @@
       // Otherwise, send deposit
       } else {
         const depositAmount = tradeAmount.amount;
-        [ok, txid] = await deposit($MARKET.currentReserve.abbrev, depositAmount);
+        [res, txids] = await deposit($MARKET.currentReserve.abbrev, depositAmount);
       }
     // Withdrawing
     } else if (tradeAction === 'withdraw') {
@@ -190,7 +192,7 @@
         const withdrawAmount = tradeAmount.uiAmountFloat === $USER.collateralBalances[$MARKET.currentReserve.abbrev]
           ? Amount.depositNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].collateralNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await withdraw($MARKET.currentReserve.abbrev, withdrawAmount);
+        [res, txids] = await withdraw($MARKET.currentReserve.abbrev, withdrawAmount);
       }
     // Borrowing
     } else if (tradeAction === 'borrow') {
@@ -203,40 +205,58 @@
       // Otherwise, send borrow
       } else {
         const borrowAmount = Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await borrow($MARKET.currentReserve.abbrev, borrowAmount);
+        [res, txids] = await borrow($MARKET.currentReserve.abbrev, borrowAmount);
       }
     // Repaying
     } else if (tradeAction === 'repay') {
       // User is repaying more than they owe
       if (tradeAmount.uiAmountFloat > $USER.loanBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.oweLess;
+      // User input amount is larger than wallet balance
+      } else if (tradeAmount.uiAmountFloat > $USER.walletBalances[$MARKET.currentReserve.abbrev]) {
+        inputError = dictionary[$USER.language].cockpit.notEnoughAsset
+          .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // Otherwise, send repay
       } else {
         // If user is repaying all, use loan notes
         const repayAmount = tradeAmount.uiAmountFloat === $USER.loanBalances[$MARKET.currentReserve.abbrev]
           ? Amount.loanNotes($USER.assets.tokens[$MARKET.currentReserve.abbrev].loanNoteBalance.amount)
             : Amount.tokens(tradeAmount.amount);
-        [ok, txid] = await repay($MARKET.currentReserve.abbrev, repayAmount);
+        [res, txids] = await repay($MARKET.currentReserve.abbrev, repayAmount);
       }
+    }
+
+    // If input error, remove trade amount and return
+    if (inputError) {
+      inputAmount = null;
+      sendingTrade = false;
+      return;
     }
     
     // Notify user of successful/unsuccessful trade
-    if (ok && txid) {
+    if (res === TxnResponse.Success) {
       $USER.addNotification({
         success: true,
         text: dictionary[$USER.language].cockpit.txSuccess
           .replaceAll('{{TRADE ACTION}}', tradeAction)
           .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount.uiAmountFloat} ${$MARKET.currentReserve.abbrev}`)
       });
-      addTransactionLog(txid);
-      adjustInterface();
-    } else if (!ok && !txid) {
+      const lastTxn = txids[txids.length - 1];
+      addTransactionLog(lastTxn);
+    } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txFailed
       });
+    } else if (res === TxnResponse.Cancelled) {
+      $USER.addNotification({
+        success: false,
+        text: dictionary[$USER.language].cockpit.txCancelled
+      });
     }
 
+    // Readjust interface
+    adjustInterface();
     // End trade submit
     sendingTrade = false;
   };
@@ -350,7 +370,7 @@
         }}
         submit={() => {
           // Check for no input
-          if (!inputAmount) {
+          if (!inputAmount || inputAmount <= 0) {
             inputError = dictionary[$USER.language].cockpit.noInputAmount;
             inputAmount = null;
             return;
@@ -393,7 +413,7 @@
   }
   .trade-select {
     width: 25%;
-    border-right: 1px solid var(--white);
+    border-right: 2px solid var(--white);
     box-shadow: inset 0px -5px 8px -5px rgba(0, 0, 0, 0.3);
     padding: var(--spacing-sm) 0;
     background: var(--grey);

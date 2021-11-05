@@ -14,9 +14,9 @@
       url: "https://phantom.app/"
     },
     {
-      name: "Sollet",
-      logo: "img/wallets/sollet.png",
-      url: "https://www.sollet.io/"
+      name: "Slope",
+      logo: "img/wallets/slope.png",
+      url: "https://slope.finance/"
     },
     {
       name: "Solflare",
@@ -29,14 +29,14 @@
       url: "https://solongwallet.com/"
     },
     {
+      name: "Sollet",
+      logo: "img/wallets/sollet.png",
+      url: "https://www.sollet.io/"
+    },
+    {
       name: "Math Wallet",
       logo: "img/wallets/math_wallet.png",
       url: "https://mathwallet.org/en-us/"
-    },
-    {
-      name: "Slope",
-      logo: "img/wallets/slope.png",
-      url: "https://chrome.google.com/webstore/detail/slope-finance-wallet/pocmplpaccanhmnllbbkpgfliimjljgo"
     }
   ];
 </script>

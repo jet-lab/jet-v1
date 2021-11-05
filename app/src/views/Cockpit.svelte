@@ -6,6 +6,7 @@
   import { Datatable, rows } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token'; 
   import type { Reserve } from '../models/JetTypes';
+  import { TxnResponse } from '../models/JetTypes';
   import { INIT_FAILED, MARKET, USER } from '../store';
   import { inDevelopment, airdrop } from '../scripts/jet';
   import { currencyFormatter, totalAbbrev, TokenAmount } from '../scripts/util';;
@@ -42,15 +43,15 @@
       amount = TokenAmount.tokens("1", reserve.decimals);
     }
 
-    const [ok, txid] = await airdrop(reserve.abbrev, amount.amount);
-    if (ok && txid) {
+    const [res, txid] = await airdrop(reserve.abbrev, amount.amount);
+    if (res === TxnResponse.Success) {
       $USER.addNotification({
         success: true,
         text: dictionary[$USER.language].copilot.alert.airdropSuccess
           .replaceAll('{{UI AMOUNT}}', amount.uiAmount)
           .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev)
       });
-    } else if (!ok && !txid) {
+    } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
         text: dictionary[$USER.language].cockpit.txFailed
@@ -138,7 +139,7 @@
             </h2>
             {#if $USER.walletInit}
               <p class="bicyclette text-gradient">
-                {totalAbbrev($USER.position.depositedValue ?? 0)}
+                {currencyFormatter($USER.position.depositedValue ?? 0, true)}
               </p>
             {:else}
               <p class="bicyclette">
@@ -152,7 +153,7 @@
             </h2>
             {#if $USER.walletInit}
               <p class="bicyclette text-gradient">
-                {totalAbbrev($USER.position.borrowedValue ?? 0)}
+                {currencyFormatter($USER.position.borrowedValue ?? 0, true)}
               </p>
             {:else}
               <p class="bicyclette">

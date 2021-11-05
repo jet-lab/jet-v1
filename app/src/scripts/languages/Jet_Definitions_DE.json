@@ -1,0 +1,42 @@
+{
+    "collateral": {
+        "term": "Sicherheit",
+        "definition": "Der eingezahlte Asset für die Deckung des Kredits."
+    },
+    "debt": {
+        "term": "Schulden",
+        "definition": "Der Betrag des Kredits, welcher dem Protokoll geschuldet wird."
+    },
+    "collateralizationRatio": {
+        "term": "Besicherungsgrad",
+        "definition": "Der Wert Ihrer Sicherheit geteilt durch den Wert Ihrer Schulden. Sie sind verpflichtet, Ihren Kredit zu überdecken, d.h. der gerechte Marktwert Ihrer eingezahlten Assets muss den Wert Ihrer maximalen Schulden übersteigen. So ist es dem Protokoll möglich, diese Sicherheit zu pfänden, um bei einem Kreditausfall den Wert der Schulden decken zu können. Siehe auch Maximale Beleihungsquote."
+    },
+    "adjustedCollateralizationRatio": {
+        "term": "Angepasster Besicherungsgrad",
+        "definition": "Eine Echtzeit-Repräsentation der möglichen Auswirkung der aktuellen Transaktion auf den Besicherungsgrad."
+    },
+    "depositRate": {
+        "term": "Habenzinssatz",
+        "definition": "Der unmittelbare Zinssatz, welcher auf die eingezahlten Assets verdient wird. Der Zins wird auf Jahresbasis angegeben, reflektiert keine Aufzinsung, und beinhaltet allfällige Protokoll-Gebühren. Der Zinssatz verändert sich mit der Veränderung der Nutzungsquote des eingezahlten Assets."
+    },
+    "borrowRate": {
+        "term": "Sollzinssatz",
+        "definition": "Der unmittelbare Zinssatz, welcher auf die ausgeliehenen Assets bezahlt wird. Der Zins wird auf Jahresbasis angegeben, reflektiert keine Aufzinsung, und beinhaltet allfällige Protokoll-Gebühren. Der Zinssatz verändert sich mit der Veränderung der Nutzungsquote des ausgeliehenen Assets."
+    },
+    "maximumLtv": {
+        "term": "Maximale Beleihungsquote",
+        "definition": "Die maximale vom Protokoll erlaubte Quote eines Kredits. Die Beleihungsquote ist ein Risikomass, welches vom Jet Protocol für die Bestimmung des maximal erlaubten Kreditbetrags genutzt wird. Ihre Beleihungsquote repräsentiert die Beziehung zwischen der Grösse des aufgenommenen Kredits gegenüber den als Sicherheit hinterlegten Assets. Siehe auch Besicherungsgrad."
+    },
+    "utilisationRate": {
+        "term": "Nutzungsquote",
+        "definition": "Der Anteil einer Währungsreserve, welcher ausgeliehen wurde. Als Beispiel, falls die USDC-Reserve $100'000 wert ist und der geschuldete Betrag aller Schuldner $65'000 ist, ist die Nutzungsquote bei 65%. So wären noch $35'000 fürs Ausleihen verfügbar."
+    },
+    "availLiquidity": {
+        "term": "Liquidität",
+        "definition": "Die Effizienz oder Einfachheit, mit welcher ein Asset in Stablecoins konvertiert werden kann, ohne den Marktpreis zu beeinflussen."
+    },
+    "liquidationPremium": {
+        "term": "Liquidationszuschlag",
+        "definition": "Zusätzliche Sicherheiten werden den Liquidatoren, welche die Schulden von Accounts unterhalb des minimalen Besicherungsgrads zurückzahlen, gutgeschrieben. Der Dollar-Wert dieser zusätzlichen Sicherheiten wird aus dem Produkt des Liquidationszuschlags und dem Dollar-Wert der rückbezahlten Schulden berechnet. Die zusätzlichen Sicherheiten werden aus dem Account des liquidierten Nutzers bezahlt."
+    }
+}

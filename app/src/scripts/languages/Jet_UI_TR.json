@@ -55,6 +55,7 @@
         "noMarket": "Jet pazaryerini başlatamadık.",
         "txSuccess": "Başarılı! {{AMOUNT AND ASSET}} tutarındaki  {{TRADE ACTION}} alındı. <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>'da işleme göz atın.",
         "txFailed": "İşlem başarısız. Neyin yanlış gittiğinden emin değilim, lütfen daha sonra tekrar deneyin veya bizimle iletişime geçin.",
+        "txCancelled": "Transaction cancelled.",
         "max": "Maksimum",
         "assetIsCurrentBorrow": "{{ASSET}} ödünç aldınız ve bu nedenle yatıramazsınız.",
         "belowMinCRatio": "Teminatınız yetersiz. Likidasyondan kaçınmak için para yatırın veya borcunuzu geri ödeyin.",
@@ -65,7 +66,8 @@
         "noDebtForRepay": "Hiç {{ASSET}} borcunuz yok.",
         "rejectTrade": "Bu ticaret, sizin yeni teminat oranınızı {{NEW-C-RATIO}}% minimum oranımız olan {{JET MIN C-RATIO}} altına düşürebilir. Borcun oluşturulması için ayrıca bir komisyon daha bulunmaktadır {{ORIGINATION FEE}}%. Hala borç almak istediğinize emin misiniz?",
         "insufficientLamports": "İşlem ücretlerini dahi karşılamayacak kadar çok SOL yatırıyorsunuz. Şu ankinden daha az bir miktar kullanarak yeniden deneyin. ",
-        "stillUndercollateralized": "Yeni C-oranınız {{NEW-C-RATIO}}% hala Jet Protocol'ün minimum piyasa teminat oranı"
+        "stillUndercollateralized": "Yeni C-oranınız {{NEW-C-RATIO}}% hala Jet Protocol'ün minimum piyasa teminat oranı",
+        "txCancelled": "Transaction cancelled."
     },
     "settings": {
         "title": "Ayarlar",
