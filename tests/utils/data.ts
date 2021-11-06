@@ -83,4 +83,12 @@ export class DataManager {
             this.wallet.payer,
         ]);
     }
+
+    /**
+     * Retrieve the data stored in an account
+     * @param account The keypair for the account to retrieve
+     */
+    async retrieve(account: Keypair): Promise<web3.AccountInfo<Buffer>> {
+        return await this.conn.getAccountInfo(account.publicKey)
+    }
 }

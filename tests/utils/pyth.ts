@@ -5,14 +5,11 @@
  */
 
 import { Wallet } from "@project-serum/anchor";
-import * as web3 from "@solana/web3.js";
 import * as pyth from "@pythnetwork/client";
 import {
     Connection,
     Keypair,
     PublicKey,
-    SystemProgram,
-    Transaction,
 } from "@solana/web3.js";
 
 import { DataManager } from "./data";
@@ -113,6 +110,63 @@ export class PythUtils {
         writeProductBuffer(buf, 0, d);
         await this.config.store(account, 0, buf);
     }
+
+    /**
+     * Get a Pyth price, returns null if:
+     * - the account data size differs from the expected `PRICE_ACCOUNT_SIZE`
+     * - the account is not a valid Pyth account
+     * 
+     * @param account The account to update
+     */
+    async getPriceAccountData(account: Keypair): Promise<Price | null> {
+        let data = await this.config.retrieve(account);
+        // Check if data is expected length
+        if (data.data.length !== PRICE_ACCOUNT_SIZE) {
+            return Promise.resolve(null);
+        }
+        // Decode account data
+        return Promise.resolve(readPriceBuffer(data.data, 0))
+    }
+}
+
+function readPriceBuffer(buf: Buffer, offset: number): Price | null {
+    // Check the header magic
+    if (buf.readUInt32LE(offset + 0) !== pyth.Magic) {
+        return null
+    }
+
+    let price = {
+        version: buf.readUInt32LE(offset + 4),
+        type: buf.readUInt32LE(offset + 8),
+        size: buf.readUInt32LE(offset + 12),
+        priceType: "price",
+        exponent: buf.readInt32LE(offset + 20),
+        currentSlot: buf.readBigUInt64LE(offset + 32),
+        validSlot: buf.readBigUInt64LE(offset + 40),
+        productAccountKey: readPublicKeyBuffer(buf, offset + 112),
+        nextPriceAccountKey: readPublicKeyBuffer(buf, offset + 144),
+        aggregatePriceUpdaterAccountKey: readPublicKeyBuffer(buf, offset + 176),
+        aggregatePriceInfo: readPriceInfoBuffer(buf, offset + 208),
+        priceComponents: []
+    }
+
+    const priceComponentSize = 96;
+    let pos = 240;
+    const priceComponentsLength = buf.readUInt32LE(offset + 24);
+    let priceComponentIndex = 0;
+    while (priceComponentIndex++ < priceComponentsLength) {
+        price.priceComponents.push(readPriceComponentBuffer(buf, pos));
+        pos += priceComponentSize;
+    }
+
+    return price
+}
+
+// FIXME: test that this works
+function readPublicKeyBuffer(buf: Buffer, start: number): PublicKey {
+    let string = buf.toString("binary", start, start + 32);
+    let key = new PublicKey(Buffer.from(string, 'binary'));
+    return key;
 }
 
 function writePublicKeyBuffer(buf: Buffer, offset: number, key: PublicKey) {
@@ -146,11 +200,32 @@ function writePriceBuffer(buf: Buffer, offset: number, data: Price) {
     }
 }
 
+function readPriceInfoBuffer(buf: Buffer, offset: number): PriceInfo {
+    return {
+        price: buf.readBigInt64LE(offset),
+        conf: buf.readBigUInt64LE(offset + 8),
+        status: "trading",
+        pubSlot: buf.readBigUInt64LE(offset + 24)
+    }
+}
+
 function writePriceInfoBuffer(buf: Buffer, offset: number, info: PriceInfo) {
     buf.writeBigInt64LE(info.price, offset + 0);
     buf.writeBigUInt64LE(info.conf, offset + 8);
     buf.writeUInt32LE(convertPriceStatus(info.status), offset + 16);
     buf.writeBigUInt64LE(info.pubSlot, offset + 24);
+}
+
+function readPriceComponentBuffer(
+    buf: Buffer,
+    offset: number,
+): PriceComponent {
+    return {
+        // FIXME: is this right?
+        publisher: new PublicKey(buf.slice(offset, 32)),
+        agg: readPriceInfoBuffer(buf, offset + 32),
+        latest: readPriceInfoBuffer(buf, offset + 64)
+    }
 }
 
 function writePriceComponentBuffer(
