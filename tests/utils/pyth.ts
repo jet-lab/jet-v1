@@ -162,7 +162,6 @@ function readPriceBuffer(buf: Buffer, offset: number): Price | null {
     return price
 }
 
-// FIXME: test that this works
 function readPublicKeyBuffer(buf: Buffer, start: number): PublicKey {
     let string = buf.toString("binary", start, start + 32);
     let key = new PublicKey(Buffer.from(string, 'binary'));
@@ -221,8 +220,7 @@ function readPriceComponentBuffer(
     offset: number,
 ): PriceComponent {
     return {
-        // FIXME: is this right?
-        publisher: new PublicKey(buf.slice(offset, 32)),
+        publisher: new PublicKey(buf.slice(offset, offset + 32)),
         agg: readPriceInfoBuffer(buf, offset + 32),
         latest: readPriceInfoBuffer(buf, offset + 64)
     }
