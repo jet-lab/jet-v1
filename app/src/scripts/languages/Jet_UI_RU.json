@@ -55,7 +55,6 @@
         "noMarket": "площадка Jet не смогла запуститься.",
         "txSuccess": "Успех! Ваш(а) {{TRADE ACTION}} на {{AMOUNT AND ASSET}} получен(а). Проверить транзакцию в <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>обозревателе</a>.",
         "txFailed": "Транзакция не прошла. Мы не уверены, что пошло не так. Попробуйте еще раз позже или свяжитесь с нами.",
-        "txCancelled": "Transaction cancelled.",
         "max": "Максимум",
         "assetIsCurrentBorrow": "Вы одолжили {{ASSET}}, поэтому не можете его внести на депозит",
         "belowMinCRatio": "У вас недостаточно средств в залоге. Пополните залог или верните долг чтобы избежать ликвидации.",
