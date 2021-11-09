@@ -55,7 +55,6 @@
         "noMarket": "Jet marketplace를 초기화하지 못했습니다.",
         "txSuccess": "성공적입니다! {{AMOUNT AND ASSET}} 중 {{TRADE ACTION}}이 접수되었습니다. 거래를 확인해보세요 <a href='{{EXPLORER LINK}}' class='text-gradient' target='_blank' style='margin: unset; font-weight: bold;'>explorer</a>.",
         "txFailed": "거래를 실패하였습니다. 무엇이 잘못되었는지 확인이 불가하므로, 나중에 다시 시도하거나 저희에게 문의하세요.",
-        "txCancelled": "Transaction cancelled.",
         "max": "최대",
         "assetIsCurrentBorrow": "{{ASSET}}을 대출했으므로 예치할 수 없습니다.",
         "belowMinCRatio": "귀화의 담보가 부족합니다. 청산을 피하기 위해 예치하거나 빚을 상환하십시오.",
