@@ -143,13 +143,61 @@ export class JetUser implements User {
   }
 
   async makeLiquidateTx(
-    _loanReserve: JetReserve,
-    _collateralReserve: JetReserve,
-    _payerAccount: PublicKey,
-    _receiverAccount: PublicKey,
-    _amount: Amount
+    loanReserve: JetReserve,
+    collateralReserve: JetReserve,
+    payerAccount: PublicKey,
+    receiverAccount: PublicKey,
+    amount: Amount
   ): Promise<Transaction> {
-    throw new Error("not yet implemented");
+    // const loanDexAccounts = await loanReserve.loadDexMarketAccounts();
+    // const collateralDexAccounts =
+    //   await collateralReserve.loadDexMarketAccounts();
+    const loanAccounts = await this.findReserveAccounts(loanReserve);
+    const collateralAccounts = await this.findReserveAccounts(
+      collateralReserve
+    )
+
+    const tx = new Transaction();
+
+    tx.add(loanReserve.makeRefreshIx());
+    tx.add(collateralReserve.makeRefreshIx());
+
+    tx.add(
+      this.client.program.instruction.liquidate({
+        // amount,
+        // minCollateral: 125,
+        accounts: {
+
+          market: this.market.address,
+          marketAuthority: this.market.marketAuthority,
+
+          obligation: this.obligation.address,
+
+          reserve: loanReserve.address,
+          collateralReserve: collateralReserve.address,
+          vault: loanReserve.data.vault,
+          loanNoteMint: loanReserve.data.loanNoteMint,
+          loanAccount: loanAccounts.loan.address,
+
+          collateralAccount: collateralAccounts.collateral.address,
+
+          payerAccount: payerAccount,
+          receiverAccount: receiverAccount,
+
+          // TODO: missing payer
+
+          tokenProgram: TOKEN_PROGRAM_ID,
+          rent: SYSVAR_RENT_PUBKEY
+        },
+        args: {
+          amount,
+          minCollateral: 125,
+        }
+        
+      })
+    )
+
+    return tx;
   }
 
   async repay(

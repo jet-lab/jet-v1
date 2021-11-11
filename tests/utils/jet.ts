@@ -12,6 +12,7 @@ import { TestToken, TestUtils, toBN, toPublicKeys } from ".";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import * as anchor from "@project-serum/anchor";
 import { DEX_ID, DEX_ID_DEVNET}from "@jet-lab/jet-client";
+import { IdlInstruction } from "@project-serum/anchor/dist/idl";
 
 export interface ReserveAccounts {
   accounts: {
@@ -375,4 +376,87 @@ export const LiquidateDexInstruction = {
     },
   ],
   args: [],
+};
+
+export const LiquidateInstruction: IdlInstruction = {
+  name: "liquidate",
+  accounts: [
+    {
+      "name": "market",
+      "isMut": false,
+      "isSigner": false
+    },
+    {
+      "name": "marketAuthority",
+      "isMut": false,
+      "isSigner": false
+    },
+    {
+      "name": "obligation",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "reserve",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "collateralReserve",
+      "isMut": false,
+      "isSigner": false
+    },
+    {
+      "name": "vault",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "loanNoteMint",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "loanAccount",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "collateralAccount",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "payerAccount",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "receiverAccount",
+      "isMut": true,
+      "isSigner": false
+    },
+    {
+      "name": "payer",
+      "isMut": false,
+      "isSigner": true
+    },
+    {
+      "name": "tokenProgram",
+      "isMut": false,
+      "isSigner": false
+    }
+  ],
+  args: [
+    {
+      name: "amount",
+      type: {
+        "defined": "Amount"
+      }
+    },
+    {
+      name: "minCollateral",
+      type: "u64"
+    }
+  ]
 };
