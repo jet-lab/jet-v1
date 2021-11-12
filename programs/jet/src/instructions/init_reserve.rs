@@ -243,7 +243,7 @@ impl<'info> InitializeReserve<'info> {
         reserve.dex_open_orders = self.dex_open_orders.key();
         reserve.dex_market = self.dex_market.key();
 
-        reserve.exponent = -1 * (token_mint.decimals as i32);
+        reserve.exponent = -(token_mint.decimals as i32);
         reserve.token_mint = token_mint.key();
         reserve.deposit_note_mint = *self.deposit_note_mint.key;
         reserve.loan_note_mint = *self.loan_note_mint.key;
@@ -259,7 +259,7 @@ impl<'info> InitializeReserve<'info> {
             // Verify the DEX market is usable for the reserve/market tokens
             utils::verify_dex_market_tokens(
                 &self.dex_market,
-                &self.dex_program.key,
+                self.dex_program.key,
                 &reserve.token_mint,
                 &market.quote_token_mint,
             )?;

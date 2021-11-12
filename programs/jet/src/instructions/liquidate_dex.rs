@@ -130,7 +130,7 @@ impl<'a, 'info> DexClient<'a, 'info> {
 
         dex::new_order_v3(
             ctx.with_signer(&[&self.market.authority_seeds()]),
-            side.into(),
+            side,
             NonZeroU64::new(limit_price).unwrap(),
             NonZeroU64::new(max_coin_qty).unwrap(),
             NonZeroU64::new(max_pc_qty).unwrap(),
@@ -588,10 +588,10 @@ pub fn handler_raw<'info>(
     // just use anchor to check everything as usual
     let source_market = DexMarketAccounts::try_accounts(program_id, &mut account_list, data)?;
     let target_market = DexMarketAccounts::try_accounts(program_id, &mut account_list, data)?;
-    let mut liquidation = LiquidateDex::try_accounts(program_id, &mut account_list, data)?;
+    let liquidation = LiquidateDex::try_accounts(program_id, &mut account_list, data)?;
 
     // pass accounts to real handler
-    handler(&source_market, &target_market, &mut liquidation)?;
+    handler(&source_market, &target_market, &liquidation)?;
     Ok(())
 }
 

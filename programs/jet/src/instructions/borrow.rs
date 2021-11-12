@@ -141,14 +141,14 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
 
     // record the loan in the obligation which is used to determine the obligation's health
     let obligation = &mut ctx.accounts.obligation.load_mut()?;
-    obligation.borrow(&loan_account, reserve.amount(new_notes))?;
+    obligation.borrow(loan_account, reserve.amount(new_notes))?;
 
     obligation.cache_calculations(market.reserves(), clock.slot);
 
     // Validate that the obligation has sufficient collateral to borrow
     // the requested amount, by checking that its still healthy after
     // minting the new debt.
-    if !obligation.is_healthy(&market_reserves, clock.slot) {
+    if !obligation.is_healthy(market_reserves, clock.slot) {
         return Err(ErrorCode::InsufficientCollateral.into());
     }
 

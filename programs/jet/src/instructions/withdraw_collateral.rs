@@ -135,7 +135,7 @@ pub fn handler(
     let market_info = market.reserves();
 
     obligation.cache_calculations(market.reserves(), clock.slot);
-    if !obligation.is_healthy(&market_info, clock.slot) {
+    if !obligation.is_healthy(market_info, clock.slot) {
         return Err(ErrorCode::ObligationUnhealthy.into());
     }
 

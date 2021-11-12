@@ -142,7 +142,7 @@ fn transfer_collateral(
     obligation.cache_calculations(market.reserves(), clock.slot);
 
     // First check that the obligation is unhealthy
-    if obligation.is_healthy(&market_reserves, clock.slot) {
+    if obligation.is_healthy(market_reserves, clock.slot) {
         return Err(ErrorCode::ObligationHealthy.into());
     }
 
@@ -154,7 +154,7 @@ fn transfer_collateral(
     let collateral_account = accounts.collateral_account.key();
     let loan_account = accounts.loan_account.key();
     let collateral_amount = obligation.liquidate(
-        &market_reserves,
+        market_reserves,
         clock.slot,
         &collateral_account,
         &loan_account,

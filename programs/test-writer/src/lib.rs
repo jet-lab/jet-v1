@@ -37,8 +37,7 @@ pub mod test_writer {
         let borrow_data = &mut *account_data.borrow_mut();
         let offset = offset as usize;
 
-        (&mut borrow_data[offset..]).write(&data[..])?;
-        Ok(())
+        Ok((&mut borrow_data[offset..]).write_all(&data[..])?)
     }
 }
 

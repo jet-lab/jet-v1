@@ -18,6 +18,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::clock::UnixTimestamp;
 use bytemuck::{Pod, Zeroable};
+use std::cmp::Ordering;
 
 use jet_math::Number;
 use jet_proc_macros::assert_size;
@@ -317,20 +318,24 @@ impl Reserve {
         let interest_rate = self.interest_rate(outstanding_debt, vault_total);
         let state_cache: &mut Cache<ReserveState, 0> = bytemuck::from_bytes_mut(&mut self.state);
 
-        if time_to_accrue < 0 {
-            panic!("Interest may not be accrued over a negative time period.");
-        } else if time_to_accrue > 0 {
-            let compound_rate = Reserve::compound_interest(interest_rate, time_to_accrue);
+        match time_to_accrue.cmp(&0) {
+            Ordering::Less => {
+                panic!("Interest may not be accrued over a negative time period.");
+            }
+            Ordering::Equal => {}
+            Ordering::Greater => {
+                let compound_rate = Reserve::compound_interest(interest_rate, time_to_accrue);
 
-            let interest_fee_rate = Number::from_bps(self.config.manage_fee_rate);
-            let state = state_cache.get_stale_mut();
+                let interest_fee_rate = Number::from_bps(self.config.manage_fee_rate);
+                let state = state_cache.get_stale_mut();
 
-            let new_interest_accrued = state.outstanding_debt * compound_rate;
-            let fee_to_collect = new_interest_accrued * interest_fee_rate;
+                let new_interest_accrued = state.outstanding_debt * compound_rate;
+                let fee_to_collect = new_interest_accrued * interest_fee_rate;
 
-            state.outstanding_debt += new_interest_accrued;
-            state.uncollected_fees += fee_to_collect;
-            state.accrued_until = state.accrued_until.checked_add(time_to_accrue).unwrap();
+                state.outstanding_debt += new_interest_accrued;
+                state.uncollected_fees += fee_to_collect;
+                state.accrued_until = state.accrued_until.checked_add(time_to_accrue).unwrap();
+            }
         }
 
         if time_behind == time_to_accrue {

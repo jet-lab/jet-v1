@@ -178,7 +178,7 @@ impl Obligation {
         repay_notes_amount: Number,
     ) -> Result<Number, ErrorCode> {
         let loan_total = self.loan_value(market, current_slot);
-        let loan = self.loans().position(&loan_account)?;
+        let loan = self.loans().position(loan_account)?;
         let loan_reserve = market.get_cached(loan.reserve_index, current_slot);
 
         let collateral_total = self.collateral_value(market, current_slot);
@@ -203,7 +203,7 @@ impl Obligation {
             // This means the loan is over-collateralized, so we shouldn't allow
             // any liquidation for it.
             msg!("c_ratio_ltv < 1 implies this cannot be liquidated");
-            return Err(ErrorCode::ObligationHealthy.into());
+            return Err(ErrorCode::ObligationHealthy);
         } else {
             collateral_total * repaid_ratio
         };
@@ -625,14 +625,14 @@ mod tests {
         // c-ratio = 100%
         ctx.obligation.cache_calculations(&ctx.market, 0);
         let healthy = ctx.obligation.is_healthy(&ctx.market, 0);
-        assert_eq!(false, healthy);
+        assert!(!healthy);
 
         // c-ratio = 250%
         ctx.obligation.repay(&loan, Number::from(300_000)).unwrap();
 
         ctx.obligation.cache_calculations(&ctx.market, 0);
         let healthy = ctx.obligation.is_healthy(&ctx.market, 0);
-        assert_eq!(true, healthy);
+        assert!(healthy);
     }
 
     #[test]

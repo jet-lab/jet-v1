@@ -80,7 +80,7 @@ impl Market {
     pub fn validate_oracle(&self, product: &Product, price: &Pubkey) -> Result<(), ErrorCode> {
         let quote_currency =
             match crate::utils::read_pyth_product_attribute(&product.attr, b"quote_currency") {
-                None => return Err(ErrorCode::InvalidOracle.into()),
+                None => return Err(ErrorCode::InvalidOracle),
                 Some(name) => std::str::from_utf8(name).unwrap(),
             };
 
@@ -91,12 +91,12 @@ impl Market {
                 self.quote_currency()
             );
 
-            return Err(ErrorCode::InvalidOracle.into());
+            return Err(ErrorCode::InvalidOracle);
         }
 
-        if &product.px_acc.val[..] != price.to_bytes() {
+        if product.px_acc.val[..] != price.to_bytes() {
             msg!("oracle product and price accounts don't match");
-            return Err(ErrorCode::InvalidOracle.into());
+            return Err(ErrorCode::InvalidOracle);
         }
 
         Ok(())
@@ -342,13 +342,13 @@ impl DerefMut for ReserveInfo {
 impl ReserveInfo {
     pub fn unwrap(&self, current_slot: u64) -> &CachedReserveInfo {
         self.try_get(current_slot)
-            .expect(&format!("reserve {}", self.reserve))
+            .unwrap_or_else(|_| panic!("reserve {}", self.reserve))
     }
 
     pub fn unwrap_mut(&mut self, current_slot: u64) -> &mut CachedReserveInfo {
         let key = self.reserve;
         self.try_get_mut(current_slot)
-            .expect(&format!("reserve {}", key))
+            .unwrap_or_else(|_| panic!("reserve {}", key))
     }
 }
 

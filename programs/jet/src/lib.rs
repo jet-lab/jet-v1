@@ -170,7 +170,7 @@ mod jet {
         accounts: &[AccountInfo<'info>],
         ix_data: &[u8],
     ) -> ProgramResult {
-        if &ix_data[..8] == &LIQUIDATE_DEX_INSTR_ID {
+        if ix_data[..8] == LIQUIDATE_DEX_INSTR_ID {
             instructions::liquidate_dex::handler_raw(program_id, accounts, &ix_data[8..])?;
         } else {
             return Err(ErrorCode::UnknownInstruction.into());

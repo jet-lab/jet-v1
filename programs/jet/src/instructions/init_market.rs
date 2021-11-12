@@ -48,7 +48,7 @@ pub fn handler(
     market.authority_seed = market_address;
     market.authority_bump_seed = [authority_seed];
     market.quote_token_mint = quote_token_mint;
-    (&mut market.quote_currency[..]).write(quote_currency.as_bytes())?;
+    (&mut market.quote_currency[..]).write_all(quote_currency.as_bytes())?;
 
     msg!("market initialized with currency {}", quote_currency);
 

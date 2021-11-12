@@ -185,7 +185,7 @@ impl Display for Number {
         // regular padding like {:010} doesn't work with U192
         let decimals = "0".repeat(decimal_digits - rem_str.len()) + &*rem_str;
         let stripped_decimals = decimals.trim_end_matches('0');
-        let pretty_decimals = if stripped_decimals.len() == 0 {
+        let pretty_decimals = if stripped_decimals.is_empty() {
             "0"
         } else {
             stripped_decimals
