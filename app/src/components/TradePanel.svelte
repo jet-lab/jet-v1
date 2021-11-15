@@ -381,7 +381,7 @@
         }}
       />
       <RangeSlider pips all="label" range="min"
-        values={[inputAmount]}
+        values={[inputAmount ? (inputAmount / maxInput) * 100 : 0]}
         min={0} max={100} 
         step={25} suffix="%" 
         disabled={disabledInput}
