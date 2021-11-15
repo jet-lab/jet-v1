@@ -835,10 +835,10 @@ describe("jet", async () => {
       liquidationPremium: 120,
       manageFeeRate: 60,
       manageFeeCollectionThreshold: new BN(11),
-      loanOriginationFee: 11,
+      loanOriginationFee: 20,
       liquidationSlippage: 350,
       liquidationDexTradeMax: new BN(120),
-      confidenceThreshold: 13,
+      confidenceThreshold: 500,
     } as ReserveConfig;
 
     const updateReserveConfigParams = {
