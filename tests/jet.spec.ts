@@ -891,10 +891,10 @@ describe("jet", async () => {
       liquidationPremium: 120,
       manageFeeRate: 60,
       manageFeeCollectionThreshold: new BN(11),
-      loanOriginationFee: 11,
+      loanOriginationFee: 20,
       liquidationSlippage: 350,
       liquidationDexTradeMax: new BN(120),
-      confidenceThreshold: 13,
+      confidenceThreshold: 100,
     } as ReserveConfig;
 
     const tx = new anchor.web3.Transaction();
