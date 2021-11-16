@@ -93,7 +93,25 @@ impl Obligation {
         self.loans_mut()
             .register(Position::new(Side::Loan, *account, reserve_index))
     }
+    // TODO: unreg collateral
+    pub fn unregister_collateral(
+        &mut self,
+        account: &Pubkey,
+        reserve_index: ReserveIndex,
+    ) -> Result<(), ErrorCode> {
+        self.collateral_mut()
+            .unregister(*account, reserve_index)
+    }
 
+    // TODO: unreg loan
+    pub fn unregister_loan(
+        &mut self,
+        account: &Pubkey,
+        reserve_index: ReserveIndex,
+    ) -> Result<(), ErrorCode> {
+        self.loans_mut()
+            .unregister(*account, reserve_index)
+    }
     /// Record the collateral deposited for an obligation
     pub fn deposit_collateral(
         &mut self,
@@ -397,6 +415,12 @@ impl ObligationSide {
         Err(ErrorCode::NoFreeObligation)
     }
 
+    /// Register a position for this obligation (account which holds loan or collateral notes)
+    // TODO: unregister fn for obligation - remove at swap back
+    fn unregister(&mut self, existing: Position) -> Result<(), ErrorCode> {
+
+    }
+
     /// Record the loan borrowed from an obligation (borrow notes deposited)
     fn add(&mut self, account: &Pubkey, notes_amount: Number) -> ProgramResult {
         let position = self.position_mut(account)?;
@@ -512,6 +536,19 @@ impl Position {
             account: account.into(),
             side: side.into_integer(),
             amount: Number::ZERO,
+            reserve_index,
+            _reserved: FixedBuf::zeroed(),
+        }
+    }
+
+    // TODO: check for existing collateral or loan 
+    // what are the criteria for existing collateral or loan?
+    //
+    fn existing(side: Side, account: Pubkey, reserve_index: ReserveIndex) -> Position {
+        Position {
+            account: account.into(),
+            side: side.into_integer(),
+            amount: Number,
             reserve_index,
             _reserved: FixedBuf::zeroed(),
         }

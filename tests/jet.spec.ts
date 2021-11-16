@@ -915,4 +915,40 @@ describe("jet", async () => {
       "expected instruction to fail"
     );
   });
+  it("user A deposit account closes when balance is 0", async () => {
+    const user = userA;
+  });
+
+  it("user A collateral account closes when balance is 0", async () => {
+    const user = userA;
+  });
+
+  it("user A loan account closes when balance is 0", async () => {
+    const user = userA;
+  });
+
+  it("user A obligation account closes when position count is 0", async () => {
+    const user = userA;
+  });
+
+  it("user A closes deposit, collateral, loan and obligation accounts. Rent returns to user A", async () => {
+    const user = userA;
+  });
+
+  it("user A obligation account remains open while collateral balance is more than 0", async () => {
+    const user = userA;
+  });
+
+  it("user A obligation account remains open while loan balance is more than 0", async () => {
+    const user = userA;
+  });
+  
+  it("user A obligation account remains open while one collateral account is open", async () => {
+    const user = userA;
+  });
+  
+  it("user A obligation account remains open while one loan account is open", async () => {
+    const user = userA;
+  });
+
 });

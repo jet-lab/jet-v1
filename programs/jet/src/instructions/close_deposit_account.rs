@@ -61,10 +61,6 @@ pub struct CloseDepositAccount<'info> {
               bump = bump)]
     pub deposit_account: AccountInfo<'info>,
 
-    /// The account to receive any remaining tokens still deposited
-    #[account(mut)]
-    pub receiver_account: AccountInfo<'info>,
-
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,
 }
@@ -75,7 +71,7 @@ impl<'info> CloseDepositAccount<'info> {
             self.token_program.clone(),
             Transfer {
                 from: self.vault.to_account_info(),
-                to: self.receiver_account.to_account_info(),
+                to: self.depositor.to_account_info(),
                 authority: self.market_authority.clone(),
             },
         )
@@ -145,6 +141,6 @@ pub fn handler(ctx: Context<CloseDepositAccount>, _bump: u8) -> ProgramResult {
             .with_signer(&[&market.authority_seeds()]),
     )?;
 
-    msg!("initialized deposit account");
+    msg!("closed deposit account");
     Ok(())
 }

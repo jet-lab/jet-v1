@@ -31,6 +31,9 @@ pub enum ErrorCode {
     #[msg("no free space left to add the new loan or collateral in an obligation")]
     NoFreeObligation,
 
+    #[msg("the obligation account still holds position in sthe loan or collateral account")]
+    PositionNotEmpty,
+
     #[msg("the obligation account doesn't have any record of the loan or collateral account")]
     UnregisteredPosition,
 
