@@ -56,6 +56,10 @@ jobs:
             ~/.rustup
             ~/.cargo/bin/anchor
 
+      - id: install-os-deps
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
+
       - run: echo "PATH=$HOME/.local/share/solana/install/active_release/bin:$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV
 
       - uses: actions/setup-node@v2
