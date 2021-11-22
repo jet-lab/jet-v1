@@ -78,8 +78,10 @@ impl<'info> CloseLoanAccount<'info> {
 
 // Close an account that can be used to store loan notes to represent debt in an obligation
 pub fn handler(ctx: Context<CloseLoanAccount>, _bump: u8) -> ProgramResult {
-    let obligation = ctx.accounts.obligation.load()?;
+    let mut obligation = ctx.accounts.obligation.load_mut()?;
     let market = ctx.accounts.market.load()?;
+    let reserve = ctx.accounts.reserve.load()?;
+    let account = ctx.accounts.loan_account.key();
 
     // Verify if loans is empty, then proceed 
     fn verify_empty_loan(notes_remaining: u64) -> Result<(), ErrorCode> {

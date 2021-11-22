@@ -79,8 +79,10 @@ impl<'info> CloseCollateralAccount<'info> {
 
 /// Close a collateral account that stores deposit notes
 pub fn handler(ctx: Context<CloseCollateralAccount>, _bump: u8) -> ProgramResult {
-    let obligation = ctx.accounts.obligation.load()?;
+    let mut obligation = ctx.accounts.obligation.load_mut()?;
     let market = ctx.accounts.market.load()?;
+    let reserve = ctx.accounts.reserve.load()?;
+    let account = ctx.accounts.collateral_account.key();
 
     // Verify if collateral is empty, then proceed 
     fn verify_empty_collateral(notes_remaining: u64) -> Result<(), ErrorCode> {

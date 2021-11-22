@@ -31,9 +31,6 @@ pub enum ErrorCode {
     #[msg("no free space left to add the new loan or collateral in an obligation")]
     NoFreeObligation,
 
-    #[msg("the obligation account still holds position in sthe loan or collateral account")]
-    PositionNotEmpty,
-
     #[msg("the obligation account doesn't have any record of the loan or collateral account")]
     UnregisteredPosition,
 
@@ -93,6 +90,15 @@ pub enum ErrorCode {
 
     #[msg("a given parameter is not valid")]
     InvalidParameter,
+
+    #[msg("the obligation account still holds position in the loan or collateral account")]
+    PositionNotEmpty,
+
+    #[msg("position not found in an obligation")]
+    ObligationPositionNotFound,
+
+    #[msg("the collateral/loan account is not empty")]
+    AccountNotEmptyError
 }
 
 impl From<jet_math::Error> for ErrorCode {

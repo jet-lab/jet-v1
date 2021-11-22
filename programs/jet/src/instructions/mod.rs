@@ -26,6 +26,9 @@ pub mod set_market_flags;
 pub mod set_market_owner;
 
 pub mod close_deposit_account;
+pub mod close_collateral_account;
+pub mod close_loan_account;
+pub mod close_obligation;
 
 pub mod borrow;
 pub mod deposit;
@@ -40,6 +43,9 @@ pub mod withdraw_collateral;
 
 pub use borrow::*;
 pub use close_deposit_account::*;
+pub use close_collateral_account::*;
+pub use close_loan_account::*;
+pub use close_obligation::*;
 pub use deposit::*;
 pub use deposit_collateral::*;
 pub use init_collateral_account::*;

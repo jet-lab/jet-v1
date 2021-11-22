@@ -103,6 +103,21 @@ mod jet {
         instructions::close_deposit_account::handler(ctx, bump)
     }
 
+    // Close a collateral account
+    pub fn close_collateral_account(ctx: Context<CloseCollateralAccount>, bump: u8) -> ProgramResult {
+        instructions::close_collateral_account::handler(ctx, bump)
+    }
+
+    // Close a loan account
+    pub fn close_loan_account(ctx: Context<CloseLoanAccount>, bump: u8) -> ProgramResult {
+        instructions::close_loan_account::handler(ctx, bump)
+    }
+
+    // Close an obligation
+    pub fn close_obligation(ctx: Context<CloseObligation>, bump: u8) -> ProgramResult {
+        instructions::close_obligation::handler(ctx, bump)
+    }
+
     /// Deposit tokens into a reserve
     pub fn deposit(ctx: Context<Deposit>, bump: u8, amount: Amount) -> ProgramResult {
         instructions::deposit::handler(ctx, bump, amount)

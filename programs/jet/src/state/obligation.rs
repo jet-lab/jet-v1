@@ -93,24 +93,23 @@ impl Obligation {
         self.loans_mut()
             .register(Position::new(Side::Loan, *account, reserve_index))
     }
-    // TODO: unreg collateral
+
     pub fn unregister_collateral(
         &mut self,
         account: &Pubkey,
         reserve_index: ReserveIndex,
     ) -> Result<(), ErrorCode> {
         self.collateral_mut()
-            .unregister(*account, reserve_index)
+            .unregister(Position::existing_zeroed(Side::Collateral, *account, reserve_index))
     }
 
-    // TODO: unreg loan
     pub fn unregister_loan(
         &mut self,
         account: &Pubkey,
         reserve_index: ReserveIndex,
     ) -> Result<(), ErrorCode> {
         self.loans_mut()
-            .unregister(*account, reserve_index)
+            .unregister(Position::existing_zeroed(Side::Loan, *account, reserve_index))
     }
     /// Record the collateral deposited for an obligation
     pub fn deposit_collateral(
@@ -313,7 +312,7 @@ impl Obligation {
         self.loans()._market_value(market, current_slot)
     }
 
-    fn position_count(&self) -> usize {
+    pub fn position_count(&self) -> usize {
         let collaterals = self
             .collateral()
             .positions
@@ -407,6 +406,7 @@ impl ObligationSide {
             if position.account != Pubkey::default() {
                 continue;
             }
+
             *position = new;
 
             return Ok(());
@@ -415,9 +415,28 @@ impl ObligationSide {
         Err(ErrorCode::NoFreeObligation)
     }
 
-    /// Register a position for this obligation (account which holds loan or collateral notes)
-    // TODO: unregister fn for obligation - remove at swap back
+    /// Unregister a position for this obligation (account which holds loan or collateral notes)
     fn unregister(&mut self, existing: Position) -> Result<(), ErrorCode> {
+        for position in self.positions.iter_mut() {
+            if position.account != existing.account.key() {
+                continue;
+            }
+            
+            if position.reserve_index != existing.reserve_index && position.account == existing.account.key() 
+            {
+                panic!(
+                    "Cannot unregister account {:?} as {:?} for reserve index {:?} since the \
+                    reserve index is not registered with {:?} for this obligation",
+                    existing.account, existing.side, position.reserve_index, position
+                );
+            }
+            
+            *position.account = Pubkey::default();
+            
+            return Ok(());
+        }
+
+        Err(ErrorCode::ObligationPositionNotFound)
 
     }
 
@@ -541,14 +560,11 @@ impl Position {
         }
     }
 
-    // TODO: check for existing collateral or loan 
-    // what are the criteria for existing collateral or loan?
-    //
-    fn existing(side: Side, account: Pubkey, reserve_index: ReserveIndex) -> Position {
+    fn existing_zeroed(side: Side, account: Pubkey, reserve_index: ReserveIndex) -> Position {
         Position {
             account: account.into(),
+            amount: Number::ZERO,
             side: side.into_integer(),
-            amount: Number,
             reserve_index,
             _reserved: FixedBuf::zeroed(),
         }
