@@ -43,8 +43,12 @@ ANCHOR_CODER.subscribe(data => coder = data);
 // Development / Devnet identifier
 export const inDevelopment: boolean = jetDev || window.location.hostname.indexOf('devnet') !== -1;
 
+// JET-280: Check if app is running on *.jetprotocol.io, and enable Rollbar if so.
+const enableRollbar = window.location.hostname.indexOf('.jetprotocol.io') > -1;
+
 // Rollbar error logging
 export const rollbar = new Rollbar({
+  enabled: enableRollbar,
   accessToken: 'e29773335de24e1f8178149992226c5e',
   captureUncaught: true,
   captureUnhandledRejections: true,
