@@ -83,7 +83,7 @@
     }
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .fullscreen {
       width: 100% !important;
       height: calc((var(--vh, 1vh) * 100)) !important;

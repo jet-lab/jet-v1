@@ -142,7 +142,7 @@
     cursor: pointer;
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .desktop, .mobile {
       display: none;
     }

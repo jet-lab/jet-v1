@@ -131,4 +131,12 @@
     font-size: 14px;
     text-align: center;
   }
+
+  @media screen and (max-width: 600px) {
+    .wallets {
+      height: 250px;
+      overflow-y: scroll;
+      justify-content: flex-start;
+    }
+  }
 </style>

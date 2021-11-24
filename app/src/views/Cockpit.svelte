@@ -3,7 +3,6 @@
 </svelte:head>
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { Datatable, rows } from 'svelte-simple-datatables';
   import { NATIVE_MINT } from '@solana/spl-token'; 
   import type { Reserve } from '../models/JetTypes';
   import { TxnResponse } from '../models/JetTypes';
@@ -22,6 +21,10 @@
 
   // Reserve detail controller
   let reserveDetail: Reserve | null = null;
+  // Market table reserves filteres
+  let filteredReserves: Reserve[] = [];
+  // Market filter input
+  let searchInput: string = '';
 
   // Datatable settings
   const tableSettings: any = {
@@ -59,17 +62,17 @@
     }
   };
 
+  // Init filtered reserves array
+  $: if ($MARKET.reservesArray.length && !searchInput.length) {
+    filteredReserves = $MARKET.reservesArray;
+  }
+
   // Init Cockpit
   onMount(() => {
     // If user is subject to liquidation, warn them
     if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
       generateCopilotSuggestion();
     }
-
-    // Add search icon to table search input
-    const searchIcon = document.createElement('i');
-    searchIcon.classList.add('search', 'text-gradient', 'fas', 'fa-search');
-    document.querySelector('.dt-search')?.appendChild(searchIcon);
   });
 </script>
 
@@ -165,194 +168,218 @@
       </div>
     </div>
     <TradePanel />
-    <Datatable settings={tableSettings} data={$MARKET.reservesArray}>
-      <thead>
-        <th data-key="name">
-          {dictionary[$USER.language].cockpit.asset} 
-        </th>
-        <th data-key="abbrev"
-          class="native-toggle">
-          <Toggle onClick={() => MARKET.update(market => {
-            market.nativeValues = !market.nativeValues;
-            return market;
-          })}
-            active={!$MARKET.nativeValues} 
-            native 
-          />
-        </th>
-        <th data-key="availableLiquidity">
-          {dictionary[$USER.language].cockpit.availableLiquidity}
-        </th>
-        <th data-key="depositRate">
-          {dictionary[$USER.language].cockpit.depositRate}
-          <Info term="depositRate" />
-        </th>
-        <th data-key="borrowRate" class="datatable-border-right">
-          {dictionary[$USER.language].cockpit.borrowRate}
-          <Info term="borrowRate" />
-        </th>
-        <th data-key="">
-          {dictionary[$USER.language].cockpit.walletBalance}
-        </th>
-        <th data-key="">
-          {dictionary[$USER.language].cockpit.amountDeposited}
-        </th>
-        <th data-key="">
-          {dictionary[$USER.language].cockpit.amountBorrowed}
-        </th>
-        <th data-key="">
-          <!--Empty column for arrow-->
-        </th>
-      </thead>
-      <div class="datatable-divider">
+    <div class="market-table">
+      <div class="table-search">
+        <input type="text" 
+          bind:value={searchInput}
+          placeholder={dictionary[$USER.language].cockpit.search}
+          on:keyup={() => {
+            let filtered = [];
+            for (let reserve of $MARKET.reservesArray) {
+              if (reserve.name.toLowerCase().includes(searchInput) 
+                || reserve.abbrev.toLowerCase().includes(searchInput)) {
+                  filtered.push(reserve);
+              }
+            }
+            
+            filteredReserves = filtered;
+          }}
+        />
+        <i class="text-gradient fas fa-search">
+        </i>
       </div>
-      <tbody>
-        {#each $rows as row, i}
-          <tr class="datatable-spacer">
-            <td><!-- Extra Row for spacing --></td>
-          </tr>
-          <tr class:active={$MARKET.currentReserve.abbrev === $rows[i].abbrev}
-            on:click={() => MARKET.update(market => {
-              market.currentReserve = $rows[i];
-              return market;
-            })}>
-            <td class="dt-asset">
-              <img src="img/cryptos/{$rows[i].abbrev}.png" 
-                alt="{$rows[i].abbrev} Icon"
-              />
-              <span>
-                {$rows[i].name}
-              </span>
-              <span>
-                ≈ 
-                {#if $MARKET.marketInit}
-                  {currencyFormatter($rows[i].price, true, 2)}
-                {:else}
-                  --
-                {/if}
-              </span>
-            </td>
-            <td on:click={() => reserveDetail = $rows[i]} 
-              class="reserve-detail">
-              {$rows[i].abbrev} {dictionary[$USER.language].cockpit.detail}
-            </td>
-            <td>
-              {#if $MARKET.marketInit}
-                {totalAbbrev(
-                  $rows[i].availableLiquidity.uiAmountFloat,
-                  $rows[i].price,
-                  $MARKET.nativeValues,
-                  2
-                )}
-              {:else}
-                --
-              {/if}
-            </td>
-            <td>
-              {#if $MARKET.marketInit}
-                {$rows[i].depositRate ? ($rows[i].depositRate * 100).toFixed(2) : 0}%
-              {:else}
-                --%
-              {/if}
-            </td>
-            <td class="datatable-border-right">
-              {#if $MARKET.marketInit}
-                {$rows[i].borrowRate ? ($rows[i].borrowRate * 100).toFixed(2) : 0}%
-              {:else}
-                --%
-              {/if}
-            </td>
-            <td class:dt-bold={$USER.walletBalances[$rows[i].abbrev]} 
-              class:dt-balance={$USER.walletBalances[$rows[i].abbrev]}>
-              {#if $USER.walletInit}
-                {#if $USER.walletBalances[$rows[i].abbrev] > 0
-                  && $USER.walletBalances[$rows[i].abbrev] < 0.0005}
-                  ~0
-                {:else}
-                  {#if $MARKET.marketInit}
-                    {totalAbbrev(
-                      $USER.walletBalances[$rows[i].abbrev] ?? 0,
-                      $rows[i].price,
-                      $MARKET.nativeValues,
-                      3
-                    )}
-                  {:else}
-                    --
-                  {/if}
-                {/if}
-              {:else}
-                  --
-              {/if}
-            </td>
-            <td class:dt-bold={$USER.collateralBalances[$rows[i].abbrev]}
-              style={$USER.collateralBalances[$rows[i].abbrev] ? 
-                'color: var(--jet-green) !important;' : ''}>
-              {#if $USER.walletInit}
-                {#if $USER.collateralBalances[$rows[i].abbrev] > 0
-                  && $USER.collateralBalances[$rows[i].abbrev] < 0.0005}
-                  ~0
-                {:else}
-                  {#if $MARKET.marketInit}
-                    {totalAbbrev(
-                      $USER.collateralBalances[$rows[i].abbrev] ?? 0,
-                      $rows[i].price,
-                      $MARKET.nativeValues,
-                      3
-                    )}
-                  {:else}
-                    --
-                  {/if}
-                {/if}
-              {:else}
-                  --
-              {/if}
-            </td>
-            <td class:dt-bold={$USER.loanBalances[$rows[i].abbrev]}
-              style={$USER.loanBalances[$rows[i].abbrev] ? 
-              'color: var(--jet-blue) !important;' : ''}>
-              {#if $USER.walletInit}
-                {#if $USER.loanBalances[$rows[i].abbrev] > 0
-                  && $USER.loanBalances[$rows[i].abbrev] < 0.0005}
-                  ~0
-                {:else}
-                  {#if $MARKET.marketInit}
-                    {totalAbbrev(
-                      $USER.loanBalances[$rows[i].abbrev] ?? 0,
-                      $rows[i].price,
-                      $MARKET.nativeValues,
-                      3
-                    )}
-                  {:else}
-                    --
-                  {/if}
-                {/if}
-              {:else}
-                --
-              {/if}
-            </td>
-            <!--Faucet for testing if in development-->
-            <!--Replace with inDevelopment for mainnet-->
-            {#if inDevelopment}
-              <td class="faucet" on:click={() => doAirdrop($rows[i])}>
-                <i class="text-gradient fas fa-parachute-box"
-                  title="Airdrop {$rows[i].abbrev}"
-                  style="margin-right: var(--spacing-lg); font-size: 18px !important;">
-                </i>
-              </td>
-            {:else}
-              <td>
-                  <i class="text-gradient jet-icons">
-                    ➜
-                  </i>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                {dictionary[$USER.language].cockpit.asset} 
+              </th>
+              <th class="native-toggle">
+                <Toggle onClick={() => MARKET.update(market => {
+                  market.nativeValues = !market.nativeValues;
+                  return market;
+                })}
+                  active={!$MARKET.nativeValues} 
+                  native 
+                />
+              </th>
+              <th>
+                {dictionary[$USER.language].cockpit.availableLiquidity}
+              </th>
+              <th>
+                {dictionary[$USER.language].cockpit.depositRate}
+                <Info term="depositRate" />
+              </th>
+              <th class="datatable-border-right">
+                {dictionary[$USER.language].cockpit.borrowRate}
+                <Info term="borrowRate" />
+              </th>
+              <th>
+                {dictionary[$USER.language].cockpit.walletBalance}
+              </th>
+              <th>
+                {dictionary[$USER.language].cockpit.amountDeposited}
+              </th>
+              <th>
+                {dictionary[$USER.language].cockpit.amountBorrowed}
+              </th>
+              <th>
+                <!--Empty column for arrow-->
+              </th>
+            </tr>
+          </thead>
+          <div class="table-divider">
+          </div>
+          <tbody>
+            {#each filteredReserves as reserve}
+              <tr class="table-spacer">
+                <td><!-- Extra Row for spacing --></td>
+              </tr>
+              <tr class:active={$MARKET.currentReserve.abbrev === reserve.abbrev}
+                on:click={() => MARKET.update(market => {
+                  market.currentReserve = reserve;
+                  return market;
+                })}>
+                <td class="market-table-asset">
+                  <img src="img/cryptos/{reserve.abbrev}.png" 
+                    alt="{reserve.abbrev} Icon"
+                  />
+                  <span>
+                    {reserve.name}
+                  </span>
+                  <span>
+                    ≈ 
+                    {#if $MARKET.marketInit}
+                      {currencyFormatter(reserve.price, true, 2)}
+                    {:else}
+                      --
+                    {/if}
+                  </span>
                 </td>
-            {/if}
-          </tr>
-          <tr class="datatable-spacer">
-            <td><!-- Extra Row for spacing --></td>
-          </tr>
-        {/each}
-      </tbody>
-    </Datatable>
+                <td on:click={() => reserveDetail = reserve} 
+                  class="reserve-detail text-gradient">
+                  {reserve.abbrev} {dictionary[$USER.language].cockpit.detail}
+                </td>
+                <td>
+                  {#if $MARKET.marketInit}
+                    {totalAbbrev(
+                      reserve.availableLiquidity.uiAmountFloat,
+                      reserve.price,
+                      $MARKET.nativeValues,
+                      2
+                    )}
+                  {:else}
+                    --
+                  {/if}
+                </td>
+                <td>
+                  {#if $MARKET.marketInit}
+                    {reserve.depositRate ? (reserve.depositRate * 100).toFixed(2) : 0}%
+                  {:else}
+                    --%
+                  {/if}
+                </td>
+                <td class="datatable-border-right">
+                  {#if $MARKET.marketInit}
+                    {reserve.borrowRate ? (reserve.borrowRate * 100).toFixed(2) : 0}%
+                  {:else}
+                    --%
+                  {/if}
+                </td>
+                <td class:dt-bold={$USER.walletBalances[reserve.abbrev]} 
+                  class:dt-balance={$USER.walletBalances[reserve.abbrev]}>
+                  {#if $USER.walletInit}
+                    {#if $USER.walletBalances[reserve.abbrev] > 0
+                      && $USER.walletBalances[reserve.abbrev] < 0.0005}
+                      ~0
+                    {:else}
+                      {#if $MARKET.marketInit}
+                        {totalAbbrev(
+                          $USER.walletBalances[reserve.abbrev] ?? 0,
+                          reserve.price,
+                          $MARKET.nativeValues,
+                          3
+                        )}
+                      {:else}
+                        --
+                      {/if}
+                    {/if}
+                  {:else}
+                      --
+                  {/if}
+                </td>
+                <td class:dt-bold={$USER.collateralBalances[reserve.abbrev]}
+                  style={$USER.collateralBalances[reserve.abbrev] ? 
+                    'color: var(--jet-green) !important;' : ''}>
+                  {#if $USER.walletInit}
+                    {#if $USER.collateralBalances[reserve.abbrev] > 0
+                      && $USER.collateralBalances[reserve.abbrev] < 0.0005}
+                      ~0
+                    {:else}
+                      {#if $MARKET.marketInit}
+                        {totalAbbrev(
+                          $USER.collateralBalances[reserve.abbrev] ?? 0,
+                          reserve.price,
+                          $MARKET.nativeValues,
+                          3
+                        )}
+                      {:else}
+                        --
+                      {/if}
+                    {/if}
+                  {:else}
+                      --
+                  {/if}
+                </td>
+                <td class:dt-bold={$USER.loanBalances[reserve.abbrev]}
+                  style={$USER.loanBalances[reserve.abbrev] ? 
+                  'color: var(--jet-blue) !important;' : ''}>
+                  {#if $USER.walletInit}
+                    {#if $USER.loanBalances[reserve.abbrev] > 0
+                      && $USER.loanBalances[reserve.abbrev] < 0.0005}
+                      ~0
+                    {:else}
+                      {#if $MARKET.marketInit}
+                        {totalAbbrev(
+                          $USER.loanBalances[reserve.abbrev] ?? 0,
+                          reserve.price,
+                          $MARKET.nativeValues,
+                          3
+                        )}
+                      {:else}
+                        --
+                      {/if}
+                    {/if}
+                  {:else}
+                    --
+                  {/if}
+                </td>
+                <!--Faucet for testing if in development-->
+                <!--Replace with inDevelopment for mainnet-->
+                {#if inDevelopment}
+                  <td class="faucet" on:click={() => doAirdrop(reserve)}>
+                    <i class="text-gradient fas fa-parachute-box"
+                      title="Airdrop {reserve.abbrev}"
+                      style="margin-right: var(--spacing-lg); font-size: 18px !important;">
+                    </i>
+                  </td>
+                {:else}
+                  <td>
+                      <i class="text-gradient jet-icons">
+                        ➜
+                      </i>
+                    </td>
+                {/if}
+              </tr>
+              <tr class="table-spacer">
+                <td><!-- Extra Row for spacing --></td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
   {#if reserveDetail}
     <ReserveDetail {reserveDetail}
@@ -396,7 +423,7 @@
     padding: var(--spacing-sm) 0;
   }
   
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .cockpit-top {
       flex-direction: column;
       align-items: flex-start;

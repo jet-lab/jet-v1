@@ -70,7 +70,7 @@
     filter: grayscale(1);
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     button {
       font-size: 10px;
     }

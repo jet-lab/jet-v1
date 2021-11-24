@@ -91,7 +91,7 @@
     margin-top: -10px;
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .chart {
       width: 106px;
       height: 106px;

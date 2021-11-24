@@ -132,7 +132,7 @@
     max-width: 400px;
   }
   
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .transaction-logs {
       display: block;
       padding: unset;

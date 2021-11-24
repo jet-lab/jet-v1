@@ -28,7 +28,7 @@
     transform: rotate(-270deg);
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     img:first-of-type {
       display: none;
     }

@@ -66,7 +66,7 @@
     width: 600px;
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     img {
       width: 300px;
     }

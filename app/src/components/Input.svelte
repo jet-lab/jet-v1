@@ -165,16 +165,15 @@
     -webkit-text-fill-color: unset !important;
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     input {
-      width: 200px;
       font-size: 15px;
     }
     .input-btn {
       height: 41px;
     }
     .currency input {
-      width: 140px;
+      width: 220px;
       padding-left: 30px !important;
       padding-right: 40px !important;
     }

@@ -204,7 +204,7 @@
     padding: 0 var(--spacing-sm);
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 600px) {
     .modal-bg {
       opacity: 1 !important;
     }

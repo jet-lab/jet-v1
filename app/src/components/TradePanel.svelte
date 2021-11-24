@@ -475,12 +475,14 @@
     padding: var(--spacing-sm);
   }
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 1000px) {
     .trade {
       padding-top: 55px;
       flex-direction: column;
       justify-content: center;
     }
+  }
+  @media screen and (max-width: 600px) {
     .trade-select p {
       font-size: 9px;
       line-height: 12px;
