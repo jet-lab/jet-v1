@@ -21,9 +21,9 @@
   const adjustInterface = () => {
     inputError = ''
     inputAmount = null;
-    checkDisabledInput();
     getMaxInput();
     adjustCollateralizationRatio();
+    checkDisabledInput();
   };
 
   // Check if user input should be disabled
