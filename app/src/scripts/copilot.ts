@@ -47,6 +47,20 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
         }
       });
     }
+  // If user is withdrawing between 125% and 130%, allow but warn them
+  } else if (user.tradeAction === 'withdraw' && adjustedRatio <= market.programMinColRatio + 0.5) {
+    COPILOT.set({
+      suggestion: {
+        good: false,
+        detail: dictionary[user.language].cockpit.subjectToLiquidation
+          .replaceAll('{{NEW-C-RATIO}}', currencyFormatter(adjustedRatio * 100, false, 1))
+          .replaceAll('borrow', 'withdraw'),                        
+        action: {
+          text: dictionary[user.language].cockpit.confirm,
+          onClick: () => submitTrade()
+        }
+      }
+    });
   // Otherwise, submit trade
   } else {
     submitTrade();

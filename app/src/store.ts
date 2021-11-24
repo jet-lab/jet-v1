@@ -18,6 +18,8 @@ export const MARKET = writable<Market>({
 
   // Hardcode minimum c-ratio to 130% for now
   minColRatio: 1.3,
+  // Hardcode minimum c-ratio to 130% for now
+  programMinColRatio: 1.25,
 
   // Total value of all reserves
   totalValueLocked: 0,

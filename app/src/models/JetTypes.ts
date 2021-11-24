@@ -32,6 +32,7 @@ export interface Market {
   account?: AccountInfo<MarketAccount>,
   authorityPubkey: PublicKey,
   minColRatio: number,
+  programMinColRatio: number,
   totalValueLocked: number,
   reserves: Record<string, Reserve>,
   reservesArray: Reserve[],

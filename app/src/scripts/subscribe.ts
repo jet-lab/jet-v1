@@ -332,7 +332,7 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
 
     // Max withdraw
     asset.maxWithdrawAmount = user.position.borrowedValue
-      ? (user.position.depositedValue - (market.minColRatio * user.position.borrowedValue)) / reserve.price
+      ? (user.position.depositedValue - (market.programMinColRatio * user.position.borrowedValue)) / reserve.price
         : asset.collateralBalance.uiAmountFloat;
     if (asset.maxWithdrawAmount > asset.collateralBalance.uiAmountFloat) {
       asset.maxWithdrawAmount = asset.collateralBalance.uiAmountFloat;

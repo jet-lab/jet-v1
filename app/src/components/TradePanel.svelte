@@ -55,8 +55,8 @@
       if (!$USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
         disabledMessage = dictionary[$USER.language].cockpit.noDepositsForWithdraw
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
-      // User is below minimum c-ratio
-      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
+      // User is below the PROGRAM'S minimum c-ratio (not the frontend buffer)
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.programMinColRatio) {
         disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
       } else {
         disabledInput = false;
