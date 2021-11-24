@@ -131,17 +131,4 @@
     font-size: 14px;
     text-align: center;
   }
-
-  @media screen and (max-width: 1100px) {
-    .wallet {
-      display: none;
-    }
-    .sollet {
-      display: flex;
-    }
-    .slope {
-      display: flex;
-    }
-
-  }
 </style>
