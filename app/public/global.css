@@ -153,6 +153,9 @@ span {
   font-family: 'Jet-Icons';
   font-size: 27px;
 }
+.bold-text {
+  font-weight: 600;
+}
 
 /* Flexbox */
 .flex {

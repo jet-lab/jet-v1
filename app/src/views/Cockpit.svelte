@@ -287,8 +287,8 @@
                     --%
                   {/if}
                 </td>
-                <td class:dt-bold={$USER.walletBalances[reserve.abbrev]} 
-                  class:dt-balance={$USER.walletBalances[reserve.abbrev]}>
+                <td class:bold-text={$USER.walletBalances[reserve.abbrev]} 
+                  class:text-gradient={$USER.walletBalances[reserve.abbrev]}>
                   {#if $USER.walletInit}
                     {#if $USER.walletBalances[reserve.abbrev] > 0
                       && $USER.walletBalances[reserve.abbrev] < 0.0005}
@@ -309,7 +309,7 @@
                       --
                   {/if}
                 </td>
-                <td class:dt-bold={$USER.collateralBalances[reserve.abbrev]}
+                <td class:bold-text={$USER.collateralBalances[reserve.abbrev]}
                   style={$USER.collateralBalances[reserve.abbrev] ? 
                     'color: var(--jet-green) !important;' : ''}>
                   {#if $USER.walletInit}
@@ -332,7 +332,7 @@
                       --
                   {/if}
                 </td>
-                <td class:dt-bold={$USER.loanBalances[reserve.abbrev]}
+                <td class:bold-text={$USER.loanBalances[reserve.abbrev]}
                   style={$USER.loanBalances[reserve.abbrev] ? 
                   'color: var(--jet-blue) !important;' : ''}>
                   {#if $USER.walletInit}
