@@ -42,10 +42,6 @@
       if (!$USER.walletBalances[$MARKET.currentReserve.abbrev]) {
         disabledMessage = dictionary[$USER.language].cockpit.noBalanceForDeposit
           .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
-      // User has a loan of this asset
-      } else if ($USER.loanBalances[$MARKET.currentReserve.abbrev]) {
-        disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentBorrow
-          .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       } else {
         disabledInput = false;
       }
@@ -69,10 +65,6 @@
       // User is below minimum c-ratio
       } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
         disabledMessage = dictionary[$USER.language].cockpit.belowMinCRatio;
-      // User has a deposit of this asset
-      } else if ($USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
-        disabledMessage = dictionary[$USER.language].cockpit.assetIsCurrentDeposit
-          .replaceAll('{{ASSET}}', $MARKET.currentReserve.abbrev);
       // No liquidity in market to borrow from
       } else if ($MARKET.currentReserve.availableLiquidity.amount.isZero()) {
         disabledMessage = dictionary[$USER.language].cockpit.noLiquidity;
