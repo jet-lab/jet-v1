@@ -47,7 +47,7 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
         }
       });
     }
-  // If user is withdrawing between 125% and 130%, allow but warn them
+  // If user is withdrawing between 125% and 130%, allow trade but warn them
   } else if (user.tradeAction === 'withdraw' && adjustedRatio <= market.programMinColRatio + 0.5) {
     COPILOT.set({
       suggestion: {
