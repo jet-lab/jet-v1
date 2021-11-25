@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { COPILOT, USER } from '../store';
   import { dictionary } from '../scripts/localization';
+  import { inDevelopment } from '../scripts/jet';
   import Button from '../components/Button.svelte';
 
   onMount(() => {
@@ -18,7 +19,7 @@
 
 {#if $COPILOT}
   <div class="modal-bg flex-centered"
-    on:click={() => acceptJetDisclaimer ? COPILOT.set(null) : null}
+    on:click={() =>  inDevelopment || acceptJetDisclaimer ? COPILOT.set(null) : null}
     transition:fade={{duration: 50}}>
   </div>
   <div class="copilot modal flex-centered column"
@@ -115,10 +116,10 @@
         </div>
       {/if}
       <!-- Prevents user from clicking away to avoid disclaimer -->
-      {#if acceptJetDisclaimer}
-      <i on:click={() => COPILOT.set(null)} class="jet-icons close">
-        ✕
-      </i>
+      {#if inDevelopment || acceptJetDisclaimer}
+        <i on:click={() => COPILOT.set(null)} class="jet-icons close">
+          ✕
+        </i>
       {/if}
     </div>
   </div>
