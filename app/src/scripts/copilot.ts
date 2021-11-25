@@ -20,7 +20,7 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
       }
     });
   // Borrowing and within danger of liquidation
-  } else if (user.tradeAction === 'borrow' && adjustedRatio <= market.minColRatio + 0.2) {
+  } else if (user.tradeAction === 'borrow' && adjustedRatio <= market.minColRatio + 0.02) {
     // not below min-ratio, warn and allow trade
     if (adjustedRatio >= market.minColRatio) {
       COPILOT.set({
@@ -48,7 +48,7 @@ export const checkTradeWarning = (inputAmount: number, adjustedRatio: number, su
       });
     }
   // If user is withdrawing between 125% and 130%, allow trade but warn them
-  } else if (user.tradeAction === 'withdraw' && adjustedRatio <= market.programMinColRatio + 0.5) {
+  } else if (user.tradeAction === 'withdraw' && adjustedRatio > 0 && adjustedRatio <= market.programMinColRatio + 0.05) {
     COPILOT.set({
       suggestion: {
         good: false,
