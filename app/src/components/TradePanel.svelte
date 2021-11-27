@@ -176,7 +176,7 @@
       } else if (tradeAmount.uiAmountFloat > $USER.collateralBalances[$MARKET.currentReserve.abbrev]) {
         inputError = dictionary[$USER.language].cockpit.lessFunds;
       // User is below the minimum c-ratio
-      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.minColRatio) {
+      } else if ($USER.position.borrowedValue && $USER.position.colRatio <= $MARKET.programMinColRatio) {
         inputError = dictionary[$USER.language].cockpit.belowMinCRatio;
       // Otherwise, send withdraw
       } else {
