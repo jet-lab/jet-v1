@@ -187,11 +187,16 @@ export const subscribeToAssets = async () => {
   promise = getAccountInfoAndSubscribe(connection, user.wallet.publicKey, account => {
     USER.update(user => {
       if (user.assets) {
+        const reserve = market.reserves["SOL"];
+
         // Need to be careful constructing a BN from a number.
         // If the user has more than 2^53 lamports it will throw for not having enough precision.
-        user.assets.sol = new TokenAmount(new BN(account?.lamports.toString() ?? "0"), SOL_DECIMALS);
-        // Update wallet SOL balance
-        user.walletBalances.SOL = user.assets.sol.uiAmountFloat;
+        user.assets.tokens.SOL.walletTokenBalance = new TokenAmount(new BN(account?.lamports.toString() ?? 0), SOL_DECIMALS)
+
+        user.assets.sol = user.assets.tokens.SOL.walletTokenBalance
+        user.walletBalances.SOL = user.assets.tokens.SOL.walletTokenBalance.uiAmountFloat;
+        
+        deriveValues(reserve, user.assets.tokens.SOL);
       }
       return user;
     });
