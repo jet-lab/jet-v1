@@ -132,10 +132,10 @@ impl Market {
         self.flags = flags.bits();
     }
 
-    /// Verify that the market is currently allowing deposits and withdrawls
+    /// Verify that the market is currently allowing deposits and withdrawals
     pub fn verify_ability_deposit_withdraw(&self) -> Result<(), ErrorCode> {
         if self.flags().contains(MarketFlags::HALT_DEPOSITS) {
-            msg!("the market is currently not allowing deposits/withdrawls");
+            msg!("the market is currently not allowing deposits/withdrawals");
             return Err(ErrorCode::MarketHalted);
         }
 
@@ -354,13 +354,13 @@ impl ReserveInfo {
 
 bitflags::bitflags! {
     pub struct MarketFlags: u64 {
-        /// Disable all borrowing and collateral withdrawls
+        /// Disable all borrowing and collateral withdrawals
         const HALT_BORROWS = 1 << 0;
 
         /// Disable repaying loans
         const HALT_REPAYS = 1 << 1;
 
-        /// Disable deposits + withdrawls
+        /// Disable deposits + withdrawals
         const HALT_DEPOSITS = 1 << 2;
 
         /// Disable all operations
