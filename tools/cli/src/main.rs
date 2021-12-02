@@ -126,7 +126,7 @@ fn run_close_deposit_account(
             deposit_note_mint: reserve_data.deposit_note_mint,
             depositor: client.payer(),
 
-            receiver_account: reserve_data.vault,
+            // receiver_account: reserve_data.vault,
             deposit_account,
 
             token_program: anchor_spl::token::ID,
