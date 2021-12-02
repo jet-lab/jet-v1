@@ -36,8 +36,7 @@ pub struct CloseDepositAccount<'info> {
     #[account(mut,
               has_one = market,
               has_one = vault,
-              has_one = deposit_note_mint
-            )]
+              has_one = deposit_note_mint)]
     pub reserve: Loader<'info, Reserve>,
 
     /// The reserve's vault where any tokens to withdraw will be transferred from
@@ -62,6 +61,10 @@ pub struct CloseDepositAccount<'info> {
               bump = bump)]
     pub deposit_account: AccountInfo<'info>,
 
+    /// The account to receive any remaining tokens still deposited
+    #[account(mut)]
+    pub receiver_account: AccountInfo<'info>,
+
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,
 }
@@ -72,7 +75,7 @@ impl<'info> CloseDepositAccount<'info> {
             self.token_program.clone(),
             Transfer {
                 from: self.vault.to_account_info(),
-                to: self.depositor.to_account_info(),
+                to: self.receiver_account.to_account_info(),
                 authority: self.market_authority.clone(),
             },
         )
