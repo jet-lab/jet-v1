@@ -325,12 +325,20 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
       colRatio: 0,
       utilizationRate: 0
     }
+
+    //update user positions 
     for (let t in user.assets?.tokens) {
       user.position.depositedValue += user.collateralBalances[t] * market.reserves[t].price;
       user.position.borrowedValue += user.loanBalances[t] * market.reserves[t].price;
       user.position.colRatio = user.position.borrowedValue ? user.position.depositedValue / user.position.borrowedValue : 0;
       user.position.utilizationRate = user.position.depositedValue ? user.position.borrowedValue / user.position.depositedValue : 0;
     }
+
+    //update user positions store
+    USER.update((data) => {
+      data.position = user.position;
+      return data;
+    });
 
     // Max deposit
     asset.maxDepositAmount = user.walletBalances[reserve.abbrev];
@@ -355,5 +363,6 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
     } else {
       asset.maxRepayAmount = asset.loanBalance.uiAmountFloat;
     }
+
   };
 };
