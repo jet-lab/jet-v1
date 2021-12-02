@@ -19,13 +19,12 @@
 
   // Adjust interface
   const adjustInterface = () => {
-    inputError = ''
+    inputError = '';
     inputAmount = null;
     checkDisabledInput();
     getMaxInput();
     adjustCollateralizationRatio();
   };
-
   // Check if user input should be disabled
   // depending on wallet balance and position
   const checkDisabledInput = (): void => {
