@@ -302,11 +302,8 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
     tvl += market.reserves[r].marketSize.muln(market.reserves[r].price)?.uiAmountFloat;
     reservesArray.push(market.reserves[r]);
   }
-  MARKET.update(market => {
-    market.totalValueLocked = tvl;
-    market.reservesArray = reservesArray;
-    return market;
-  });
+  market.totalValueLocked = tvl;
+  market.reservesArray = reservesArray
 
   // Derive user asset values
   if (asset) {
@@ -334,12 +331,6 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
       user.position.utilizationRate = user.position.depositedValue ? user.position.borrowedValue / user.position.depositedValue : 0;
     }
 
-    //update user positions store
-    USER.update((data) => {
-      data.position = user.position;
-      return data;
-    });
-
     // Max deposit
     asset.maxDepositAmount = user.walletBalances[reserve.abbrev];
 
@@ -365,4 +356,8 @@ const deriveValues = (reserve: Reserve, asset?: Asset) => {
     }
 
   };
+
+  // update stores
+  MARKET.set(market);
+  USER.set(user);
 };
