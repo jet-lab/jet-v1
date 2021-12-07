@@ -45,19 +45,59 @@ anchor test
 
 ## Run Frontend
 
-First startup a local validator and deploy
+### Initial localnet setup - startup a local validator and deploy
 
 ```
 npm install
 cd scripts
 ./localnet-start.sh
-vi app/.env # Set IDL = localnet
 ```
 
-Install any other NPM dependencies
+If the `./localnet-start.sh` script fails, add localnet jet & test_writer program ids in `Anchor.toml` in the root directory under `[programs.localnet]`, and comment out existing jet and test_writer program ids.
+
+Sample Program Ids are in the terminal output as following:
 
 ```
-cd app
+Deploying program "jet"...
+Program path: /usr/Jet/jet-v1/target/deploy/jet.so...
+Program Id: D9T9WwwuAFLM8yMrz5C6mHdFZKuf1Q7nfruwXyN4nntH
+
+Deploying program "test-writer"...
+Program path: /usr/Jet/jet-v1/target/deploy/test_writer.so...
+Program Id: 7SJZka47PGZWQboKFjXmY369hSxNHVzRtzPmiNvcc1qs
+```
+
+Find the PID and kill the solana-test-validator process to stop the localnet
+
+```
+px aux | grep solana
+```
+
+Second column in the terminal output is the PID of the solana-test-validator process
+
+```
+kill <PID>
+```
+
+Set up frontend app environment variable to use localnet
+```
+vi ../app/.env # Set IDL = localnet
+```
+
+### Startup a local validator and deploy
+
+```
+npm install
+vi Anchor.toml // comment out existing jet and test_writer program ids in Anchor.toml, and make localnet jet & test program ids available
+cd scripts
+./localnet-start.sh
+vi ../app/.env # Set IDL = localnet
+```
+
+Install any other NPM dependencies in the app directory
+
+```
+cd ../app
 npm install
 ```
 
