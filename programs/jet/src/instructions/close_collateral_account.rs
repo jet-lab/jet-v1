@@ -20,7 +20,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, CloseAccount};
 
 use crate::state::*;
-use crate::errors::ErrorCode;
+use crate::utils::verify_account_empty;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -38,23 +38,12 @@ pub struct CloseCollateralAccount<'info> {
               has_one = owner)]
     pub obligation: Loader<'info, Obligation>,
 
-    /// The reserve that the collateral comes from
-    #[account(has_one = market)]
-    pub reserve: Loader<'info, Reserve>,
-
     /// The user/authority that owns the collateral
     #[account(mut, signer)]
     pub owner: AccountInfo<'info>,
 
     /// The account that stores the deposit notes
-    #[account(mut,
-              seeds = [
-                  b"collateral".as_ref(),
-                  reserve.key().as_ref(),
-                  obligation.key().as_ref(),
-                  owner.key.as_ref()
-              ],
-              bump = bump)]
+    #[account(mut)]
     pub collateral_account: AccountInfo<'info>,
 
     #[account(address = anchor_spl::token::ID)]
@@ -81,27 +70,16 @@ impl<'info> CloseCollateralAccount<'info> {
 pub fn handler(ctx: Context<CloseCollateralAccount>, _bump: u8) -> ProgramResult {
     let mut obligation = ctx.accounts.obligation.load_mut()?;
     let market = ctx.accounts.market.load()?;
-    let reserve = ctx.accounts.reserve.load()?;
     let account = ctx.accounts.collateral_account.key();
 
     // Verify if collateral is empty, then proceed 
-    fn verify_empty_collateral(notes_remaining: u64) -> Result<(), ErrorCode> {
-        if notes_remaining > 0 {
-            msg!("the collateral account is not empty");
-            return Err(ErrorCode::AccountNotEmptyError);
-        }
-
-        Ok(())
-    }
-
-    // TODO: 1. verify if the collateral account is empty
-    // TODO: 2. unregister collateral account from obligation account
-    let notes_remaining = token::accessor::amount(&ctx.accounts.collateral_account)?;
-
-    verify_empty_collateral(notes_remaining)?;
+    verify_account_empty(&ctx.accounts.collateral_account)?;
 
     // unregister the collateral account
-    obligation.unregister_collateral(&account, reserve.index)?;
+    // TODO: FIXME - can i unregister without the reserve index?
+    // access position
+    // let collateral = obligation.collateral().position(&account)?;
+    obligation.unregister_collateral(&account)?;
 
     // Account should now be empty and unregistered from the obligation aaccount, so we can close it out
     token::close_account(

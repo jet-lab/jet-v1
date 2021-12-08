@@ -22,6 +22,7 @@ use std::{
 };
 
 use anchor_lang::prelude::*;
+use anchor_spl::token;
 use anchor_spl::dex::serum_dex::state::{Market as DexMarket, ToAlignedBytes};
 use bytemuck::{Pod, Zeroable};
 
@@ -205,3 +206,19 @@ pub enum JobCompletion {
     Partial,
     Full,
 }
+
+pub fn verify_account_empty(account: &AccountInfo) -> ProgramResult {
+    let notes_remaining = token::accessor::amount(&account)?;
+    
+    fn verify_amount(notes_remaining: u64) -> Result<(), ErrorCode> {
+        if notes_remaining > 0 {
+            msg!("the account is not empty");
+            return Err(ErrorCode::AccountNotEmptyError);
+    }
+        Ok(())
+    }
+
+    verify_amount(notes_remaining)?;
+    Ok(())
+}
+

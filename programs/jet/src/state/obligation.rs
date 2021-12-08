@@ -97,19 +97,18 @@ impl Obligation {
     pub fn unregister_collateral(
         &mut self,
         account: &Pubkey,
-        reserve_index: ReserveIndex,
+        // position: &Position
     ) -> Result<(), ErrorCode> {
-        self.collateral_mut()
-            .unregister(Position::existing_zeroed(Side::Collateral, *account, reserve_index))
+        let collateral = self.collateral().position(account)?;
+        self.collateral_mut().unregister(collateral)
     }
 
     pub fn unregister_loan(
         &mut self,
         account: &Pubkey,
-        reserve_index: ReserveIndex,
     ) -> Result<(), ErrorCode> {
-        self.loans_mut()
-            .unregister(Position::existing_zeroed(Side::Loan, *account, reserve_index))
+        let loan = self.loans_mut().position(account)?;
+        self.loans_mut().unregister(loan)
     }
     /// Record the collateral deposited for an obligation
     pub fn deposit_collateral(
@@ -416,19 +415,10 @@ impl ObligationSide {
     }
 
     /// Unregister a position for this obligation (account which holds loan or collateral notes)
-    fn unregister(&mut self, existing: Position) -> Result<(), ErrorCode> {
+    fn unregister(&mut self, existing: &Position) -> Result<(), ErrorCode> {
         for position in self.positions.iter_mut() {
             if position.account != existing.account.key() {
                 continue;
-            }
-            
-            if position.reserve_index != existing.reserve_index && position.account == existing.account.key() 
-            {
-                panic!(
-                    "Cannot unregister account {:?} as {:?} for reserve index {:?} since the \
-                    reserve index is not registered with {:?} for this obligation",
-                    existing.account, existing.side, position.reserve_index, position
-                );
             }
             
             *position.account = Pubkey::default();
@@ -555,16 +545,6 @@ impl Position {
             account: account.into(),
             side: side.into_integer(),
             amount: Number::ZERO,
-            reserve_index,
-            _reserved: FixedBuf::zeroed(),
-        }
-    }
-
-    fn existing_zeroed(side: Side, account: Pubkey, reserve_index: ReserveIndex) -> Position {
-        Position {
-            account: account.into(),
-            amount: Number::ZERO,
-            side: side.into_integer(),
             reserve_index,
             _reserved: FixedBuf::zeroed(),
         }

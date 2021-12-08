@@ -20,7 +20,7 @@ use anchor_lang::Key;
 use anchor_spl::token::{self, CloseAccount};
 
 use crate::state::*;
-use crate::errors::ErrorCode;
+use crate::utils::verify_account_empty;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -46,15 +46,8 @@ pub struct CloseLoanAccount<'info> {
     #[account(mut, signer)]
     pub owner: AccountInfo<'info>,
 
-    /// The account that will store the loan notes
-    #[account(mut,
-              seeds = [
-                  b"loan".as_ref(),
-                  reserve.key().as_ref(),
-                  obligation.key().as_ref(),
-                  owner.key.as_ref()
-              ],
-              bump = bump)]
+    /// The account that store the loan notes
+    #[account(mut)]
     pub loan_account: AccountInfo<'info>,
 
     #[account(address = anchor_spl::token::ID)]
@@ -80,27 +73,14 @@ impl<'info> CloseLoanAccount<'info> {
 pub fn handler(ctx: Context<CloseLoanAccount>, _bump: u8) -> ProgramResult {
     let mut obligation = ctx.accounts.obligation.load_mut()?;
     let market = ctx.accounts.market.load()?;
-    let reserve = ctx.accounts.reserve.load()?;
     let account = ctx.accounts.loan_account.key();
 
     // Verify if loans is empty, then proceed 
-    fn verify_empty_loan(notes_remaining: u64) -> Result<(), ErrorCode> {
-        if notes_remaining > 0 {
-            msg!("the loan account is not empty");
-            return Err(ErrorCode::AccountNotEmptyError);
-        }
-
-        Ok(())
-    }
-
-    // TODO: 1. verify if the loan account is empty
-    // TODO: 2. unregister loan account from obligation account
-    let notes_remaining = token::accessor::amount(&ctx.accounts.loan_account)?;
-
-    verify_empty_loan(notes_remaining)?;
+    verify_account_empty(&ctx.accounts.loan_account)?;
 
     // unregister the loan account
-    obligation.unregister_loan(&account, reserve.index)?;
+    //TODO: fixme remove the reserve for unregistering
+    obligation.unregister_loan(&account)?;
 
     // Account should now be empty and unregistered from the obligation aaccount, so we can close it out
     token::close_account(
