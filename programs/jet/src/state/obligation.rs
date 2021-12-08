@@ -100,7 +100,8 @@ impl Obligation {
         // position: &Position
     ) -> Result<(), ErrorCode> {
         let collateral = self.collateral().position(account)?;
-        self.collateral_mut().unregister(collateral)
+        let collateral_account = collateral.account.key();
+        self.collateral_mut().unregister(collateral_account)
     }
 
     pub fn unregister_loan(
@@ -108,7 +109,8 @@ impl Obligation {
         account: &Pubkey,
     ) -> Result<(), ErrorCode> {
         let loan = self.loans_mut().position(account)?;
-        self.loans_mut().unregister(loan)
+        let loan_account = loan.account.key();
+        self.loans_mut().unregister(loan_account)
     }
     /// Record the collateral deposited for an obligation
     pub fn deposit_collateral(
@@ -415,9 +417,9 @@ impl ObligationSide {
     }
 
     /// Unregister a position for this obligation (account which holds loan or collateral notes)
-    fn unregister(&mut self, existing: &Position) -> Result<(), ErrorCode> {
+    fn unregister(&mut self, existing_account: Pubkey) -> Result<(), ErrorCode> {
         for position in self.positions.iter_mut() {
-            if position.account != existing.account.key() {
+            if position.account != existing_account {
                 continue;
             }
             
