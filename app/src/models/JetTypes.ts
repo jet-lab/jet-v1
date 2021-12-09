@@ -193,6 +193,8 @@ export interface ReserveConfigStruct {
   liquidationDexTradeMax: number,
   /** Unused space */
   _reserved1: number[],
+  /** Confidence Threshold */
+  confidenceThreshold: number,
 };
 export type ReserveStateStruct = CacheStruct & {
   accruedUntil: BN,
