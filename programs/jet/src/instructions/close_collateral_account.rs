@@ -45,6 +45,10 @@ pub struct CloseCollateralAccount<'info> {
     /// The account that stores the deposit notes
     #[account(mut)]
     pub collateral_account: AccountInfo<'info>,
+    
+    /// The account that will stores the deposit notes
+    #[account(mut)]
+    pub deposit_account: AccountInfo<'info>,
 
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,
@@ -59,7 +63,7 @@ impl<'info> CloseCollateralAccount<'info> {
             self.token_program.clone(),
             CloseAccount {
                 account: self.collateral_account.to_account_info(),
-                destination: self.owner.to_account_info(),
+                destination: self.deposit_account.to_account_info(),
                 authority: self.market_authority.clone(),
             },
         )
@@ -76,9 +80,6 @@ pub fn handler(ctx: Context<CloseCollateralAccount>, _bump: u8) -> ProgramResult
     verify_account_empty(&ctx.accounts.collateral_account)?;
 
     // unregister the collateral account
-    // TODO: FIXME - can i unregister without the reserve index?
-    // access position
-    // let collateral = obligation.collateral().position(&account)?;
     obligation.unregister_collateral(&account)?;
 
     // Account should now be empty and unregistered from the obligation aaccount, so we can close it out

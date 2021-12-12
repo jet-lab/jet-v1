@@ -428,6 +428,96 @@ export class JetUser implements User {
     return tx;
   }
 
+  async closeDepositAccount(reserve: JetReserve, receiver: PublicKey): Promise<string> {
+    const tx = await this.closeDepositAccountTx(reserve, receiver)
+    return await this.client.program.provider.send(tx)
+  }
+  async closeDepositAccountTx(reserve: JetReserve, receiver: PublicKey): Promise<Transaction> {
+    const accounts = await this.findReserveAccounts(reserve);
+    const tx = new Transaction()
+    tx.add(reserve.makeRefreshIx())
+    tx.add(
+      this.client.program.instruction.closeDepositAccount(accounts.deposits.bumpSeed, {
+        accounts: {
+          market: this.market.address,
+          marketAuthority: this.market.marketAuthority,
+          reserve: reserve.address,
+          vault: reserve.data.vault,
+          depositNoteMint: reserve.data.depositNoteMint,
+          depositor: this.address,
+          depositAccount: accounts.deposits.address,
+          receiverAccount: receiver,
+          tokenProgram: TOKEN_PROGRAM_ID
+        }
+      })
+    )
+    return tx
+  }
+
+  async closeCollateralAccount(reserve: JetReserve): Promise<string> {
+    const tx = await this.closeCollateralAccountTx(reserve)
+    return await this.client.program.provider.send(tx)
+  }
+  async closeCollateralAccountTx(reserve: JetReserve): Promise<Transaction> {
+    const accounts = await this.findReserveAccounts(reserve)
+    const tx = new Transaction()
+    tx.add(
+      this.client.program.instruction.closeCollateralAccount(accounts.collateral.bumpSeed, {
+        accounts: {
+          market: this.market.address,
+          marketAuthority: this.market.marketAuthority,
+          owner: this.address,
+          obligation: this.obligation.address,
+          collateralAccount: accounts.collateral.address,
+          depositAccount: accounts.deposits.address,
+          tokenProgram: TOKEN_PROGRAM_ID
+        }
+      })
+    )
+    return tx
+  }
+
+  async closeLoanAccount(reserve: JetReserve): Promise<string> {
+    const tx = await this.closeLoanAccountTx(reserve)
+    return await this.client.program.provider.send(tx)
+  }
+  async closeLoanAccountTx(reserve: JetReserve): Promise<Transaction> {
+    const accounts = await this.findReserveAccounts(reserve)
+    const tx = new Transaction()
+    tx.add(
+      this.client.program.instruction.closeLoanAccount(accounts.loan.bumpSeed, {
+        accounts: {
+          market: this.market.address,
+          marketAuthority: this.market.marketAuthority,
+          owner: this.address,
+          obligation: this.obligation.address,
+          loanAccount: accounts.loan.address,
+          tokenProgram: TOKEN_PROGRAM_ID
+        }
+      })
+    )
+    return tx
+  }
+
+  async closeObligationAccount(): Promise<string> {
+    const tx = await this.closeObligationAccountTx()
+    return await this.client.program.provider.send(tx)
+  }
+  async closeObligationAccountTx(): Promise<Transaction> {
+    const tx = new Transaction()
+    tx.add(
+      this.client.program.instruction.closeObligation(this.obligation.bumpSeed, {
+        accounts: {
+          market: this.market.address,
+          marketAuthority: this.market.marketAuthority,
+          obligation: this.obligation.address,
+          owner: this.address
+        }
+      })
+    )
+    return tx
+  }
+
   private makeInitDepositAccountIx(
     reserve: JetReserve,
     account: DerivedAccount

@@ -92,6 +92,13 @@ describe("jet", async () => {
     return new BN(account.amount, undefined, "le");
   }
 
+  async function checkWalletBalance(tokenAccount: PublicKey): Promise<BN> {
+    let info = await provider.connection.getAccountInfo(tokenAccount);
+    let amount = info.lamports;
+
+    return new BN(amount, undefined, "le");
+  }
+
   async function createTokenEnv(decimals: number, price: bigint) {
     let pythPrice = await testUtils.pyth.createPriceAccount();
     let pythProduct = await testUtils.pyth.createProductAccount();
@@ -915,40 +922,66 @@ describe("jet", async () => {
       "expected instruction to fail"
     );
   });
-  it("user A deposit account closes when balance is 0", async () => {
-    const user = userA;
-  });
 
-  it("user A collateral account closes when balance is 0", async () => {
-    const user = userA;
-  });
+  it("user B closes deposit, collateral, loan and obligation accounts. Rent returns to user B", async () => {
+    const user = userB; // deposit wsol, borrow usdc
+    const userWallet = user.wallet.publicKey;
+    const depositNotesKey = (
+      await client.findDerivedAccount([
+        "deposits",
+        wsol.reserve.address,
+        user.client.address,
+      ])
+    ).address;
+    const obligationKey = (
+      await client.findDerivedAccount([
+        "obligation",
+        jetMarket.address,
+        user.client.address,
+      ])
+    ).address;
+    const collateralNotesKey = (
+      await client.findDerivedAccount([
+        "collateral",
+        wsol.reserve.address,
+        obligationKey,
+        user.client.address,
+      ])
+    ).address;
 
-  it("user A loan account closes when balance is 0", async () => {
-    const user = userA;
-  });
+    const loanNotesKey = (
+      await client.findDerivedAccount([
+        "loan",
+        usdc.reserve.address,
+        obligationKey,
+        user.client.address,
+      ])
+    ).address;
+ 
+    const depositNotesBalance = await checkBalance(depositNotesKey);
+    const collateralNoteBalance = await checkBalance(collateralNotesKey);
+    const loanNotesBalance = await checkBalance(loanNotesKey);
+    
+    // check balances are zero before closing accounts
+    assert.equal(depositNotesBalance.toString(), bn(0).toString());
+    assert.equal(collateralNoteBalance.toString(), bn(0).toString());
+    assert.equal(loanNotesBalance.toString(), bn(0).toString());
 
-  it("user A obligation account closes when position count is 0", async () => {
-    const user = userA;
-  });
+    await user.client.closeLoanAccount(usdc.reserve);
+    const checkLoanAccountInfo = await provider.connection.getAccountInfo(loanNotesKey);
+    assert.equal(checkLoanAccountInfo, null);
 
-  it("user A closes deposit, collateral, loan and obligation accounts. Rent returns to user A", async () => {
-    const user = userA;
-  });
+    await user.client.closeCollateralAccount(wsol.reserve);
+    const checkCollateralAccountInfo = await provider.connection.getAccountInfo(collateralNotesKey);
+    assert.equal(checkCollateralAccountInfo, null);
 
-  it("user A obligation account remains open while collateral balance is more than 0", async () => {
-    const user = userA;
-  });
+    await user.client.closeObligationAccount();
+    const checkObligationAccountInfo = await provider.connection.getAccountInfo(obligationKey);
+    assert.equal(checkObligationAccountInfo, null);
 
-  it("user A obligation account remains open while loan balance is more than 0", async () => {
-    const user = userA;
+    await user.client.closeDepositAccount(wsol.reserve, userWallet);
+    const checkDepositAccountInfo = await provider.connection.getAccountInfo(depositNotesKey);
+    assert.equal(checkDepositAccountInfo, null);
   });
-  
-  it("user A obligation account remains open while one collateral account is open", async () => {
-    const user = userA;
-  });
-  
-  it("user A obligation account remains open while one loan account is open", async () => {
-    const user = userA;
-  });
-
 });
+

@@ -38,10 +38,6 @@ pub struct CloseLoanAccount<'info> {
               has_one = owner)]
     pub obligation: Loader<'info, Obligation>,
 
-    /// The reserve that the loan comes from
-    #[account(has_one = market)]
-    pub reserve: Loader<'info, Reserve>,
-
     /// The user/authority that owns the loan
     #[account(mut, signer)]
     pub owner: AccountInfo<'info>,
@@ -79,7 +75,6 @@ pub fn handler(ctx: Context<CloseLoanAccount>, _bump: u8) -> ProgramResult {
     verify_account_empty(&ctx.accounts.loan_account)?;
 
     // unregister the loan account
-    //TODO: fixme remove the reserve for unregistering
     obligation.unregister_loan(&account)?;
 
     // Account should now be empty and unregistered from the obligation aaccount, so we can close it out

@@ -99,18 +99,14 @@ impl Obligation {
         account: &Pubkey,
         // position: &Position
     ) -> Result<(), ErrorCode> {
-        let collateral = self.collateral().position(account)?;
-        let collateral_account = collateral.account.key();
-        self.collateral_mut().unregister(collateral_account)
+        self.collateral_mut().unregister(*account)
     }
 
     pub fn unregister_loan(
         &mut self,
         account: &Pubkey,
     ) -> Result<(), ErrorCode> {
-        let loan = self.loans_mut().position(account)?;
-        let loan_account = loan.account.key();
-        self.loans_mut().unregister(loan_account)
+        self.loans_mut().unregister(*account)
     }
     /// Record the collateral deposited for an obligation
     pub fn deposit_collateral(
