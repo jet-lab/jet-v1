@@ -127,7 +127,7 @@
 
 <style>
   .modal-bg {
-    z-index: 102;
+    z-index: 103;
   }
   .modal h2, .modal h1 {
     font-weight: 400;
@@ -138,7 +138,7 @@
   .copilot {
     overflow: hidden;
     flex-wrap: nowrap;
-    z-index: 103;
+    z-index: 104;
     padding: 0 var(--spacing-md);
   }
   .copilot-body {
