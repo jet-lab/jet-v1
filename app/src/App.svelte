@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { Router, Route } from "svelte-navigator";
-  import { getIDLAndAnchorAndMarketPubkeys, inDevelopment, rollbar } from "./scripts/jet";
+  import { getIDLAndAnchorAndMarketPubkeys, rollbar } from "./scripts/jet";
   import { checkDarkTheme } from "./scripts/util";
   import Nav from "./components/Nav.svelte";
   import Cockpit from "./views/Cockpit.svelte";
@@ -13,7 +13,7 @@
   import Notifications from "./components/Notifications.svelte";
   import TermsConditions from "./components/TermsConditions.svelte";
   import { subscribeToMarket } from "./scripts/subscribe";
-  import { INIT_FAILED, MARKET, COPILOT } from "./store";
+  import { INIT_FAILED, MARKET } from "./store";
 
   let launchUI: boolean = false;
   onMount(async () => {
@@ -24,17 +24,6 @@
     await getIDLAndAnchorAndMarketPubkeys();
     // Display Interface
     launchUI = true;
-
-    // Mainnet network instability notice
-    if (!inDevelopment) {
-      COPILOT.set({
-        alert: {
-          good: false,
-          header: 'MAINNET NOTICE',
-          text: 'The network is experiencing instability, we highly advise users to proceed with caution during this time.'
-        }
-      });
-    }
 
     try {
       // Subscribe to market
