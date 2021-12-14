@@ -30,6 +30,7 @@ pub mod close_deposit_account;
 pub mod borrow;
 pub mod deposit;
 pub mod deposit_collateral;
+pub mod deposit_tokens;
 pub mod liquidate;
 pub mod liquidate_dex;
 pub mod refresh_reserve;
@@ -37,6 +38,7 @@ pub mod repay;
 pub mod update_reserve_config;
 pub mod withdraw;
 pub mod withdraw_collateral;
+pub mod withdraw_tokens;
 
 pub use borrow::*;
 pub use close_deposit_account::*;

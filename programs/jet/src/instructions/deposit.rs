@@ -17,10 +17,10 @@
 
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
-use anchor_spl::token::{self, MintTo, Transfer};
+use anchor_spl::token;
 
 use crate::state::*;
-use crate::{Amount, Rounding};
+use crate::Amount;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -69,56 +69,18 @@ pub struct Deposit<'info> {
     pub token_program: AccountInfo<'info>,
 }
 
-impl<'info> Deposit<'info> {
-    fn transfer_context(&self) -> CpiContext<'_, '_, '_, 'info, Transfer<'info>> {
-        CpiContext::new(
-            self.token_program.clone(),
-            Transfer {
-                from: self.deposit_source.to_account_info(),
-                to: self.vault.to_account_info(),
-                authority: self.depositor.clone(),
-            },
-        )
-    }
-
-    fn note_mint_context(&self) -> CpiContext<'_, '_, '_, 'info, MintTo<'info>> {
-        CpiContext::new(
-            self.token_program.clone(),
-            MintTo {
-                to: self.deposit_account.to_account_info(),
-                mint: self.deposit_note_mint.to_account_info(),
-                authority: self.market_authority.clone(),
-            },
-        )
-    }
-}
-
 /// Deposit tokens into a reserve
 pub fn handler(ctx: Context<Deposit>, _bump: u8, amount: Amount) -> ProgramResult {
-    let market = ctx.accounts.market.load()?;
-    let mut reserve = ctx.accounts.reserve.load_mut()?;
-    let clock = Clock::get()?;
-    let reserve_info = market.reserves().get_cached(reserve.index, clock.slot);
-
-    market.verify_ability_deposit_withdraw()?;
-
-    // Calculate the number of new notes that need to be minted to represent
-    // the current value being deposited
-    let token_amount = amount.as_tokens(reserve_info, Rounding::Up);
-    let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Down)?;
-
-    reserve.deposit(token_amount, note_amount);
-
-    // Now that we have the note value, we can transfer this deposit
-    // to the vault and mint the new notes
-    token::transfer(ctx.accounts.transfer_context(), token_amount)?;
-
-    token::mint_to(
-        ctx.accounts
-            .note_mint_context()
-            .with_signer(&[&market.authority_seeds()]),
-        note_amount,
-    )?;
-
-    Ok(())
+    super::deposit_tokens::handler(
+        Context::new(
+            ctx.program_id,
+            &mut super::deposit_tokens::DepositTokens::try_accounts(
+                ctx.program_id,
+                &mut &*ctx.accounts.to_account_infos(),
+                &[],
+            )?,
+            &[],
+        ),
+        amount,
+    )
 }
