@@ -1,6 +1,6 @@
 name: build
 env:
-  cli-id: anchor-v0.18.dev-7b86aed-solana-1.8.5
+  cli-id: anchor-v0.19.dev-911620-solana-1.8.5
 on:
   push:
     branches:
@@ -18,19 +18,7 @@ jobs:
           key: $${{ env.cli-id }}
           path: |
             ~/.local/share/solana
-            ~/.cargo
-            ~/.rustup
             ~/.cargo/bin/anchor
-
-      - id: install-os-deps
-        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
-        run: sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
-
-      - id: install-rust-toolchain
-        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
 
       - id: install-solana-tools
         if: steps.cache-cli-deps.outputs.cache-hit != 'true'
@@ -52,8 +40,6 @@ jobs:
           key: $${{ env.cli-id }}
           path: |
             ~/.local/share/solana
-            ~/.cargo
-            ~/.rustup
             ~/.cargo/bin/anchor
 
       - id: install-os-deps
