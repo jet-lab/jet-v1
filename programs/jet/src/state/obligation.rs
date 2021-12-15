@@ -214,7 +214,7 @@ impl Obligation {
         };
 
         let limit_fraction = (c_ratio_ltv - Number::ONE)
-            / (min_c_ratio * (Number::ONE - liquidation_bonus) - Number::ONE);
+            / (min_c_ratio / (Number::ONE + liquidation_bonus) - Number::ONE);
 
         let collateral_sellable_value = std::cmp::min(
             (Number::ONE + liquidation_bonus) * repaid_value,

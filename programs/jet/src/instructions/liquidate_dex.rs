@@ -465,7 +465,7 @@ impl<'a, 'info> SwapCalculator<'a, 'info> {
         }
 
         let limit_fraction = (c_ratio_ltv - Number::ONE)
-            / (min_c_ratio * (Number::ONE - liquidation_fee) - Number::ONE);
+            / (min_c_ratio / (Number::ONE + liquidation_fee) - Number::ONE);
 
         let collateral_sellable_value = limit_fraction * collateral_value;
         let loan_repay_value = collateral_sellable_value / (Number::ONE + liquidation_fee);
