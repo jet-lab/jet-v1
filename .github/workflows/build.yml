@@ -20,6 +20,10 @@ jobs:
             ~/.local/share/solana
             ~/.cargo/bin/anchor
 
+      - id: install-os-deps
+        if: steps.cache-cli-deps.outputs.cache-hit != 'true'
+        run: sudo apt-get update && sudo apt-get install -y pkg-config build-essential libudev-dev
+
       - id: install-solana-tools
         if: steps.cache-cli-deps.outputs.cache-hit != 'true'
         run: sh -c "$(curl -sSfL https://release.solana.com/v1.8.5/install)"
