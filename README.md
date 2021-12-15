@@ -70,7 +70,7 @@ Program Id: 7SJZka47PGZWQboKFjXmY369hSxNHVzRtzPmiNvcc1qs
 Find the PID and kill the solana-test-validator process to stop the localnet
 
 ```
-px aux | grep solana
+ps aux | grep solana
 ```
 
 Second column in the terminal output is the PID of the solana-test-validator process

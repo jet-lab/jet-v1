@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "baseUrl": "./",
     "paths": {
-      "@jet-lab/jet-client": ["libraries/ts/lib/index.ts"]
+      "@jet-lab/jet-client": ["libraries/ts/src/index.ts"]
     }
   }
 }
