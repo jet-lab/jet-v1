@@ -1,0 +1,42 @@
+{
+  "collateral": {
+    "term": "Collaterale",
+    "definition": "Il bene depositato con il protocollo per garantire un prestito."
+  },
+  "debt": {
+    "term": "Debito",
+    "definition": "Il valore del prestito dovuto o dovuto al Protocollo."
+  },
+  "collateralizationRatio": {
+    "term": "Rapporto di Collateralizzazione",
+    "definition": "Il valore della tua garanzia diviso per il valore del tuo debito. Ti viene richiesto di garantire un'eccessiva garanzia del tuo prestito, ovvero il valore equo di mercato dei tuoi beni depositati deve superare il valore dell'importo che puoi prendere in prestito. Ciò prevede una riduzione perché il Protocollo può sequestrare tale garanzia al fine di recuperare il valore del prestito in caso di inadempimento di un prestito. Vedi anche, LTV massimo."
+  },
+  "adjustedCollateralizationRatio": {
+    "term": "Rapporto di garanzia rettificato",
+    "definition": "Una rappresentazione in tempo reale di quale sarebbe potenzialmente il tuo rapporto di garanzia se l'operazione corrente fosse presentata."
+  },
+  "depositRate": {
+    "term": "Tasso di interesse sul deposito",
+    "definition": "Il tasso di interesse istantaneo guadagnato dai depositanti. Questo tasso è espresso in forma annualizzata, non riflette gli effetti della capitalizzazione ed è comprensivo di eventuali commissioni di protocollo che potrebbero essere in vigore. Il tasso cambia al variare del rapporto di utilizzo del bene depositato."
+  },
+  "borrowRate": {
+    "term": "Tasso di interesse in prestito",
+    "definition": "Il tasso di interesse istantaneo pagato dai mutuatari. Questo tasso è espresso in forma annualizzata, non riflette gli effetti della capitalizzazione ed è comprensivo di eventuali commissioni di protocollo che potrebbero essere in vigore. Il tasso cambia al variare del rapporto di utilizzo del bene preso in prestito."
+  },
+  "maximumLtv": {
+    "term": "LTV massimo",
+    "definition": "Il rapporto massimo di prestito consentito dal Protocollo. Il rapporto tra prestito e valore (LTV) è una misura del rischio utilizzata dal protocollo Jet per decidere l'entità del prestito da approvare. Il tuo LTV rappresenta il rapporto tra l'importo del prestito che ottieni e il valore della proprietà che garantisce il prestito. Vedi anche, Collateralization Ratio."
+  },
+  "utilisationRate": {
+    "term": "Rapporto di utilizzo",
+    "definition": "La frazione delle attività di una riserva che è stata presa in prestito. Ad esempio, se la riserva USDC vale $ 100.000 e l'importo dovuto alla riserva dai mutuatari è $ 65.000, il rapporto di utilizzo è del 65%. Ci sarebbero $ 35.000 disponibili per ulteriori prestiti."
+  },
+  "availLiquidity": {
+    "term": "Liquidità",
+    "definition": "L'efficienza o la facilità con cui un asset può essere convertito in stablecoin senza influire sul prezzo di mercato dell'asset."
+  },
+  "liquidationPremium": {
+    "term": "Premio di liquidazione",
+    "definition": "La garanzia aggiuntiva viene fornita ai liquidatori che rimborsano il debito dei conti che sono scesi al di sotto del rapporto minimo di garanzia. Il valore in dollari di questa garanzia aggiuntiva è pari al Premio di liquidazione moltiplicato per il valore in dollari del debito rimborsato. La garanzia aggiuntiva viene pagata dal conto dell'utente in liquidazione."
+  }
+}

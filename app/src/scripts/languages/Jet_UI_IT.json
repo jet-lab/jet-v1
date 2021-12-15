@@ -1,0 +1,159 @@
+{
+  "language": "Italiano",
+  "loading": {
+    "transactions": "Invio delle transazioni...",
+    "connectingWallet": "Sto connettendo il wallet...",
+    "initializing": "Avvio Jet Engines",
+    "fetchingReserves": "Recupero dei Reserve Data",
+    "fetchingAccount": "Recupero Account Data"
+  },
+  "nav": {
+    "cockpit": "Cockpit",
+    "settings": "Impostazioni",
+    "collapse": "Nascondi",
+    "getCopilotSuggestion": "Ottieni il suggerimento di Copilot",
+    "transactions": "Logs di volo"
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "asset": "Asset",
+    "detail": "Dettaglio",
+    "native": "Nativo",
+    "totalValueLocked": "Valore di mercato bloccato",
+    "totalBorrowed": "Totale in prestito",
+    "availableLiquidity": "Liquidità disponibile",
+    "amountDeposited": "Depositato",
+    "amountBorrowed": "Preso in prestito",
+    "depositRate": "Frequenza di deposito",
+    "borrowRate": "Frequenza di prestito",
+    "airdrop": "Airdrop",
+    "totalDepositedValue": "Valore del tuo deposito",
+    "totalBorrowedValue": "Valore del tuo prestito",
+    "yourRatio": "Il tuo C-Ratio",
+    "collateralizationRatio": "Rapporto di Collateralizzazione",
+    "noInputAmount": "Inserisci quantità.",
+    "adjustedCollateralization": "Rapporto C-Ratio",
+    "deposit": "Deposito",
+    "walletBalance": "Bilancio Wallet",
+    "noDepositAmount": "Inserisci quantità",
+    "notEnoughAsset": "Non hai abbastanza {{ASSET}}.",
+    "withdraw": "Prelievo",
+    "availableFunds": "Fondi disponibili",
+    "lessFunds": "Non hai abbastanza fondi",
+    "borrow": "Prestito",
+    "maxBorrowAmount": "Prestito massimo",
+    "assetIsCurrentDeposit": "Hai depositato {{ASSET}} e quindi non puoi prenderlo in prestito.",
+    "noLiquidity": "Non hai abbastanza liquidità.",
+    "minCRatio": "Questo metterà la tua posizione al nostro rapporto minimo di garanzia, ponendo quindi il tuo conto in un territorio di liquidazione. Sei sicuro?",
+    "belowMinRatio": "Sei sottocollateralizzato. Deposita o rimborsa il tuo debito per evitare la liquidazione.",
+    "subjectToLiquidation": "Questa operazione riduce il tuo rapporto di garanzia a {{NEW-C-RATIO}}%, che ti colloca nella fascia di liquidazione soggetta alla volatilità del mercato. Vuoi ancora prendere in prestito?",
+    "confirm": "Conferma",
+    "repay": "Rimborsa",
+    "amountOwed": "Importo dovuto",
+    "oweLess": "Devi di meno.",
+    "geobanned": "Jet Protocol non è disponibile nella tua regione.",
+    "noMarket": "Non siamo stati in grado di inizializzare il marketplace Jet.",
+    "txSuccess": "Il tuo {{TRADE ACTION}} di {{AMOUNT AND ASSET}} è stato ricevuto.",
+    "txFailed": "Transazione fallita.",
+    "max": "Massimo",
+    "assetIsCurrentBorrow": "Hai preso in prestito {{ASSET}} e quindi non puoi depositarlo.",
+    "belowMinCRatio": "Sei sottocollateralizzato. Deposita o rimborsa il tuo debito per evitare la liquidazione.",
+    "search": "Cerco il mercato...",
+    "noBalanceForDeposit": "Non hai {{ASSET}} nel tuo wallet da depositare.",
+    "noDepositsForBorrow": "È necessario depositare garanzie per prendere in prestito.",
+    "noDepositsForWithdraw": "Non hai depositato nessun {{ASSET}} da ritirare.",
+    "noDebtForRepay": "Non possiedi nessun {{ASSET}}.",
+    "rejectTrade": "Questo scambio abbasserebbe il tuo rapporto di garanzia a {{NEW-C-RATIO}}%, che sarebbe al di sotto del nostro rapporto minimo di {{JET MIN C-RATIO}}. Vuoi ancora prendere in prestito?",
+    "insufficientLamports": "Stai depositando tutti i tuoi SOL lasciandoti senza fondi per le fee di transazione! Riprova con una quantità in input leggermente inferiore.",
+    "stillUndercollateralized": "Il nuovo C-ratio di {{NEW-C-RATIO}}% è ancora sotto il rapporto minimo di garanzia del mercato di Jet di {{JET MIN C-RATIO}}%. Si prega di considerare di rimborsare di più per evitare la liquidazione.",
+    "txCancelled": "Transazione cancellata."
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "wallet": "Wallet",
+    "connect": "Connetti il tuo Wallet",
+    "worldOfDefi": "Connetti il tuo wallet al mondo della DeFi.",
+    "theme": "Tema",
+    "light": "Chiaro",
+    "dark": "Scuro",
+    "language": "Lingua",
+    "rpcNode": "Nodo RPC",
+    "current": "Corrente",
+    "defaultNode": "Jet Default",
+    "reset": "Resetta",
+    "noUrl": "Inserisci un URL",
+    "disconnect": "Disconetti il Wallet",
+    "connected": "Connesso"
+  },
+  "reserveDetail": {
+    "reserveSize": "Dimensione della riserva",
+    "availableLiquidity": "Liquidità disponibile",
+    "utilisationRate": "Rapporto di utilizzo",
+    "viewHistory": "Visualizza cronologia",
+    "totalBorrowed": "Totale preso in prestito",
+    "maximumLTV": "Massimo LTV",
+    "liquidationPremium": "Liquidazione Premium",
+    "tradeAsset": "Scambia {{ASSET}}",
+    "minimumCollateralizationRatio": "Minimo C-Ratio"
+  },
+  "copilot": {
+    "name": "Copilot",
+    "header": "Hey, Copilot è qui.",
+    "okay": "Okay",
+    "suggestions": {
+      "unhealthy": {
+        "overview": "Il tuo account non è in salute.",
+        "detail": "Il tuo rapporto di garanzia (il valore totale depositato diviso per il valore totale preso in prestito) è {{C-RATIO}}% che è {{RATIO BELOW AMOUNT}}% inferiore al rapporto di garanzia minimo di Jet marketplace di {{JET MIN C-RATIO}}%.",
+        "solution": "Per correggere la tua posizione, puoi depositare più garanzie, ma ti suggerisco di ripagare il tuo debito nel Cockpit.",
+        "actionText": "Vai al Cockpit"
+      },
+      "warning": {
+        "tenPercent": {
+          "overview": "Sei pericolosamente vicino alla liquidazione.",
+          "detail": "Il tuo rapporto di garanzia (il valore totale depositato diviso per il valore totale preso in prestito) è {{C-RATIO}}% che rientra nel 10% del rapporto di garanzia minimo del mercato Jet di {{JET MIN C-RATIO}}%.",
+          "solution": "Per evitare la liquidazione, puoi depositare più garanzie.",
+          "actionText": "Deposito"
+        },
+        "twentyPercent": {
+          "overview": "Tieni d'occhio il tuo rapporto di collateralizzazione.",
+          "detail": "Il tuo rapporto di garanzia (il valore totale depositato diviso per il valore totale preso in prestito) è {{C-RATIO}}% che è inferiore del 20% al di sopra del rapporto di garanzia minimo del mercato Jet di {{JET MIN C-RATIO}}%.",
+          "solution": "Aumenta il tuo rapporto di garanzia a livelli sani del 20% o più depositando più garanzie.",
+          "actionText": "Deposito"
+        }
+      },
+      "deposit": {
+        "overview": "{{BEST DEPOSIT RATE NAME}} sta andando bene in questo momento.",
+        "detail": "<b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> ha il miglior deposito <b class='bold'>rate</b> nel mercato in questo momento a <b class='bold'>{{DEPOSIT RATE}}%</b>, e il tuo account è in regola, quindi ti consigliamo di aggiungere alcune garanzie depositando una parte del tuo <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>.",
+        "actionText": "Facciamolo"
+      },
+      "healthy": {
+        "overview": "I cieli sono liberi.",
+        "detail": "Il tuo conto è in regola ed è adeguatamente garantito in eccesso, fammi dare un'occhiata al mercato e vedere se posso suggerirti alcune buone mosse. Ricontrollami più tardi!"
+      }
+    },
+    "alert": {
+      "failed": "Mayday!",
+      "success": "Successo!",
+      "airdropSuccess": "Ti abbiamo fatto un airdrop di {{UI AMOUNT}} {{RESERVE ABBREV}}.",
+      "refresh": "Ricarica",
+      "originationFee": "C'è una commissione di {{ORIGINATION FEE}}% allegato a questo prestito.",
+      "headsup": "Dritta!",
+      "disclaimer": "Stai per entrare nella mainnet del protocollo Jet. Non procedere se non si comprendono e si accettano i Termini di utilizzo e il potenziale rischio di perdite finanziarie. <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">CONDIZIONI DI UTILIZZO</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
+      "accept": "Accetta",
+      "warning": "AVVERTIMENTO"
+    }
+  },
+  "transactions": {
+    "title": "Diario di bordo",
+    "date": "Data",
+    "signature": "Firma",
+    "tradeAction": "Transazione",
+    "tradeAmount": "Quantità",
+    "noTrades": "Non hai transazioni registrate con Jet.",
+    "entries": "{start} a {end} di {rows} linee",
+    "deposit": "Deposito",
+    "withdraw": "Prelievo",
+    "borrow": "Prestito",
+    "repay": "Ripaga"
+  }
+}
