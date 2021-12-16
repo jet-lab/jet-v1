@@ -679,7 +679,7 @@ mod tests {
 
         ctx.obligation.repay(&loan, Number::from(347_826)).unwrap();
 
-        assert_eq!(765_217, collateral_returned.as_u64_rounded(0));
+        assert_eq!(733_333, collateral_returned.as_u64_rounded(0));
         assert_eq!(
             152_174,
             ctx.obligation
@@ -690,7 +690,7 @@ mod tests {
                 .as_u64_rounded(0)
         );
         assert_eq!(
-            384_783,
+            416_667,
             ctx.obligation
                 .collateral()
                 .position(&collateral)
@@ -730,7 +730,7 @@ mod tests {
             .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(500_000))
             .unwrap();
 
-        assert_eq!(1_100_000, collateral_returned.as_u64_rounded(0));
+        assert_eq!(1_018_519, collateral_returned.as_u64_rounded(0));
     }
 
     #[test]
