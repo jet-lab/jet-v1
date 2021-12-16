@@ -104,7 +104,10 @@ mod jet {
     }
 
     // Close a collateral account
-    pub fn close_collateral_account(ctx: Context<CloseCollateralAccount>, bump: u8) -> ProgramResult {
+    pub fn close_collateral_account(
+        ctx: Context<CloseCollateralAccount>,
+        bump: u8,
+    ) -> ProgramResult {
         instructions::close_collateral_account::handler(ctx, bump)
     }
 

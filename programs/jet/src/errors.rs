@@ -98,7 +98,7 @@ pub enum ErrorCode {
     ObligationPositionNotFound,
 
     #[msg("the collateral/loan account is not empty")]
-    AccountNotEmptyError
+    AccountNotEmptyError,
 }
 
 impl From<jet_math::Error> for ErrorCode {

@@ -48,11 +48,9 @@ pub struct CloseLoanAccount<'info> {
 
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,
-
 }
 
 impl<'info> CloseLoanAccount<'info> {
-
     fn close_context(&self) -> CpiContext<'_, '_, '_, 'info, CloseAccount<'info>> {
         CpiContext::new(
             self.token_program.clone(),
@@ -71,7 +69,7 @@ pub fn handler(ctx: Context<CloseLoanAccount>, _bump: u8) -> ProgramResult {
     let market = ctx.accounts.market.load()?;
     let account = ctx.accounts.loan_account.key();
 
-    // Verify if loans is empty, then proceed 
+    // Verify if loans is empty, then proceed
     verify_account_empty(&ctx.accounts.loan_account)?;
 
     // unregister the loan account
@@ -82,7 +80,7 @@ pub fn handler(ctx: Context<CloseLoanAccount>, _bump: u8) -> ProgramResult {
         ctx.accounts
             .close_context()
             .with_signer(&[&market.authority_seeds()]),
-    )?;    
+    )?;
 
     msg!("closed loan account");
     Ok(())

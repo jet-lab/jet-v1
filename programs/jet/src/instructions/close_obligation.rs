@@ -16,9 +16,9 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use anchor_lang::prelude::*;
-            
-use crate::state::*;
+
 use crate::errors::ErrorCode;
+use crate::state::*;
 
 #[derive(Accounts)]
 #[instruction(bump: u8)]
@@ -33,15 +33,15 @@ pub struct CloseObligation<'info> {
     /// The user/authority that is responsible for owning this obligation.
     #[account(mut, signer)]
     pub owner: AccountInfo<'info>,
-    
+
     /// The account that stores the obligation notes, such as loans and collaterals, to be closed.
-    /// Marks the account as being closed at the end of the instruction’s execution, 
+    /// Marks the account as being closed at the end of the instruction’s execution,
     /// sending the rent exemption lamports to the specified. close is implicit.
     #[account(mut,
               has_one = owner,
               has_one = market,
               close = owner)]
-    pub obligation: Loader<'info, Obligation>
+    pub obligation: Loader<'info, Obligation>,
 }
 
 /// Close an account that tracks a portfolio of collateral deposits and loans.
@@ -52,10 +52,7 @@ pub fn handler(ctx: Context<CloseObligation>, _bump: u8) -> ProgramResult {
     if obligation.position_count() > 0 {
         return Err(ErrorCode::PositionNotEmpty.into());
     }
-    
+
     msg!("closed obligation account");
     Ok(())
 }
-
-
-

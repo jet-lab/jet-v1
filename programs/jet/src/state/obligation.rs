@@ -102,10 +102,7 @@ impl Obligation {
         self.collateral_mut().unregister(*account)
     }
 
-    pub fn unregister_loan(
-        &mut self,
-        account: &Pubkey,
-    ) -> Result<(), ErrorCode> {
+    pub fn unregister_loan(&mut self, account: &Pubkey) -> Result<(), ErrorCode> {
         self.loans_mut().unregister(*account)
     }
     /// Record the collateral deposited for an obligation
@@ -418,14 +415,13 @@ impl ObligationSide {
             if position.account != existing_account {
                 continue;
             }
-            
+
             *position.account = Pubkey::default();
-            
+
             return Ok(());
         }
 
         Err(ErrorCode::ObligationPositionNotFound)
-
     }
 
     /// Record the loan borrowed from an obligation (borrow notes deposited)

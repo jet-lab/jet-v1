@@ -28,7 +28,7 @@ pub struct CloseCollateralAccount<'info> {
     /// The relevant market this collateral is for
     #[account(has_one = market_authority)]
     pub market: Loader<'info, Market>,
-    
+
     /// The market's authority account
     pub market_authority: AccountInfo<'info>,
 
@@ -45,19 +45,17 @@ pub struct CloseCollateralAccount<'info> {
     /// The account that stores the deposit notes
     #[account(mut)]
     pub collateral_account: AccountInfo<'info>,
-    
+
     /// The account that will stores the deposit notes
     #[account(mut)]
     pub deposit_account: AccountInfo<'info>,
 
     #[account(address = anchor_spl::token::ID)]
     pub token_program: AccountInfo<'info>,
-
 }
 
 /// Close an account that can be used to store deposit notes as collateral for an obligation
 impl<'info> CloseCollateralAccount<'info> {
-
     fn close_context(&self) -> CpiContext<'_, '_, '_, 'info, CloseAccount<'info>> {
         CpiContext::new(
             self.token_program.clone(),
@@ -76,7 +74,7 @@ pub fn handler(ctx: Context<CloseCollateralAccount>, _bump: u8) -> ProgramResult
     let market = ctx.accounts.market.load()?;
     let account = ctx.accounts.collateral_account.key();
 
-    // Verify if collateral is empty, then proceed 
+    // Verify if collateral is empty, then proceed
     verify_account_empty(&ctx.accounts.collateral_account)?;
 
     // unregister the collateral account
@@ -92,4 +90,3 @@ pub fn handler(ctx: Context<CloseCollateralAccount>, _bump: u8) -> ProgramResult
     msg!("closed collateral account");
     Ok(())
 }
-
