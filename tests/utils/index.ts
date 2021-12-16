@@ -354,3 +354,8 @@ interface ToBytes {
 interface HasPublicKey {
     publicKey: PublicKey;
 }
+
+
+export function getAmountDifference(beforeAmount: number, afterAmount: number): number {
+    return afterAmount - beforeAmount;
+}

@@ -12,7 +12,7 @@ import {
   JetMarket,
   MarketFlags,
 } from "libraries/ts/src/market";
-import { TestToken, TestUtils, toBN } from "./utils";
+import { getAmountDifference, TestToken, TestUtils } from "./utils";
 import { BN } from "@project-serum/anchor";
 import { NodeWallet } from "@project-serum/anchor/dist/provider";
 import {
@@ -92,11 +92,11 @@ describe("jet", async () => {
     return new BN(account.amount, undefined, "le");
   }
 
-  async function checkWalletBalance(tokenAccount: PublicKey): Promise<BN> {
+  async function checkWalletBalance(tokenAccount: PublicKey): Promise<number> {
     let info = await provider.connection.getAccountInfo(tokenAccount);
     let amount = info.lamports;
 
-    return new BN(amount, undefined, "le");
+    return amount;
   }
 
   async function createTokenEnv(decimals: number, price: bigint) {
@@ -967,19 +967,67 @@ describe("jet", async () => {
     assert.equal(collateralNoteBalance.toString(), bn(0).toString());
     assert.equal(loanNotesBalance.toString(), bn(0).toString());
 
+    const depositRent = await program.provider.connection.getMinimumBalanceForRentExemption(165)
+    const collateralRent = await program.provider.connection.getMinimumBalanceForRentExemption(165)
+    const loanRent = await program.provider.connection.getMinimumBalanceForRentExemption(165)
+    const obligationRent = await program.provider.connection.getMinimumBalanceForRentExemption(4616)
+    const transactionFeeLamportsPerSignature = 5000
+
+    // difference between before and after should equal to rent - 1x sigs
+    // close loan account, and unregister loan from obligation
+    const walletBalanceBeforeCloseLoan = await checkWalletBalance(userWallet);
     await user.client.closeLoanAccount(usdc.reserve);
+    const walletBalanceAfterCloseLoan = await checkWalletBalance(userWallet);
+
+    const actualLoanRentReturned = getAmountDifference(walletBalanceBeforeCloseLoan, walletBalanceAfterCloseLoan)
+    const expectedLoanRentReturned = loanRent - ( transactionFeeLamportsPerSignature)
+    assert.equal(actualLoanRentReturned.toString(), expectedLoanRentReturned.toString());
+
+    // loan account closed
     const checkLoanAccountInfo = await provider.connection.getAccountInfo(loanNotesKey);
     assert.equal(checkLoanAccountInfo, null);
-
+    
+    // difference between before and after should equal to - 1x sig
+    // unregister collateral from obligation
+    const walletBalanceBeforeCloseCollateral = await checkWalletBalance(userWallet);
     await user.client.closeCollateralAccount(wsol.reserve);
+    const walletBalanceAfterCloseCollateral = await checkWalletBalance(userWallet);
+    
+    const actualCollateralRentReturned = getAmountDifference(walletBalanceBeforeCloseCollateral, walletBalanceAfterCloseCollateral)
+    const expectedCollateralRentReturned = - transactionFeeLamportsPerSignature
+    assert.equal(actualCollateralRentReturned.toString(), expectedCollateralRentReturned.toString());
+    
+    // collateral account closed
     const checkCollateralAccountInfo = await provider.connection.getAccountInfo(collateralNotesKey);
     assert.equal(checkCollateralAccountInfo, null);
-
+    
+    
+    // difference between before and after should equal to rent - 1x sig
+    // close obligation
+    const walletBalanceBeforeCloseObligation = await checkWalletBalance(userWallet);
     await user.client.closeObligationAccount();
+    const walletBalanceAfterCloseObligation = await checkWalletBalance(userWallet);
+    
+    const actualObligationRentReturned = getAmountDifference(walletBalanceBeforeCloseObligation, walletBalanceAfterCloseObligation)
+    const expectedObligationRentReturned = obligationRent - transactionFeeLamportsPerSignature
+    assert.equal(actualObligationRentReturned.toString(), expectedObligationRentReturned.toString());
+    console.log(actualObligationRentReturned.toString(), expectedObligationRentReturned.toString());
+    
+    // obligation account closed
     const checkObligationAccountInfo = await provider.connection.getAccountInfo(obligationKey);
     assert.equal(checkObligationAccountInfo, null);
-
+    
+    // difference between before and after should equal to 2x rent - 1x sigs
+    // close collateral account & deposit account
+    const walletBalanceBeforeCloseDeposit = await checkWalletBalance(userWallet);
     await user.client.closeDepositAccount(wsol.reserve, userWallet);
+    const walletBalanceAfterCloseDeposit = await checkWalletBalance(userWallet);
+    
+    const actualDepositRentReturned = getAmountDifference(walletBalanceBeforeCloseDeposit, walletBalanceAfterCloseDeposit)
+    const expectedDepositRentReturned = depositRent + collateralRent - transactionFeeLamportsPerSignature
+    assert.equal(actualDepositRentReturned.toString(), expectedDepositRentReturned.toString());
+    
+    // deposit account closed
     const checkDepositAccountInfo = await provider.connection.getAccountInfo(depositNotesKey);
     assert.equal(checkDepositAccountInfo, null);
   });
