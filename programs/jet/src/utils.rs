@@ -210,14 +210,10 @@ pub enum JobCompletion {
 pub fn verify_account_empty(account: &AccountInfo) -> ProgramResult {
     let notes_remaining = token::accessor::amount(&account)?;
 
-    fn verify_amount(notes_remaining: u64) -> Result<(), ErrorCode> {
-        if notes_remaining > 0 {
-            msg!("the account is not empty");
-            return Err(ErrorCode::AccountNotEmptyError);
-        }
-        Ok(())
+    if notes_remaining > 0 {
+        msg!("the account is not empty");
+        return Err(ErrorCode::AccountNotEmptyError.into());
     }
 
-    verify_amount(notes_remaining)?;
     Ok(())
 }

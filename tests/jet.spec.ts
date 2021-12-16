@@ -1011,7 +1011,6 @@ describe("jet", async () => {
     const actualObligationRentReturned = getAmountDifference(walletBalanceBeforeCloseObligation, walletBalanceAfterCloseObligation)
     const expectedObligationRentReturned = obligationRent - transactionFeeLamportsPerSignature
     assert.equal(actualObligationRentReturned.toString(), expectedObligationRentReturned.toString());
-    console.log(actualObligationRentReturned.toString(), expectedObligationRentReturned.toString());
     
     // obligation account closed
     const checkObligationAccountInfo = await provider.connection.getAccountInfo(obligationKey);
