@@ -17,5 +17,5 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { git = "https://github.com/jet-lab/anchor" }
+anchor-lang = "0.18.2"
 solana-program = "1.7"

@@ -19,6 +19,7 @@
 
 use anchor_lang::prelude::*;
 
+extern crate jet_proc_macros;
 extern crate static_assertions;
 
 pub mod errors;
@@ -121,14 +122,24 @@ mod jet {
         instructions::close_obligation::handler(ctx, bump)
     }
 
-    /// Deposit tokens into a reserve
+    /// Deposit tokens into a reserve (balance is managed in a program account)
     pub fn deposit(ctx: Context<Deposit>, bump: u8, amount: Amount) -> ProgramResult {
         instructions::deposit::handler(ctx, bump, amount)
     }
 
-    /// Deposit tokens from a reserve
+    /// Deposit tokens into a reserve (unmanaged)
+    pub fn deposit_tokens(ctx: Context<DepositTokens>, amount: Amount) -> ProgramResult {
+        instructions::deposit_tokens::handler(ctx, amount)
+    }
+
+    /// Deposit tokens from a reserve (managed)
     pub fn withdraw(ctx: Context<Withdraw>, bump: u8, amount: Amount) -> ProgramResult {
         instructions::withdraw::handler(ctx, bump, amount)
+    }
+
+    /// Withdraw tokens from a reserve (unmanaged)
+    pub fn withdraw_tokens(ctx: Context<WithdrawTokens>, amount: Amount) -> ProgramResult {
+        instructions::withdraw_tokens::handler(ctx, amount)
     }
 
     /// Deposit notes as collateral in an obligation

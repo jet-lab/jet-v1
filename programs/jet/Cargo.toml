@@ -17,13 +17,14 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = { git = "https://github.com/jet-lab/anchor" }
-anchor-spl = { git = "https://github.com/jet-lab/anchor", features = ["dex"] }
+anchor-lang = "0.18.2"
+anchor-spl = { version = "0.18.2", features = ["dex"] }
 solana-program = "1.7"
 thiserror = "1.0"
 bytemuck = { version = "1.7", features = ["derive"] }
 pyth-client = "0.2"
-jet-math = { path = "../../libraries/math" }
-jet-proc-macros = { path = "../../libraries/proc-macros" }
 static_assertions = "1.1.0"
 bitflags = "1.3"
+
+jet-math = { version = "1", package = "jet-proto-math" }
+jet-proc-macros = { version = "1", package = "jet-proto-proc-macros" }

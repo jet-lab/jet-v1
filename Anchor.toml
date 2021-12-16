@@ -1,4 +1,4 @@
-anchor_version = "0.16.2"
+anchor_version = "0.18.2"
 
 [provider]
 cluster = "localnet"
@@ -7,6 +7,9 @@ wallet = "~/.config/solana/id.json"
 [programs.localnet]
 jet = "JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU"
 test_writer = "test2Jds58cDo5cGk8eLFbdhW2doamw9xDAYKjTkbW5"
+
+[programs.mainnet]
+jet = "JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU"
 
 [[test.genesis]]
 address = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"
