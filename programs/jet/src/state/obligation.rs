@@ -438,15 +438,6 @@ impl ObligationSide {
         Ok(())
     }
 
-    // fn remove(&mut self, account: &Pubkey) {
-    //     if let Some(entry) = self.positions
-    //         .iter_mut()
-    //         .find(|c| c.account == *account)
-    //     {
-    //         *entry = Position::zeroed();
-    //     }
-    // }
-
     pub fn position(&self, account: &Pubkey) -> Result<&Position, ErrorCode> {
         let position = self
             .positions
@@ -469,7 +460,7 @@ impl ObligationSide {
         let mut value = PositionValue::zeroed();
         for position in self.positions.iter() {
             if position.account == Pubkey::default() {
-                break;
+                continue;
             }
 
             let reserve = market_info.get(position.reserve_index).unwrap(current_slot);
@@ -485,7 +476,7 @@ impl ObligationSide {
 
         for pos in &self.positions {
             if pos.account == Pubkey::default() {
-                break;
+                continue;
             }
 
             let reserve = market.get_cached(pos.reserve_index, current_slot);
