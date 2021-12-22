@@ -158,9 +158,7 @@ impl Obligation {
         let max_min_c_ratio: Number;
         let _max_min_c_ratio = self
             .loans()
-            .positions
             .iter()
-            .take_while(|p| p.account != Pubkey::default())
             .map(|p| {
                 market
                     .get_cached(p.reserve_index, current_slot)
@@ -259,7 +257,6 @@ impl Obligation {
     /// by checking if its in the list of registered accounts.
     pub fn has_collateral_custody(&self, account: &Pubkey) -> bool {
         self.collateral()
-            .positions
             .iter()
             .any(|p| p.account.as_ref() == account)
     }
@@ -267,10 +264,7 @@ impl Obligation {
     /// Determine if this obligation has a custody over some account,
     /// by checking if its in the list of registered accounts.
     pub fn has_loan_custody(&self, account: &Pubkey) -> bool {
-        self.loans()
-            .positions
-            .iter()
-            .any(|p| p.account.as_ref() == account)
+        self.loans().iter().any(|p| p.account.as_ref() == account)
     }
 
     /// Determine if the reserve matches the collateral
@@ -280,7 +274,7 @@ impl Obligation {
         collateral: &Pubkey,
         reserve: &Pubkey,
     ) -> bool {
-        self.collateral().positions.iter().any(|p| {
+        self.collateral().iter().any(|p| {
             p.account.as_ref() == collateral
                 && market
                     .reserves()
@@ -307,18 +301,8 @@ impl Obligation {
     }
 
     pub fn position_count(&self) -> usize {
-        let collaterals = self
-            .collateral()
-            .positions
-            .iter()
-            .take_while(|p| p.account != Pubkey::default())
-            .count();
-        let loans = self
-            .loans()
-            .positions
-            .iter()
-            .take_while(|p| p.account != Pubkey::default())
-            .count();
+        let collaterals = self.collateral().iter().count();
+        let loans = self.loans().iter().count();
 
         loans + collaterals
     }
@@ -458,27 +442,21 @@ impl ObligationSide {
 
     pub fn market_value(&self, market_info: &MarketReserves, current_slot: u64) -> PositionValue {
         let mut value = PositionValue::zeroed();
-        for position in self.positions.iter() {
-            if position.account == Pubkey::default() {
-                continue;
-            }
 
+        for position in self.iter() {
             let reserve = market_info.get(position.reserve_index).unwrap(current_slot);
             let position_value = position.market_value(reserve);
             value.market_value += position_value.market_value;
             value.complementary_limit += position_value.complementary_limit;
         }
+
         value
     }
 
     fn _market_value(&self, market: &MarketReserves, current_slot: u64) -> Number {
         let mut value = Number::ZERO;
 
-        for pos in &self.positions {
-            if pos.account == Pubkey::default() {
-                continue;
-            }
-
+        for pos in self.iter() {
             let reserve = market.get_cached(pos.reserve_index, current_slot);
             value += pos._market_value(reserve);
         }
@@ -489,7 +467,7 @@ impl ObligationSide {
     pub fn iter(&self) -> impl Iterator<Item = &Position> {
         self.positions
             .iter()
-            .take_while(|p| p.account != Pubkey::default())
+            .filter(|p| p.account != Pubkey::default())
     }
 }
 
