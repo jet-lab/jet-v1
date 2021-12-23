@@ -84,7 +84,7 @@
     "noUrl": "Inserisci un URL",
     "disconnect": "Disconetti il Wallet",
     "connected": "Connesso",
-    "Explorer": "Explorer"
+    "explorer": "Explorer"
   },
   "reserveDetail": {
     "reserveSize": "Dimensione della riserva",

@@ -84,7 +84,7 @@
         "noUrl": "URL girin",
         "disconnect": "Cüzdan Bağlantısını Sonlandır",
         "connected": "Bağlandı",
-        "Explorer": "Explorer"
+        "explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "Rezerv Büyüklüğü",

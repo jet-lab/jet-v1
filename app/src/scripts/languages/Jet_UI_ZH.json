@@ -84,7 +84,7 @@
         "noUrl": "输入网址",
         "disconnect": "Disconnect Wallet",
         "connected": "Connected",
-        "Explorer": "Explorer"
+        "explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "储备规模",

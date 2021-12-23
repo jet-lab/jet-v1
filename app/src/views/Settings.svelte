@@ -139,9 +139,8 @@
       </span>
       <div class="dropdown-select">
         <Select items={Object.keys(dictionary).map(k => ({value: k, label: dictionary[k].language}))}
-          value={dictionary[$USER.language].language}
+          value={'English'}
           on:select={e => {
-            // Fix odd bug where it calls on:select twice
             Object.keys(dictionary).forEach(k => {
               if (k === e.detail.value) {
                 localStorage.setItem('jetPreferredLanguage', e.detail.value);
@@ -164,7 +163,6 @@
         <Select items={explorerOptions}
           value={$USER.explorer}
           on:select={e => {
-            // Fix odd bug where it calls on:select twice
             explorerOptions.forEach(k => {
               if (k === e.detail.value) {
                 localStorage.setItem('jetPreferredExplorer', e.detail.value);
@@ -172,7 +170,6 @@
                   user.explorer = e.detail.value;
                   return user;
                 });
-                console.log($USER.explorer);
               }
             })
           }}

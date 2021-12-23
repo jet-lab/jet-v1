@@ -84,7 +84,7 @@
         "noUrl": "Enter a URL",
         "disconnect": "Disconnect Wallet",
         "connected": "Connected",
-        "Explorer": "Explorer"
+        "explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "비축 규모",
