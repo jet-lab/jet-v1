@@ -70,20 +70,21 @@
     },
     "settings": {
         "title": "Settings",
-        "wallet": "Wallet",
+        "wallet": "WALLET",
         "connect": "Connect Wallet",
         "worldOfDefi": "Connect your wallet to the world of DeFi.",
-        "theme": "Theme",
+        "theme": "THEME",
         "light": "Light",
         "dark": "Dark",
-        "language": "Language",
-        "rpcNode": "RPC Node",
+        "language": "LANGUAGE",
+        "rpcNode": "RPC NODE",
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
         "noUrl": "Enter a URL",
         "disconnect": "Disconnect Wallet",
-        "connected": "Connected"
+        "connected": "Connected",
+        "explorer": "EXPLORER"
     },
     "reserveDetail": {
         "reserveSize": "Reserve Size",

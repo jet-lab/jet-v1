@@ -83,7 +83,8 @@
         "reset": "Sıfırla",
         "noUrl": "URL girin",
         "disconnect": "Cüzdan Bağlantısını Sonlandır",
-        "connected": "Bağlandı"
+        "connected": "Bağlandı",
+        "Explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "Rezerv Büyüklüğü",

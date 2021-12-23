@@ -83,7 +83,8 @@
     "reset": "Resetta",
     "noUrl": "Inserisci un URL",
     "disconnect": "Disconetti il Wallet",
-    "connected": "Connesso"
+    "connected": "Connesso",
+    "Explorer": "Explorer"
   },
   "reserveDetail": {
     "reserveSize": "Dimensione della riserva",

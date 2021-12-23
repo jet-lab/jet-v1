@@ -83,7 +83,8 @@
         "reset": "Перезагрузка",
         "noUrl": "Ввести URL",
         "disconnect": "Отключить кошелёк",
-        "connected": "Соединено"
+        "connected": "Соединено",
+        "Explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "Размер резерва",

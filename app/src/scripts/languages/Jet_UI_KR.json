@@ -83,7 +83,8 @@
         "reset": "Reset",
         "noUrl": "Enter a URL",
         "disconnect": "Disconnect Wallet",
-        "connected": "Connected"
+        "connected": "Connected",
+        "Explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "비축 규모",

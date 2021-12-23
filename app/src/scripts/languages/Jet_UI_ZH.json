@@ -83,7 +83,8 @@
         "reset": "重新设定",
         "noUrl": "输入网址",
         "disconnect": "Disconnect Wallet",
-        "connected": "Connected"
+        "connected": "Connected",
+        "Explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "储备规模",

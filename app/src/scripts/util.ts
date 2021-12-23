@@ -275,3 +275,27 @@ export class Amount {
     return new Amount({ loanNotes: {} }, new BN(amount));
   }
 }
+
+export const getExplorerUrl = (signature: String, explorerName: String, useMainnet: boolean) => {
+  let url = '';
+
+  switch (explorerName) {
+    case 'Solscan':
+      url = `https://solscan.io/tx/${signature}`;
+      break;
+    
+    case 'Solana Explorer':
+      url = `https://explorer.solana.com/tx/${signature}`;
+      break;
+    
+    case 'Solana Beach':
+      url = `https://solanabeach.io/transaction/${signature}`;
+      break;
+  }
+
+  if (!useMainnet) {
+    url + '?cluster=devnet'
+  }
+
+  return url;
+}

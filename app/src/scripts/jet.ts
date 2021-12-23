@@ -128,6 +128,7 @@ export const getIDLAndAnchorAndMarketPubkeys = async (): Promise<void> => {
         _reserved0: 0,
         liquidationDexTradeMax: 0,
         _reserved1: [],
+        confidenceThreshold: 0
       },
 
       accountPubkey: reserveMeta.accounts.reserve,

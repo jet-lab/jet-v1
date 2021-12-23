@@ -83,7 +83,8 @@
         "reset": "Zurücksetzen",
         "noUrl": "URL eingeben",
         "disconnect": "Wallet trennen",
-        "connected": "verbunden"
+        "connected": "verbunden",
+        "Explorer": "Explorer"
     },
     "reserveDetail": {
         "reserveSize": "Grösse der Reserve",

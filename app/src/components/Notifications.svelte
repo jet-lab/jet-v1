@@ -1,23 +1,25 @@
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
-  import { navigate } from 'svelte-navigator';
   import { USER } from '../store';
+  import { getExplorerUrl } from '../scripts/util';
+  import { inDevelopment } from '../scripts/jet';
 </script>
+
 
 {#if $USER.notifications?.length}
   <div class="notifications flex-centered column">
     {#each $USER.notifications as n, i}
       <div class="notification flex-centered"
         class:success={n.success}
-        in:fly={{y: 25, duration: 500}}
-        out:fade={{duration: 50}}>
+        in:fly={{y: 50, duration: 500}}
+        out:fade={{duration: 50, delay: 2000}}>
         <div class="copilot-img flex-centered"
-          on:click={() => {if (n.success) navigate("/transactions")}}>
+          on:click={() => {if (n.success) window.open(getExplorerUrl(n.txids[n.txids.length - 1], $USER.explorer, !inDevelopment), '_blank')?.focus()}}>
           <img src="img/copilot/copilot.png" 
             alt="Copilot Icon"
           />
         </div>
-        <p on:click={() => {if (n.success) navigate("/transactions")}}>
+        <p on:click={() => {if (n.success) window.open(getExplorerUrl(n.txids[n.txids.length - 1], $USER.explorer, !inDevelopment), '_blank')?.focus()}}>
           {@html n.text}
         </p>
         <i class="jet-icons close"
@@ -35,6 +37,7 @@
     bottom: var(--spacing-sm);
     left: 0;
     right: 0;
+    bottom: 10px;
     margin: 0 auto;
     z-index: 9999;
   }

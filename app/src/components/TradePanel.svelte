@@ -230,19 +230,22 @@
         success: true,
         text: dictionary[$USER.language].cockpit.txSuccess
           .replaceAll('{{TRADE ACTION}}', tradeAction)
-          .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount.uiAmountFloat} ${$MARKET.currentReserve.abbrev}`)
+          .replaceAll('{{AMOUNT AND ASSET}}', `${tradeAmount.uiAmountFloat} ${$MARKET.currentReserve.abbrev}`),
+        txids
       });
       const lastTxn = txids[txids.length - 1];
       addTransactionLog(lastTxn);
     } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
-        text: dictionary[$USER.language].cockpit.txFailed
+        text: dictionary[$USER.language].cockpit.txFailed,
+        txids
       });
     } else if (res === TxnResponse.Cancelled) {
       $USER.addNotification({
         success: false,
-        text: dictionary[$USER.language].cockpit.txCancelled
+        text: dictionary[$USER.language].cockpit.txCancelled,
+        txids
       });
     }
 

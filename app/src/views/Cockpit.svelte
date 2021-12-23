@@ -46,18 +46,20 @@
       amount = TokenAmount.tokens("1", reserve.decimals);
     }
 
-    const [res, txid] = await airdrop(reserve.abbrev, amount.amount);
+    const [res, txids] = await airdrop(reserve.abbrev, amount.amount);
     if (res === TxnResponse.Success) {
       $USER.addNotification({
         success: true,
         text: dictionary[$USER.language].copilot.alert.airdropSuccess
           .replaceAll('{{UI AMOUNT}}', amount.uiAmount)
-          .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev)
+          .replaceAll('{{RESERVE ABBREV}}', reserve.abbrev),
+        txids
       });
     } else if (res === TxnResponse.Failed) {
       $USER.addNotification({
         success: false,
-        text: dictionary[$USER.language].cockpit.txFailed
+        text: dictionary[$USER.language].cockpit.txFailed,
+        txids
       });
     }
   };

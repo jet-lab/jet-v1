@@ -329,7 +329,7 @@ input[type=number] {
 /* Dropdown Select component overrides */
 .dropdown-select {
   position: relative;
-  width: 100px;
+  width: 160px;
   margin: var(--spacing-xs) 0;
 }
 .dropdown-select input {
@@ -349,7 +349,7 @@ input[type=number] {
   padding: var(--spacing-xs) var(--spacing-sm) !important;
 }
 .dropdown-select .listContainer {
-  width: 124px !important;
+  width: 160px !important;
   box-shadow: var(--neu-shadow) !important;
   padding: unset!important;
   background: var(--white) !important;

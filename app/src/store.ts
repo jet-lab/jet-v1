@@ -96,6 +96,7 @@ export const USER = writable<User>({
   language: localStorage.getItem('jetPreferredLanguage') ?? 'en',
   rpcNode: localStorage.getItem('jetPreferredNode') ?? '',
   rpcPing: 0,
+  explorer: localStorage.getItem('jetPreferredExplorer') ?? 'Solscan'
 });
 USER.subscribe(data => user = data);
 

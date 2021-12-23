@@ -14,6 +14,8 @@
   let rpcNodeInput: string | null = null;
   let inputError: string | null = null;
 
+  const explorerOptions: String[] = ['Solscan', 'Solana Explorer', 'Solana Beach'];
+
   // Reset connection to default
   const resetRPC = async () => {
     localStorage.removeItem('jetPreferredNode');
@@ -133,7 +135,7 @@
     <div class="divider"></div>
     <div class="setting flex align-start justify-center column">
       <span>
-        {dictionary[$USER.language].language.toUpperCase()}
+        {dictionary[$USER.language].settings.language}
       </span>
       <div class="dropdown-select">
         <Select items={Object.keys(dictionary).map(k => ({value: k, label: dictionary[k].language}))}
@@ -147,6 +149,30 @@
                   user.language = e.detail.value;
                   return user;
                 });
+              }
+            })
+          }}
+        />
+        <i class="fas fa-caret-down"></i>
+      </div>
+    </div>
+    <div class="setting flex align-start justify-center column">
+      <span>
+        {dictionary[$USER.language].settings.explorer}
+      </span>
+      <div class="dropdown-select">
+        <Select items={explorerOptions}
+          value={$USER.explorer}
+          on:select={e => {
+            // Fix odd bug where it calls on:select twice
+            explorerOptions.forEach(k => {
+              if (k === e.detail.value) {
+                localStorage.setItem('jetPreferredExplorer', e.detail.value);
+                USER.update(user => {
+                  user.explorer = e.detail.value;
+                  return user;
+                });
+                console.log($USER.explorer);
               }
             })
           }}

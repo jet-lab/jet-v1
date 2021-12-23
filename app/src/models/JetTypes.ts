@@ -270,7 +270,8 @@ export interface User {
   darkTheme: boolean,
   navExpanded: boolean,
   rpcNode: string | null,
-  rpcPing: number
+  rpcPing: number,
+  explorer: string,
 };
 
 
@@ -503,7 +504,8 @@ export interface CompiledInstruction {
 // Notifications
 export interface Notification {
   success: boolean,
-  text: string
+  text: string,
+  txids: string[]
 };
 
 // Copilot
