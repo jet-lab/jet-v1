@@ -329,7 +329,7 @@ input[type=number] {
 /* Dropdown Select component overrides */
 .dropdown-select {
   position: relative;
-  width: 160px;
+  width: 150px;
   margin: var(--spacing-xs) 0;
 }
 .dropdown-select input {
