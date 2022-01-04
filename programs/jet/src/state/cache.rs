@@ -54,6 +54,7 @@ impl<T, const TTL: u64> Cache<T, TTL> {
         }
     }
 
+    #[cfg(not(feature = "no-fresh-checks"))]
     pub fn validate_fresh(&self, current_slot: u64) -> Result<(), CacheInvalidError> {
         if current_slot - self.last_updated > TTL {
             return Err(CacheInvalidError::Expired {
@@ -68,6 +69,11 @@ impl<T, const TTL: u64> Cache<T, TTL> {
         if self.invalidated != 0 {
             return Err(CacheInvalidError::Invalidated);
         }
+        Ok(())
+    }
+
+    #[cfg(feature = "no-fresh-checks")]
+    pub fn validate_fresh(&self, current_slot: u64) -> Result<(), CacheInvalidError> {
         Ok(())
     }
 
