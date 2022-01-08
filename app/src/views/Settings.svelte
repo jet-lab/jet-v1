@@ -10,11 +10,17 @@
   import Button from '../components/Button.svelte';
   import Toggle from '../components/Toggle.svelte';
   import Input from '../components/Input.svelte';
+  import Item from '../components/Explorer.svelte';
 
   let rpcNodeInput: string | null = null;
   let inputError: string | null = null;
 
-  const explorerOptions: String[] = ['Solscan', 'Solana Explorer', 'Solana Beach'];
+  const explorerOptions = [
+    {value: 'Solscan', label: 'Solscan'}, 
+    {value: 'Solana Explorer', label: 'Solana Explorer'}, 
+    {value: 'Solana Beach', label: 'Solana Beach'}
+  ];
+  const isSearchable = false;
 
   // Reset connection to default
   const resetRPC = async () => {
@@ -44,7 +50,7 @@
     inputError = null;
     rpcNodeInput = null;
   };
-</script>
+</script> 
 
 <div class="view-container flex column">
   <h1 class="view-title text-gradient">
@@ -160,16 +166,16 @@
         {dictionary[$USER.language].settings.explorer}
       </span>
       <div class="dropdown-select">
-        <Select items={explorerOptions}
+        <Select items={explorerOptions} {Item} {isSearchable}
           value={$USER.explorer}
           on:select={e => {
             explorerOptions.forEach(k => {
-              if (k === e.detail.value) {
+              if (k.value === e.detail.value) {
                 localStorage.setItem('jetPreferredExplorer', e.detail.value);
                 USER.update(user => {
                   user.explorer = e.detail.value;
                   return user;
-                });
+                });           
               }
             })
           }}
