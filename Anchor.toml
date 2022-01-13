@@ -7,9 +7,6 @@ wallet = "~/.config/solana/id.json"
 [programs.localnet]
 jet = "JPv1rCqrhagNNmJVM5J1he7msQ5ybtvE1nNuHpDHMNU"
 test_writer = "test2Jds58cDo5cGk8eLFbdhW2doamw9xDAYKjTkbW5"
-# Localnet jet & test_writer program ids
-# jet = "changemetolocalnetjetprogramid"
-# test_writer = "changemetolocalnetjet_test_writer_programid"
 
 [[test.genesis]]
 address = "9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin"

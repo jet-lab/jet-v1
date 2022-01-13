@@ -53,31 +53,8 @@ cd scripts
 ./localnet-start.sh
 ```
 
-If the `./localnet-start.sh` script fails, add localnet jet & test_writer program ids in `Anchor.toml` in the root directory under `[programs.localnet]`, and comment out existing jet and test_writer program ids.
+Run `ctrl-c.`, and then run `kill <first pid>` to kill the solana-test-validator process to stop the localnet
 
-Sample Program Ids are in the terminal output as following:
-
-```
-Deploying program "jet"...
-Program path: /usr/Jet/jet-v1/target/deploy/jet.so...
-Program Id: D9T9WwwuAFLM8yMrz5C6mHdFZKuf1Q7nfruwXyN4nntH
-
-Deploying program "test-writer"...
-Program path: /usr/Jet/jet-v1/target/deploy/test_writer.so...
-Program Id: 7SJZka47PGZWQboKFjXmY369hSxNHVzRtzPmiNvcc1qs
-```
-
-Find the PID and kill the solana-test-validator process to stop the localnet
-
-```
-ps aux | grep solana
-```
-
-Second column in the terminal output is the PID of the solana-test-validator process
-
-```
-kill <PID>
-```
 
 Set up frontend app environment variable to use localnet
 ```
