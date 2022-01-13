@@ -53,23 +53,14 @@ cd scripts
 ./localnet-start.sh
 ```
 
-Run `ctrl-c.` to kill the solana-test-validator process to stop the localnet
-
-
 Set up frontend app environment variable to use localnet
 ```
 vi ../app/.env # Set IDL = localnet
 ```
 
-### Startup a local validator and deploy
+Run `ctrl-c.` to kill the solana-test-validator process to stop the localnet
 
-```
-npm install
-vi Anchor.toml // comment out existing jet and test_writer program ids in Anchor.toml, and make localnet jet & test program ids available
-cd scripts
-./localnet-start.sh
-vi ../app/.env # Set IDL = localnet
-```
+### Startup a local validator and deploy
 
 Install any other NPM dependencies in the app directory
 
