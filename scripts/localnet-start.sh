@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# source ./common.sh
-
 VALIDATOR_OUT="./validator-stdout.txt"
 
 main () {
@@ -23,11 +21,11 @@ main () {
     anchor deploy &&\
     ts-node localnet-migrate.ts
     
-    echo "Validator PID: $validator_pid"
     echo "Localnet running..."
 	echo "Ctl-c to exit."
-    echo "run 'kill $(ps aux | grep 'solana-test-validator' | awk '{print $2}')' terminate the solana-test-validator."		
+    trap "kill $?" 2		
     wait 
 }
 
 main
+

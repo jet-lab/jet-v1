@@ -53,7 +53,7 @@ cd scripts
 ./localnet-start.sh
 ```
 
-Run `ctrl-c.`, and then run `kill <first pid>` to kill the solana-test-validator process to stop the localnet
+Run `ctrl-c.` to kill the solana-test-validator process to stop the localnet
 
 
 Set up frontend app environment variable to use localnet
