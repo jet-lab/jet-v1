@@ -161,7 +161,10 @@ fn transfer_collateral(
         repaid_notes_amount,
     )?;
 
-    let collateral_amount = collateral_amount.as_u64_rounded(collateral_reserve.exponent);
+    let collateral_amount = std::cmp::min(
+        collateral_amount.as_u64_rounded(collateral_reserve.exponent),
+        token::accessor::amount(&accounts.collateral_account)?,
+    );
 
     if collateral_amount < min_collateral {
         msg!("collateral below amount requested");
