@@ -13,8 +13,8 @@ doctest = false
 no-entrypoint = []
 no-idl = []
 devnet = ["anchor-spl/devnet"]
-cpi = ["no-entrypoint"]
-default = []
+cpi = []
+default = ["cpi"]
 
 [dependencies]
 anchor-lang = "0.18.2"
