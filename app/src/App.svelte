@@ -3,6 +3,7 @@
   import { Router, Route } from "svelte-navigator";
   import { getIDLAndAnchorAndMarketPubkeys, rollbar } from "./scripts/jet";
   import { checkDarkTheme } from "./scripts/util";
+  import { getLocale } from "./scripts/localization";
   import Nav from "./components/Nav.svelte";
   import Cockpit from "./views/Cockpit.svelte";
   import TransactionLogs from "./views/TransactionLogs.svelte";
@@ -26,6 +27,9 @@
     launchUI = true;
 
     try {
+      // Check locale
+      getLocale();
+
       // Subscribe to market
       await subscribeToMarket();
       MARKET.update(market => {

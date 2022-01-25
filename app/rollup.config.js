@@ -59,6 +59,8 @@ export default {
       // the svelte app.
       jetDev: development,
       jetIdl: JSON.stringify(process.env.IDL),
+      ipRegistryKey: JSON.stringify(process.env.IP_REGISTRY),
+      ipRegistryKeyLocal: JSON.stringify(process.env.IP_REGISTRY_LOCAL),
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance

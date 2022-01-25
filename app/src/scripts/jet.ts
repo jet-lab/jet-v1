@@ -11,7 +11,7 @@ import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, CONNECTION, ANCH
 import { subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
-import { dictionary } from './localization';
+import { dictionary, getLocale } from './localization';
 import { Buffer } from 'buffer';
 import bs58 from 'bs58';
 import { generateCopilotSuggestion } from './copilot';

@@ -239,7 +239,7 @@ export interface ReserveMetadata {
 // User
 export interface User {
   // Location
-  locale: Locale | null,
+  locale: any,
   geobanned: boolean,
 
   // Wallet
@@ -435,17 +435,6 @@ export interface ObligationPositionStruct {
   /** The index of the reserve that this position's assets are from */
   reserveIndex: number,
   _reserved: number[],
-};
-
-// Locale
-export interface Locale {
-  ip: string,
-  city: string,
-  region: string,
-  country: string,
-  loc: string,
-  postal: number,
-  timezone: string
 };
 
 // Transaction Logs

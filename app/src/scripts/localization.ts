@@ -1,4 +1,3 @@
-import type { Locale } from '../models/JetTypes';
 import * as Jet_UI_EN from './languages/Jet_UI_EN.json';
 import * as Jet_Definitions_EN from './languages/Jet_Definitions_EN.json';
 import * as Jet_UI_ZH from './languages/Jet_UI_ZH.json';
@@ -16,7 +15,7 @@ import * as Jet_Definitions_IT from './languages/Jet_Definitions_IT.json';
 import { USER } from '../store';
 
 // Check to see if user's locale is special case of Crimea
-const isCrimea = (locale: Locale): boolean => {
+const isCrimea = (locale: any): boolean => {
   const postalCode: string = locale?.postal.toString().substring(0, 2);
   if (postalCode === "95" || postalCode === "96" || postalCode === "97" || postalCode === "98") {
     return true;
@@ -28,7 +27,7 @@ const isCrimea = (locale: Locale): boolean => {
 // Get user's preferred language from browser
 // Use fallback if not
 export const getLocale = async (): Promise<void> => {
-  let locale: Locale | null = null;
+  let locale: any = null;
   let language: string = window.navigator.languages[1];
   let geobanned: boolean = false;
   let preferredLanguage = localStorage.getItem('jetPreferredLanguage');
@@ -39,17 +38,20 @@ export const getLocale = async (): Promise<void> => {
     language = preferredLanguage;
   }
 
+  const ipKey = jetDev ? ipRegistryKeyLocal : ipRegistryKey;
   try {
-    const resp = await fetch('https://ipinfo.io/json?token=46ceefa5641a93', {
+    const resp = await fetch(`https://api.ipregistry.co/?key=${ipKey}`, {
       method: 'GET',
       headers: {'Content-Type': 'application/json'}
     });
+    
     locale = await resp.json();
+    const countryCode = locale.location.country.code;
     geoBannedCountries.forEach(c => {
-      if (c.code === locale?.country) {
+      if (c.code === countryCode) {
         // If country is Ukraine, checks if first two digits
         // of the postal code further match Crimean postal codes.
-        if (locale?.country !== "UA" || isCrimea(locale)) {
+        if (countryCode !== "UA" || isCrimea(locale)) {
           geobanned = true;
         }
       }
@@ -59,6 +61,7 @@ export const getLocale = async (): Promise<void> => {
   }
 
   USER.update(user => {
+    user.connectingWallet = false;
     user.locale = locale;
     user.geobanned = geobanned;
     return user;
