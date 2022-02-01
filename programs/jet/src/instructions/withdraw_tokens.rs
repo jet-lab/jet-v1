@@ -79,7 +79,7 @@ impl<'info> WithdrawTokens<'info> {
             Burn {
                 to: self.deposit_note_account.to_account_info(),
                 mint: self.deposit_note_mint.to_account_info(),
-                authority: self.market_authority.clone(),
+                authority: self.depositor.clone(),
             },
         )
     }
@@ -108,12 +108,7 @@ pub fn handler(ctx: Context<WithdrawTokens>, amount: Amount) -> ProgramResult {
         token_amount,
     )?;
 
-    token::burn(
-        ctx.accounts
-            .note_burn_context()
-            .with_signer(&[&market.authority_seeds()]),
-        note_amount,
-    )?;
+    token::burn(ctx.accounts.note_burn_context(), note_amount)?;
 
     Ok(())
 }

@@ -8,7 +8,7 @@ import {
 } from "@solana/web3.js";
 import * as anchor from "@project-serum/anchor";
 
-import { Amount, DEX_ID, DEX_ID_DEVNET } from ".";
+import { Amount, DEX_ID, DEX_ID_DEVNET, JET_ID } from ".";
 import { DerivedAccount, JetClient } from "./client";
 import { JetMarket, JetMarketReserveInfo } from "./market";
 import {
@@ -269,6 +269,7 @@ export class JetUser implements User {
             vault: reserve.data.vault,
             depositNoteMint: reserve.data.depositNoteMint,
 
+            jetProgram: JET_ID,
             tokenProgram: TOKEN_PROGRAM_ID,
           },
         }

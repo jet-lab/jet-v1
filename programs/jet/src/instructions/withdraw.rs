@@ -16,9 +16,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 use anchor_lang::prelude::*;
+use anchor_lang::InstructionData;
 use anchor_lang::Key;
 use anchor_spl::token;
+use solana_program::instruction::Instruction;
+use solana_program::program::invoke_signed;
 
+use crate::cpi::accounts::WithdrawTokens;
 use crate::state::*;
 use crate::Amount;
 
@@ -65,22 +69,45 @@ pub struct Withdraw<'info> {
     #[account(mut)]
     pub withdraw_account: AccountInfo<'info>,
 
+    #[account(address = crate::ID)]
+    pub jet_program: AccountInfo<'info>,
+
     #[account(address = token::ID)]
     pub token_program: AccountInfo<'info>,
 }
 
+impl<'info> Withdraw<'info> {
+    fn withdraw_tokens_context(&self) -> CpiContext<'_, '_, '_, 'info, WithdrawTokens<'info>> {
+        CpiContext::new(
+            self.jet_program.to_account_info(),
+            WithdrawTokens {
+                market: self.market.to_account_info(),
+                market_authority: self.market_authority.to_account_info(),
+                reserve: self.reserve.to_account_info(),
+                vault: self.vault.to_account_info(),
+                deposit_note_mint: self.deposit_note_mint.to_account_info(),
+                depositor: self.market_authority.to_account_info(),
+                deposit_note_account: self.deposit_account.to_account_info(),
+                withdraw_account: self.withdraw_account.to_account_info(),
+                token_program: self.token_program.clone(),
+            },
+        )
+    }
+}
+
 /// Withdraw tokens from a reserve
 pub fn handler(ctx: Context<Withdraw>, _bump: u8, amount: Amount) -> ProgramResult {
-    super::withdraw_tokens::handler(
-        Context::new(
-            ctx.program_id,
-            &mut super::withdraw_tokens::WithdrawTokens::try_accounts(
-                ctx.program_id,
-                &mut &*ctx.accounts.to_account_infos(),
-                &[],
-            )?,
-            &[],
-        ),
-        amount,
+    let market = ctx.accounts.market.load()?;
+    let wt_ctx = ctx.accounts.withdraw_tokens_context();
+    let ix = Instruction {
+        program_id: crate::ID,
+        accounts: wt_ctx.to_account_metas(Some(true)),
+        data: crate::instruction::WithdrawTokens { amount }.data(),
+    };
+
+    invoke_signed(
+        &ix,
+        &wt_ctx.to_account_infos(),
+        &[&market.authority_seeds()],
     )
 }

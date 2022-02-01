@@ -744,6 +744,7 @@ export const withdraw = async (abbrev: string, amount: Amount)
       depositAccount: asset.depositNotePubkey,
       withdrawAccount,
 
+      jetProgram: program.programId,
       tokenProgram: TOKEN_PROGRAM_ID,
     },
   });
