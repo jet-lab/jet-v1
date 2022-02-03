@@ -1,0 +1,185 @@
+{
+    "language": "Español",
+    "loading": {
+        "transactions": "Transacción en progreso...",
+        "connectingWallet": "Conectando billetera...",
+        "initializing": "Encendiendo los motores de Jet",
+        "fetchingReserves": "Obteniendo datos de la reserva",
+        "fetchingAccount": "Obteniendo datos de la cuenta",
+        "loading": "Cargando"
+    },
+    "nav": {
+        "cockpit": "Cabina",
+        "settings": "Configuraciones",
+        "collapse": "Colapso",
+        "getCopilotSuggestion": "Obtener sugerencia del Copiloto",
+        "transactions": "Registro De Vuelo"
+    },
+    "cockpit": {
+        "title": "Cabina",
+        "asset": "Activos",
+        "detail": "Detalles",
+        "native": "Nativo",
+        "totalValueLocked": "Valor Total Depositado",
+        "totalBorrowed": "Total Prestado",
+        "availableLiquidity": "Liquidez Disponible",
+        "amountDeposited": "Depositado",
+        "amountBorrowed": "Prestado",
+        "depositRate": "Interés de Depósito",
+        "borrowRate": "Interés de Préstamo",
+        "airdrop": "Airdrop",
+        "totalDepositedValue": "Tu depósito",
+        "totalBorrowedValue": "Tu préstamo",
+        "yourRatio": "Tu C-Ratio",
+        "collateralizationRatio": "Indice de Colateralización",
+        "noInputAmount": "Ingresar Monto",
+        "adjustedCollateralization": "C-Ratio Adecuado",
+        "deposit": "Depositar",
+        "walletBalance": "Balance",
+        "noDepositAmount": "Ingresar Monto",
+        "notEnoughAsset": "{{ACTIVO}} insuficiente.",
+        "withdraw": "Retirar",
+        "availableFunds": "Fondo Disponible",
+        "lessFunds": "Fondo Insuficiente",
+        "borrow": "Préstamo",
+        "maxBorrowAmount": "Préstamo Máximo",
+        "assetIsCurrentDeposit": "Ha depositado {{ASSET}}, por lo tanto, no puede pedirlo prestado.",
+        "noLiquidity": "Liquidez Insuficiente",
+        "minCRatio": "Esta decisión lo ubicará en el ratio mínimo de colateralización, colocando su cuenta en el área de liquidación. Desea continuar?",
+        "belowMinRatio": "Usted se encuentra por debajo de la colateralización óptima. Deposite liquidez o cancele su deuda para evitar la liquidación.",
+        "subjectToLiquidation": "Esta transacción disminuirá su ratio de colateralización en {{NEW-C-RATIO}}%, lo cual lo ubicará en el rango de liquidación sujeta a la volatilidad del mercado.",
+        "confirm": "Confirmar",
+        "repay": "Cancelar Deuda",
+        "amountOwed": "Disponible Para Saldar",
+        "oweLess": "Debes una cantidad menor.",
+        "geobanned": "Jet Protocol no está disponible en su región.",
+        "noMarket": "No pudimos inicializar el marketplace de Jet",
+        "txSuccess": "Su {{TRADE-ACTION}} de {{AMOUNT-AND-ASSET}} fue recibida.",
+        "txFailed": "Transacción fallida",
+        "max": "Máximo",
+        "assetIsCurrentBorrow": "Ha tomado prestado {{ASSET}}, por lo tanto, no puede depositarlo.\n",
+        "belowMinCRatio": "No tiene suficiente colateral. Deposite o pague su deuda para evitar la liquidación.\n",
+        "search": "Busque un activo",
+        "noBalanceForDeposit": "No cuenta con {{ASSET}} en su billetera para depositar.",
+        "noDepositsForBorrow": "Debe depositar colateral para tomar prestado.",
+        "noDepositsForWithdraw": "No cuenta con {{ASSET}} depositado para retirar.",
+        "noDebtForRepay": "No debe {{ASSET}}.\n",
+        "rejectTrade": "Esta operación reduciría su ratio de colateralización a {{NEW-C-RATIO}} %, lo que estaría por debajo de nuestro ratio mínimo de {{JET MIN C-RATIO}}. ¿Aún le gustaría pedir prestado?\n",
+        "insufficientLamports": "¡Usted está depositando todos sus SOL sin dejar Lamports en su billetera para pagar los fees de las transacciones! Vuelva a intentarlo con una cantidad ligeramente inferior.",
+        "stillUndercollateralized": "Su nuevo C-ratio de {{NEW-C-RATIO}}% todavía está por debajo del ratio mínimo de colateralización del mercado de Jet de {{JET MIN C-RATIO}}%. Por favor, considere pagar más para evitar la liquidación.\n",
+        "txCancelled": "Transacción Cancelada.",
+        "welcomeAboard": "Bienvenido A Bordo",
+        "rentFeeDescription": "Esta es su primera vez volando con Jet. Por favor, tenga en cuenta que al abrir su cuenta, se incluirá una tarifa única y reembolsable. Esto es necesario para que la blockchain de Solana almacene datos relacionados a tu cuenta. Esta tarifa no es cobrada por Jet Protocol.",
+        "rentFeeDetail": "La tarifa de su transacción es de {{RENT_FEE}} SOL. El monto será reembolsado cuando su {{TRADE_ACTION}} sea saldado.",
+        "minColRatioNote": "Nota: El C-Ratio mínimo previo a la liquidación parcial es de  {{MIN_COL_RATIO}}%.",
+        "totalSupply": "Oferta Total",
+        "txSuccessShort": "{{TRADE-ACTION}} recibida."
+    },
+    "settings": {
+        "title": "Configuraciones",
+        "wallet": "Billetera",
+        "connect": "Conectar Billetera",
+        "worldOfDefi": "Conecta tu billetera al mundo DeFi",
+        "theme": "Modo Oscuro",
+        "light": "Claro",
+        "dark": "Oscuro",
+        "language": "Idiomas",
+        "rpcNode": "Nodo RPC",
+        "current": "Vigente",
+        "defaultNode": "Jet Default",
+        "reset": "Reiniciar",
+        "noUrl": "Ingresar URL",
+        "disconnect": "Desconectar Billetera",
+        "connected": "Conectado",
+        "explorer": "Explorar"
+    },
+    "reserveDetail": {
+        "reserveSize": "Tamaño de la Reserva",
+        "availableLiquidity": "Liquidez Disponible",
+        "utilisationRate": "Ratio de Utilización",
+        "viewHistory": "Historial",
+        "totalBorrowed": "Total Prestado",
+        "maximumLTV": "LTV Máximo",
+        "liquidationPremium": "Liquidación Premium",
+        "tradeAsset": "Comercializar {{ASSET}}",
+        "minimumCollateralizationRatio": "C-Ratio mínimo",
+        "compareRates": "Comparar Tasas"
+    },
+    "copilot": {
+        "name": "Copiloto",
+        "header": "Hey, aquí Copiloto.",
+        "okay": "Okay",
+        "suggestions": {
+            "unhealthy": {
+                "overview": "Su cuenta no es saludable.",
+                "detail": "Su Ratio de Colateralización ( Su valor total depositado dividido por su valor total prestado) es  {{C-RATIO}}% que es {{RATIO BELOW AMOUNT}}  % menos que el ratio mínimo de colateralización de Jet Marketplace de {{JET MIN C-RATIO}}%.",
+                "solution": "Para corregir su posición, puede depositar más garantías, pero le sugiero que pague su deuda en Cabina\n",
+                "actionText": "Dirijase a la Cabina"
+            },
+            "warning": {
+                "tenPercent": {
+                    "overview": "Te encuentras peligrosamente cerca de ser liquidado.",
+                    "detail": "Su Ratio de Colateralización (su valor total depositado dividido por su valor total prestado) {{C-RATIO}} %, que está dentro del 10 % del ratio de garantía mínimo de Jet Marketplace de {{JET MIN C-RATIO}}%.\n",
+                    "solution": "Para evitar ser liquidado, puedes depositar más colateral.",
+                    "actionText": "Depositar"
+                },
+                "twentyPercent": {
+                    "overview": "Mantén la vista en tu ratio de colateralización.",
+                    "detail": "Su Ratio de Colateralización ( Su valor total depositado dividido por su valor total prestado) es {{C-RATIO}}%, que es menos del 20% por encima del ratio mínimo de colateralización de Jet Marketplace de {{JET MIN C-RATIO}}%.\n",
+                    "solution": "Incremente su ratio de colateralización a niveles saludables del 20 % o más depositando más colateral.\n",
+                    "actionText": "Depositar"
+                }
+            },
+            "deposit": {
+                "overview": "{{BEST DEPOSIT RATE NAME}} se ve bien ahora.",
+                "detail": " <b class='bold'>{{BEST DEPOSIT RATE ABBREV}}</b> tiene el mejor deposito <b class='bold'>tasa</b>  en el mercado ahora mismo en <b class=' bold'>{{DEPOSIT RATE}}%</b>, y su cuenta está en buen estado, por lo que le recomendamos agregar algo de colateral depositando una parte de su <b class='bold'>{{USER BALANCE}} {{BEST DEPOSIT RATE ABBREV}}</b>\n",
+                "actionText": "¡A por ello !"
+            },
+            "healthy": {
+                "overview": "El cielo esta despejado.",
+                "detail": "Su cuenta está al día y tiene un exceso saludable de colateral, permítame echar un vistazo al mercado y ver si puedo sugerirle algunos buenos movimientos. ¡Vuelve a consultarme más tarde!"
+            }
+        },
+        "alert": {
+            "failed": "Mayday!",
+            "success": "Exitoso!",
+            "airdropSuccess": "Has recibido el Airdrop de {{UI AMOUNT}} {{RESERVE ABBREV}}.",
+            "refresh": "Actualizar",
+            "originationFee": "Este préstamo está adjunto a una tarifa de {{ORIGINATION FEE}}%",
+            "headsup": "¡Atención!",
+            "disclaimer": "Se encuentra a punto de entrar en Jet Protocol Mainnet. No proceda si usted no comprende y acepta los Términos de Uso y potenciales perdidas financieras.\n<br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"text-gradient\">PRIVACY POLICY</a>",
+            "accept": "Aceptar",
+            "warning": "ALERTA"
+        },
+        "radar": "Radar"
+    },
+    "transactions": {
+        "title": "Registro de Vuelo",
+        "date": "Fecha",
+        "signature": "Firma",
+        "tradeAction": "Transacción",
+        "tradeAmount": "Monto",
+        "noTrades": "No cuentas con transacciones registradas en Jet.",
+        "entries": "{start} to {end} of {rows}",
+        "deposit": "Depositar",
+        "withdraw": "Retirar",
+        "borrow": "Tomar Prestado",
+        "repay": "Saldar Deuda",
+        "searchMoreLogs": "Buscar más registros",
+        "noMoreLogs": "No se encuentran más registros"
+    },
+    "termsPrivacy": {
+        "termsOfUse": "Terminos de Uso",
+        "privacyPolicy": "Politica de Privacidad"
+    },
+    "healthbar": {
+        "critical": "Crítico",
+        "low": "Bajo",
+        "moderate": "Moderado",
+        "good": "Bueno",
+        "criticalDetail": "Deposite o salde su deuda ahora",
+        "lowDetail": "Supervise frecuentemente",
+        "moderateDetail": "Buen estado",
+        "goodDetail": "Excelente estado"
+    }
+}

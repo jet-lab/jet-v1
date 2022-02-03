@@ -1,0 +1,42 @@
+{
+    "collateral": {
+        "term": "Colateral",
+        "definition": "El activo depositado en el protocolo para garantizar el préstamo."
+    },
+    "debt": {
+        "term": "Deuda",
+        "definition": "El valor del préstamo que le pertenece o se le adeuda al protocolo."
+    },
+    "collateralizationRatio": {
+        "term": "Ratio de Colateralización",
+        "definition": "El valor de su colateral dividido por el valor de su deuda. Se requiere sobrecolateralizar su deuda, es decir, el valor de mercado de sus activos depositados debe exceder el valor de la cantidad que puede pedir prestada. Esto preverá una reducción ya que el Protocolo puede embargar esta garantía para recuperar el valor del préstamo en caso de default en el préstamo. Consulte también LTV máximo.\n\n\n"
+    },
+    "adjustedCollateralizationRatio": {
+        "term": "Ratio de Colateralización Adaptado",
+        "definition": "Representación en tiempo real sobre cómo sería su Ratio de Colateralización si la operación es ejecutada."
+    },
+    "depositRate": {
+        "term": "Interés de depósito",
+        "definition": "La tasa de interés instantánea ganada por los depositantes. Esta tasa se expresa en forma anualizada, no refleja los efectos del interés compuesto e incluye cualquier tarifa del Protocolo que pueda estar vigente.\n La tasa cambia a medida que el ratio de utilización de los activos depositados varía. \n\n"
+    },
+    "borrowRate": {
+        "term": "Interes de préstamo",
+        "definition": "La tasa de interés instantánea pagada por los prestatarios. Esta tasa se expresa en forma anualizada, no refleja los efectos del interés compuesto e incluye cualquier tarifa del Protocolo que pueda estar vigente.\n La tasa cambia a medida que el ratio de utilización de los activos prestados varía."
+    },
+    "maximumLtv": {
+        "term": "LTV Máximo",
+        "definition": "El ratio máximo de un préstamo permitido por el Protocolo. La relación préstamo-valor (LTV) es una medida de riesgo utilizada por Jet Protocol al decidir qué tamaño de préstamo aprobar. Su LTV representa la relación entre el tamaño del préstamo que obtiene y el valor de la propiedad que garantiza el préstamo. Véase también, Relación de Colateralización.\n"
+    },
+    "utilisationRate": {
+        "term": "Ratio de Utilización",
+        "definition": "La fracción de la reserva de un activo que ha sido prestada. Por ejemplo, si la reserva de USDC esta valuada en $100,000 y el monto perteneciente a la reserva de prestatarios es $65,000, el ratio de utilización sería de 65%, dejando $35,000 disponibles para nuevos préstamos."
+    },
+    "availLiquidity": {
+        "term": "Liquidez",
+        "definition": "La eficiencia o facilidad con la cual un activo puede ser convertido en una moneda estable sin afectar el precio del mercado del activo."
+    },
+    "liquidationPremium": {
+        "term": "Liquidación Premium",
+        "definition": "Se entrega colateral adicional a los liquidadores que pagan la deuda de cuentas que han caído por debajo del índice mínimo de colateralización. El valor en dólares de este colateral adicional es igual a la Liquidación Premium multiplicada por el valor en dólares de la deuda pagada. El colateral adicional es pagado por la cuenta del usuario que ha sido liquidada.\n"
+    }
+}

@@ -12,6 +12,8 @@ import * as Jet_UI_DE from './languages/Jet_UI_DE.json';
 import * as Jet_Definitions_DE from './languages/Jet_Definitions_DE.json';
 import * as Jet_UI_IT from './languages/Jet_UI_IT.json';
 import * as Jet_Definitions_IT from './languages/Jet_Definitions_IT.json';
+import * as Jet_UI_SP from './languages/Jet_UI_SP.json';
+import * as Jet_Definitions_SP from './languages/Jet_Definitions_SP.json';
 import { USER } from '../store';
 
 // Check to see if user's locale is special case of Crimea
@@ -126,16 +128,18 @@ export const dictionary: any = {
   en: Jet_UI_EN,
   // Mandarin
   zh: Jet_UI_ZH,
-  //Russian
+  // Russian
   ru: Jet_UI_RU,
-  //Turkish
+  // Turkish
   tr: Jet_UI_TR,
-  //Korean
+  // Korean
   kr: Jet_UI_KR,
-  //German
+  // German
   de: Jet_UI_DE,
-  //Italian
-  it: Jet_UI_IT
+  // Italian
+  it: Jet_UI_IT,
+  // Spanish
+  sp: Jet_UI_SP
 };
 
 // Definitions of various terminology
@@ -146,5 +150,6 @@ export const definitions: any = {
   tr: Jet_Definitions_TR,
   kr: Jet_Definitions_KR,
   de: Jet_Definitions_DE,
-  it: Jet_Definitions_IT
-}
+  it: Jet_Definitions_IT,
+  sp: Jet_Definitions_SP
+};
