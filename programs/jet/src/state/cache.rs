@@ -55,7 +55,7 @@ impl<T, const TTL: u64> Cache<T, TTL> {
     }
 
     pub fn validate_fresh(&self, current_slot: u64) -> Result<(), CacheInvalidError> {
-        if current_slot - self.last_updated > TTL {
+        if current_slot - self.last_updated >= TTL {
             return Err(CacheInvalidError::Expired {
                 msg: self.time_msg(current_slot),
             });
