@@ -47,14 +47,14 @@
         "noLiquidity": "Liquidez Insuficiente",
         "minCRatio": "Esta decisión lo ubicará en el ratio mínimo de colateralización, colocando su cuenta en el área de liquidación. ¿Desea continuar?",
         "belowMinRatio": "Usted se encuentra por debajo de la colateralización óptima. Deposite liquidez o cancele su deuda para evitar la liquidación.",
-        "subjectToLiquidation": "Esta transacción disminuirá su ratio de colateralización en {{NEW-C-RATIO}}%, lo cual lo ubicará en el rango de liquidación sujeta a la volatilidad del mercado.  El ratio de colateralización mínimo previo a la liquidación parcial es {{MIN-C-RATIO}}% . ¿Todavía le gustaría {{TRADE-ACTION}} ?",
+        "subjectToLiquidation": "Esta transacción disminuirá su ratio de colateralización en {{NEW-C-RATIO}}%, lo cual lo ubicará en el rango de liquidación sujeta a la volatilidad del mercado.  El ratio de colateralización mínimo previo a la liquidación parcial es {{MIN-C-RATIO}}% . ¿Todavía le gustaría {{TRADE ACTION}} ?",
         "confirm": "Confirmar",
         "repay": "Cancelar Deuda",
         "amountOwed": "Disponible Para Saldar",
         "oweLess": "Debes una cantidad menor.",
         "geobanned": "Jet Protocol no está disponible en su región.",
         "noMarket": "No pudimos inicializar el marketplace de Jet",
-        "txSuccess": "Su {{TRADE-ACTION}} de {{AMOUNT-AND-ASSET}} fué recibida.",
+        "txSuccess": "Su {{TRADE ACTION}} de {{AMOUNT AND ASSET}} fué recibida.",
         "txFailed": "Transacción fallida",
         "max": "Máximo",
         "assetIsCurrentBorrow": "Ha tomado prestado {{ASSET}}, por lo tanto, no puede depositarlo.\n",
@@ -73,7 +73,7 @@
         "rentFeeDetail": "La tarifa de su transacción es de {{RENT_FEE}} SOL. El monto será reembolsado cuando su {{TRADE_ACTION}} sea saldado.",
         "minColRatioNote": "Nota: El C-Ratio mínimo previo a la liquidación parcial es de  {{MIN_COL_RATIO}}%.",
         "totalSupply": "Oferta Total",
-        "txSuccessShort": "{{TRADE-ACTION}} recibida."
+        "txSuccessShort": "{{TRADE ACTION}} recibida."
     },
     "settings": {
         "title": "Configuraciones",
