@@ -20,7 +20,7 @@
         "definition": "La tasa de interés instantánea ganada por los depositantes. Esta tasa se expresa en forma anualizada, no refleja los efectos del interés compuesto e incluye cualquier tarifa del Protocolo que pueda estar vigente.\n La tasa cambia a medida que el ratio de utilización de los activos depositados varía. \n\n"
     },
     "borrowRate": {
-        "term": "Interes de préstamo",
+        "term": "Interés de préstamo",
         "definition": "La tasa de interés instantánea pagada por los prestatarios. Esta tasa se expresa en forma anualizada, no refleja los efectos del interés compuesto e incluye cualquier tarifa del Protocolo que pueda estar vigente.\n La tasa cambia a medida que el ratio de utilización de los activos prestados varía."
     },
     "maximumLtv": {
