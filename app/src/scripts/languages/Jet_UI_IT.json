@@ -73,7 +73,7 @@
         "rentFeeDetail": "The rent fee for your transaction is {{RENT_FEE}} SOL. This amount will be returned to when you {{TRADE_ACTION}} your full balance.",
         "minColRatioNote": "Note: Minimum c-ratio before partial liquidation is {{MIN_COL_RATIO}}%.",
         "totalSupply": "Fornitura Totale",
-        "txSuccessShort": "{{TRADE-ACTION}} ricevuto."
+        "txSuccessShort": "{{TRADE ACTION}} ricevuto."
     },
     "settings": {
         "title": "Impostazioni",
