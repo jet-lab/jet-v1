@@ -33,11 +33,11 @@
         "yourRatio": "Tu C-Ratio",
         "collateralizationRatio": "Indice de Colateralización",
         "noInputAmount": "Ingresar Monto",
-        "adjustedCollateralization": "C-Ratio Adecuado",
+        "adjustedCollateralization": "C-Ratio Regulado",
         "deposit": "Depositar",
         "walletBalance": "Balance",
         "noDepositAmount": "Ingresar Monto",
-        "notEnoughAsset": "{{ACTIVO}} insuficiente.",
+        "notEnoughAsset": "{{ASSET}} insuficiente.",
         "withdraw": "Retirar",
         "availableFunds": "Fondo Disponible",
         "lessFunds": "Fondo Insuficiente",
@@ -45,16 +45,16 @@
         "maxBorrowAmount": "Préstamo Máximo",
         "assetIsCurrentDeposit": "Ha depositado {{ASSET}}, por lo tanto, no puede pedirlo prestado.",
         "noLiquidity": "Liquidez Insuficiente",
-        "minCRatio": "Esta decisión lo ubicará en el ratio mínimo de colateralización, colocando su cuenta en el área de liquidación. Desea continuar?",
+        "minCRatio": "Esta decisión lo ubicará en el ratio mínimo de colateralización, colocando su cuenta en el área de liquidación. ¿Desea continuar?",
         "belowMinRatio": "Usted se encuentra por debajo de la colateralización óptima. Deposite liquidez o cancele su deuda para evitar la liquidación.",
-        "subjectToLiquidation": "Esta transacción disminuirá su ratio de colateralización en {{NEW-C-RATIO}}%, lo cual lo ubicará en el rango de liquidación sujeta a la volatilidad del mercado.",
+        "subjectToLiquidation": "Esta transacción disminuirá su ratio de colateralización en {{NEW-C-RATIO}}%, lo cual lo ubicará en el rango de liquidación sujeta a la volatilidad del mercado.  El ratio de colateralización mínimo previo a la liquidación parcial es {{MIN-C-RATIO}}% . ¿Todavía le gustaría {{TRADE-ACTION}} ?",
         "confirm": "Confirmar",
         "repay": "Cancelar Deuda",
         "amountOwed": "Disponible Para Saldar",
         "oweLess": "Debes una cantidad menor.",
         "geobanned": "Jet Protocol no está disponible en su región.",
         "noMarket": "No pudimos inicializar el marketplace de Jet",
-        "txSuccess": "Su {{TRADE-ACTION}} de {{AMOUNT-AND-ASSET}} fue recibida.",
+        "txSuccess": "Su {{TRADE-ACTION}} de {{AMOUNT-AND-ASSET}} fué recibida.",
         "txFailed": "Transacción fallida",
         "max": "Máximo",
         "assetIsCurrentBorrow": "Ha tomado prestado {{ASSET}}, por lo tanto, no puede depositarlo.\n",
@@ -80,7 +80,7 @@
         "wallet": "Billetera",
         "connect": "Conectar Billetera",
         "worldOfDefi": "Conecta tu billetera al mundo DeFi",
-        "theme": "Modo Oscuro",
+        "theme": "Modo",
         "light": "Claro",
         "dark": "Oscuro",
         "language": "Idiomas",
@@ -91,7 +91,7 @@
         "noUrl": "Ingresar URL",
         "disconnect": "Desconectar Billetera",
         "connected": "Conectado",
-        "explorer": "Explorar"
+        "explorer": "Explorador"
     },
     "reserveDetail": {
         "reserveSize": "Tamaño de la Reserva",
@@ -114,7 +114,7 @@
                 "overview": "Su cuenta no es saludable.",
                 "detail": "Su Ratio de Colateralización ( Su valor total depositado dividido por su valor total prestado) es  {{C-RATIO}}% que es {{RATIO BELOW AMOUNT}}  % menos que el ratio mínimo de colateralización de Jet Marketplace de {{JET MIN C-RATIO}}%.",
                 "solution": "Para corregir su posición, puede depositar más garantías, pero le sugiero que pague su deuda en Cabina\n",
-                "actionText": "Dirijase a la Cabina"
+                "actionText": "Diríjase a la Cabina"
             },
             "warning": {
                 "tenPercent": {
