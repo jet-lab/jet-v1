@@ -47,14 +47,14 @@
         "noLiquidity": "Not enough liquidity.",
         "minCRatio": "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
         "belowMinRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which places you in the range of liquidation subject to market volatility. The minimum collateralization ratio is {{MIN-C-RATIO}}% before partial liquidation. Would you still like to {{TRADE-ACTION}}?",
+        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which places you in the range of liquidation subject to market volatility. The minimum collateralization ratio is {{MIN-C-RATIO}}% before partial liquidation. Would you still like to {{TRADE ACTION}}?",
         "confirm": "Confirm",
         "repay": "Repay",
         "amountOwed": "Available To Repay",
         "oweLess": "You owe less.",
         "geobanned": "Jet Protocol is not available in your region.",
         "noMarket": "We were unable to initialize the Jet marketplace.",
-        "txSuccess": "Your {{TRADE-ACTION}} of {{AMOUNT-AND-ASSET}} was received.",
+        "txSuccess": "Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received.",
         "txFailed": "Transaction failed.",
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
@@ -73,7 +73,7 @@
         "rentFeeDetail": "The rent fee for your transaction is {{RENT_FEE}} SOL. This amount will be returned to when you {{TRADE_ACTION}} your full balance.",
         "minColRatioNote": "Note: Minimum c-ratio before partial liquidation is {{MIN_COL_RATIO}}%.",
         "totalSupply": "Total Supply",
-        "txSuccessShort": "{{TRADE-ACTION}} received."
+        "txSuccessShort": "{{TRADE ACTION}} received."
     },
     "settings": {
         "title": "Settings",
