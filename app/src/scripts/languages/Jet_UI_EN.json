@@ -1,11 +1,12 @@
 {
     "language": "English",
     "loading": {
-        "transactions": "Sending Transactions...",
-        "connectingWallet": "Connecting Wallet...",
+        "transactions": "Sending Transactions",
+        "connectingWallet": "Connecting Wallet",
         "initializing": "Starting Jet Engines",
         "fetchingReserves": "Fetching Reserve Data",
-        "fetchingAccount": "Fetching Account Data"
+        "fetchingAccount": "Fetching Account Data",
+        "loading": "Loading"
     },
     "nav": {
         "cockpit": "Cockpit",
@@ -46,19 +47,19 @@
         "noLiquidity": "Not enough liquidity.",
         "minCRatio": "This will put your position at our minimum collateralization ratio, therefore placing your account in liquidation territory. Are you sure?",
         "belowMinRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which places you in the range of liquidation subject to market volatility. Would you still like to borrow?",
+        "subjectToLiquidation": "This trade lowers your collateralization ratio to {{NEW-C-RATIO}}%, which places you in the range of liquidation subject to market volatility. The minimum collateralization ratio is {{MIN-C-RATIO}}% before partial liquidation. Would you still like to {{TRADE-ACTION}}?",
         "confirm": "Confirm",
         "repay": "Repay",
-        "amountOwed": "Amount Owed",
+        "amountOwed": "Available To Repay",
         "oweLess": "You owe less.",
         "geobanned": "Jet Protocol is not available in your region.",
         "noMarket": "We were unable to initialize the Jet marketplace.",
-        "txSuccess": "Your {{TRADE ACTION}} of {{AMOUNT AND ASSET}} was received.",
+        "txSuccess": "Your {{TRADE-ACTION}} of {{AMOUNT-AND-ASSET}} was received.",
         "txFailed": "Transaction failed.",
         "max": "Max",
         "assetIsCurrentBorrow": "You've borrowed {{ASSET}} and therefore can't deposit it.",
         "belowMinCRatio": "You are undercollateralized. Deposit or repay your debt to avoid liquidation.",
-        "search": "Search Market...",
+        "search": "Search Market",
         "noBalanceForDeposit": "You have no {{ASSET}} in your wallet to deposit.",
         "noDepositsForBorrow": "You must deposit collateral in order to borrow.",
         "noDepositsForWithdraw": "You have not deposited any {{ASSET}} to withdraw.",
@@ -66,25 +67,31 @@
         "rejectTrade": "This trade would lower your collateralization ratio to {{NEW-C-RATIO}}%, which would be below our minimum ratio of {{JET MIN C-RATIO}}. Would you still like to borrow?",
         "insufficientLamports": "You are depositing all your SOL leaving you no lamports for transaction fees! Please try again with a slightly lower input amount.",
         "stillUndercollateralized": "Your new C-ratio of {{NEW-C-RATIO}}% is still under Jet's minimum marketplace collateralization ratio of {{JET MIN C-RATIO}}%. Please consider repaying more to avoid liquidation.",
-        "txCancelled": "Transaction cancelled."
+        "txCancelled": "Transaction cancelled.",
+        "welcomeAboard": "Welcome Aboard",
+        "rentFeeDescription": "I see this is your first time flying with Jet. Please note that to open your account, this transaction will include a refundable one-time rent fee. This is necessary for the Solana blockchain to store ongoing data related to your account. This fee is not collected by Jet Protocol.",
+        "rentFeeDetail": "The rent fee for your transaction is {{RENT_FEE}} SOL. This amount will be returned to when you {{TRADE_ACTION}} your full balance.",
+        "minColRatioNote": "Note: Minimum c-ratio before partial liquidation is {{MIN_COL_RATIO}}%.",
+        "totalSupply": "Total Supply",
+        "txSuccessShort": "{{TRADE-ACTION}} received."
     },
     "settings": {
         "title": "Settings",
-        "wallet": "WALLET",
+        "wallet": "Wallet",
         "connect": "Connect Wallet",
         "worldOfDefi": "Connect your wallet to the world of DeFi.",
-        "theme": "THEME",
+        "theme": "Dark Theme",
         "light": "Light",
         "dark": "Dark",
-        "language": "LANGUAGE",
-        "rpcNode": "RPC NODE",
+        "language": "Language",
+        "rpcNode": "RPC Node",
         "current": "Current",
         "defaultNode": "Jet Default",
         "reset": "Reset",
         "noUrl": "Enter a URL",
         "disconnect": "Disconnect Wallet",
         "connected": "Connected",
-        "explorer": "EXPLORER"
+        "explorer": ""
     },
     "reserveDetail": {
         "reserveSize": "Reserve Size",
@@ -95,7 +102,8 @@
         "maximumLTV": "Maximum LTV",
         "liquidationPremium": "Liquidation Premium",
         "tradeAsset": "Trade {{ASSET}}",
-        "minimumCollateralizationRatio": "Minimum C-Ratio"
+        "minimumCollateralizationRatio": "Minimum C-Ratio",
+        "compareRates": "Compare Rates"
     },
     "copilot": {
         "name": "Copilot",
@@ -139,10 +147,11 @@
             "refresh": "Refresh",
             "originationFee": "There is a fee of {{ORIGINATION FEE}}% attached to this loan.",
             "headsup": "Heads up!",
-            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/><a href=\"https://www.jetprotocol.io/terms-of-use\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">TERMS OF USE</a> <a href=\"https://www.jetprotocol.io/privacy-policy\" target=\"_blank\" class=\"bicyclette-bold text-gradient\">PRIVACY POLICY</a>",
+            "disclaimer": "You are about to enter the Jet Protocol Mainnet. Do not proceed if you do not understand and accept the Terms of Use, and potential for financial loss. <br/><br/><a href='https://www.jetprotocol.io/terms-of-use' target='_blank' rel='noopener noreferrer' class='text-gradient'>TERMS OF USE</a> <a href='https://www.jetprotocol.io/privacy-policy' target='_blank' rel='noopener noreferrer' class='text-gradient'>PRIVACY POLICY</a>",
             "accept": "Accept",
             "warning": "WARNING"
-        }
+        },
+        "radar": "Radar"
     },
     "transactions": {
         "title": "Flight Logs",
@@ -155,6 +164,22 @@
         "deposit": "Deposit",
         "withdraw": "Withdraw",
         "borrow": "Borrow",
-        "repay": "Repay"
+        "repay": "Repay",
+        "searchMoreLogs": "Search for more logs",
+        "noMoreLogs": "No more logs to search"
+    },
+    "termsPrivacy": {
+        "termsOfUse": "Terms of Use",
+        "privacyPolicy": "Privacy Policy"
+    },
+    "healthbar": {
+        "critical": "Critical",
+        "low": "Low",
+        "moderate": "Moderate",
+        "good": "Good",
+        "criticalDetail": "Deposit or repay now",
+        "lowDetail": "Monitor frequently",
+        "moderateDetail": "Good standing",
+        "goodDetail": "Excellent standing"
     }
 }
