@@ -48,14 +48,14 @@ impl Amount {
 
 #[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct DepositCollateralBumpSeeds {
-    collateral_account: u8,
-    deposit_account: u8,
+    pub collateral_account: u8,
+    pub deposit_account: u8,
 }
 
 #[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct WithdrawCollateralBumpSeeds {
-    collateral_account: u8,
-    deposit_account: u8,
+    pub collateral_account: u8,
+    pub deposit_account: u8,
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize)]
