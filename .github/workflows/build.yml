@@ -62,7 +62,8 @@ jobs:
       - run: npm install
       - run: npm install @project-serum/anchor -g
       - run: solana-keygen new --no-bip39-passphrase
+      - run: cargo fmt -- --check
+      - run: cargo clippy -- -D warnings
       - run: cargo test
       - run: anchor build
       - run: anchor test
-      - run: cargo fmt -- --check
