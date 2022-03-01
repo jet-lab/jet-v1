@@ -155,7 +155,6 @@ impl Obligation {
     /// Determine if the obligation is healthy, or otherwise unhealthy and
     /// at risk of liquidation.
     pub fn is_healthy(&self, market: &MarketReserves, current_slot: u64) -> bool {
-        let max_min_c_ratio: Number;
         let _max_min_c_ratio = self
             .loans()
             .iter()
@@ -165,11 +164,12 @@ impl Obligation {
                     .min_collateral_ratio
             })
             .max();
-        if let Some(c) = _max_min_c_ratio {
-            max_min_c_ratio = c;
+
+        let max_min_c_ratio = if let Some(c) = _max_min_c_ratio {
+            c
         } else {
             return true; // No loans
-        }
+        };
 
         let cached: &CalculationCache = bytemuck::from_bytes(&self.cached);
 

@@ -83,8 +83,8 @@ impl<'a, 'info> DexClient<'a, 'info> {
         quote_expo: i32,
         coin_expo: i32,
     ) -> Result<u64, ProgramError> {
-        let quote_decimals = (quote_expo * -1) as u32;
-        let coin_decimals = (coin_expo * -1) as u32;
+        let quote_decimals = -quote_expo as u32;
+        let coin_decimals = -coin_expo as u32;
         let dex_market = DexMarketState::load(&self.dex_market.market, &dex::ID)?;
 
         Ok(
@@ -396,14 +396,14 @@ impl<'a, 'info> SwapCalculator<'a, 'info> {
         // calculate current number of tokens that the account has
         let cur_collateral_tokens = self
             .collateral_reserve
-            .amount(token::accessor::amount(&self.collateral_account)?)
+            .amount(token::accessor::amount(self.collateral_account)?)
             * self.collateral_reserve_info.deposit_note_exchange_rate;
 
         // calculate an approximate for the amount of collateral tokens needed to pay off
         // the current loan balance
         let loan_value = self
             .loan_reserve
-            .amount(token::accessor::amount(&self.loan_account)?)
+            .amount(token::accessor::amount(self.loan_account)?)
             * self.loan_reserve_info.loan_note_exchange_rate
             * self.loan_reserve_info.price;
 
