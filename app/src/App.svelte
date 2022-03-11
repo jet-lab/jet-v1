@@ -13,6 +13,7 @@
   import Copilot from "./components/Copilot.svelte";
   import Notifications from "./components/Notifications.svelte";
   import TermsConditions from "./components/TermsConditions.svelte";
+  import SlowNetworkBanner from "./components/SlowNetworkBanner.svelte";
   import { subscribeToMarket } from "./scripts/subscribe";
   import { INIT_FAILED, MARKET } from "./store";
 
@@ -60,6 +61,7 @@
     <ConnectWalletModal />
     <Copilot />
     <Notifications />
+    <SlowNetworkBanner />
     <TermsConditions />
   {:else}
     <Loader fullscreen />

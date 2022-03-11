@@ -24,6 +24,7 @@
 	--jet-blue: #278db6; /* brand: 32a5d3 */
   --success: #53bd9f;
   --failure: #ec6a69;
+  --warning: #e3cb79;
 
   --input-color: rgba(26, 73, 94, 0.7);
   --gradient: linear-gradient(135deg, var(--jet-green) 25%, var(--jet-blue) 85%);
@@ -849,6 +850,27 @@ tbody tr .jet-icons {
   display: none;
 }
 
+/* Slow Network Banner */
+.slow-network {
+  position: fixed;
+  top: 0;
+  left: var(--nav-width);
+  width: calc(100% - var(--nav-width) - var(--spacing-sm));
+  background: var(--warning);
+  z-index: 1000;
+  color: var(--black);
+  padding: var(--spacing-sm);
+  text-align: center;
+}
+.slow-network b, .slow-network a {
+  color: var(--black);
+  text-decoration: underline;
+  margin: unset;
+}
+.slow-network a {
+  margin-left: var(--spacing-xs);
+}
+
 /* Tablet/Mobile styling */
 @media screen and (max-width: 600px) {
   body {
@@ -935,5 +957,10 @@ tbody tr .jet-icons {
   }
   .transaction-logs .dt-pagination-rowcount {
     min-width: 50px !important;
+  }
+  .slow-network {
+    left: 0;
+    width: calc(100% - var(--spacing-md));
+    font-size: 10px;
   }
 }

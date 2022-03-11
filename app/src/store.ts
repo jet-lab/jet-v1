@@ -6,6 +6,7 @@ import type { Market, Reserve, User, Copilot, CustomProgramError, IdlMetadata, N
 
 // Overall app init
 export const INIT_FAILED = writable<boolean> (false);
+export const SLOW_NETWORK = writable<boolean> (false);
 
 // Market
 export const MARKET = writable<Market>({

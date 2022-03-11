@@ -7,11 +7,11 @@ import Rollbar from 'rollbar';
 import WalletAdapter from './walletAdapter';
 import type { Market, User, Asset, Reserve, AssetStore, SolWindow, WalletProvider, SlopeWallet, Wallet, MathWallet, SolongWallet, CustomProgramError, TransactionLog } from '../models/JetTypes';
 import { TxnResponse } from "../models/JetTypes";
-import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, CONNECTION, ANCHOR_CODER, IDL_METADATA, INIT_FAILED } from '../store';
+import { MARKET, USER, COPILOT, PROGRAM, CUSTOM_PROGRAM_ERRORS, CONNECTION, ANCHOR_CODER, IDL_METADATA, SLOW_NETWORK } from '../store';
 import { subscribeToAssets } from './subscribe';
 import { findDepositNoteAddress, findDepositNoteDestAddress, findLoanNoteAddress, findObligationAddress, sendTransaction, transactionErrorToString, findCollateralAddress, SOL_DECIMALS, parseIdlMetadata, sendAllTransactions, InstructionAndSigner, explorerUrl } from './programUtil';
 import { Amount, timeout, TokenAmount } from './util';
-import { dictionary, getLocale } from './localization';
+import { dictionary } from './localization';
 import { Buffer } from 'buffer';
 import bs58 from 'bs58';
 import { generateCopilotSuggestion } from './copilot';
@@ -93,6 +93,17 @@ export const getIDLAndAnchorAndMarketPubkeys = async (): Promise<void> => {
       user.rpcNode = null;
       return user;
     });
+  }
+
+  // Check network performance (if Mainnet)
+  if (!inDevelopment) {
+    const connection = new anchor.web3.Connection('https://api.mainnet-beta.solana.com/');
+    const samples = await connection.getRecentPerformanceSamples(15);
+    const totalTps = samples.reduce((acc, val) => {
+      return acc + val.numTransactions / val.samplePeriodSecs;
+    }, 0);
+    const aveTps = totalTps / samples.length;
+    SLOW_NETWORK.set(aveTps < 1200);
   }
 
   // Setup reserve structures

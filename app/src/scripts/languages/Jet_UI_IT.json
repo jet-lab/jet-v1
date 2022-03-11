@@ -91,7 +91,8 @@
         "noUrl": "Inserisci un URL",
         "disconnect": "Disconetti il Wallet",
         "connected": "Connesso",
-        "explorer": "Explorer"
+        "explorer": "Explorer",
+        "degradedNetworkPerformance": "<b>NOTICE:</b> The Solana blockchain is currently experiencing difficulties due to network congestion: <a href='https://status.solana.com/' target='_blank' rel='noopener noreferrer'>https://status.solana.com/</a>"
     },
     "reserveDetail": {
         "reserveSize": "Dimensione della riserva",
