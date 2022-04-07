@@ -1,0 +1,18 @@
+[package]
+name = "jet-proto-v1-cpi"
+version = "0.21.0"
+edition = "2018"
+
+description = "The anchor CPI interface for jet-v1"
+license = "AGPL-3.0-or-later"
+homepage = "https://jetprotocol.io"
+repository = "https://github.com/jet-lab/jet-v1"
+
+[dependencies]
+anchor-lang = "0.21.0"
+borsh = "0.9"
+thiserror = "1"
+
+static_assertions = "1"
+jet-math = { version = "1", package = "jet-proto-math" }
+jet-proc-macros = { version = "1", package = "jet-proto-proc-macros" }

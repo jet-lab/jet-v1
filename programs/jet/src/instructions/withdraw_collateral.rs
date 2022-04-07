@@ -32,8 +32,8 @@ pub struct WithdrawCollateralEvent {
 
 #[derive(AnchorDeserialize, AnchorSerialize)]
 pub struct WithdrawCollateralBumpSeeds {
-    collateral_account: u8,
-    deposit_account: u8,
+    pub collateral_account: u8,
+    pub deposit_account: u8,
 }
 
 #[derive(Accounts)]

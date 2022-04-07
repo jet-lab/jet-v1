@@ -1,6 +1,7 @@
 [workspace]
 members = [
     "programs/*",
+    "libraries/cpi",
     "tools/cli"
 ]
 
