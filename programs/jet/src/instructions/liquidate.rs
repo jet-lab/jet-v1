@@ -147,7 +147,11 @@ fn transfer_collateral(
     }
 
     // Calclulate number of tokens being repaid to figure out the value
-    let repaid_notes_amount = reserve.amount(amount.as_loan_notes(reserve_info, Rounding::Down)?);
+    let repaid_notes = std::cmp::min(
+        amount.as_loan_notes(reserve_info, Rounding::Down)?,
+        token::accessor::amount(&accounts.loan_account)?,
+    );
+    let repaid_notes_amount = reserve.amount(repaid_notes);
 
     // Calculate the appropriate amount of the collateral that the
     // liquidator should receive in return for this repayment
