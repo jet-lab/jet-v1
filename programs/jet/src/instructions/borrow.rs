@@ -130,7 +130,7 @@ pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult
 
     // Record the borrow onto the reserve account, and also add any fees
     // to get the total amount borrowed.
-    reserve.borrow(clock.slot, requested_tokens, new_notes, fees);
+    reserve.borrow(clock.slot, requested_tokens, new_notes, fees)?;
 
     token::mint_to(
         ctx.accounts

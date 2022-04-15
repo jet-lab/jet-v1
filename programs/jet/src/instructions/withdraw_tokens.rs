@@ -98,7 +98,7 @@ pub fn handler(ctx: Context<WithdrawTokens>, amount: Amount) -> ProgramResult {
     let token_amount = amount.as_tokens(reserve_info, Rounding::Down);
     let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Up)?;
 
-    reserve.withdraw(token_amount, note_amount);
+    reserve.withdraw(token_amount, note_amount)?;
 
     // Transfer the tokens from the reserve, and burn the deposit notes
     token::transfer(

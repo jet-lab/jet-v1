@@ -99,7 +99,7 @@ pub fn handler(ctx: Context<DepositTokens>, amount: Amount) -> ProgramResult {
     let token_amount = amount.as_tokens(reserve_info, Rounding::Up);
     let note_amount = amount.as_deposit_notes(reserve_info, Rounding::Down)?;
 
-    reserve.deposit(token_amount, note_amount);
+    reserve.deposit(token_amount, note_amount)?;
 
     // Now that we have the note value, we can transfer this deposit
     // to the vault and mint the new notes

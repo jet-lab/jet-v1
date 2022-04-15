@@ -647,7 +647,7 @@ fn update_accounting(
     let loan_repaid_notes_u64 = loan_repaid_notes.as_u64(loan_reserve.exponent);
 
     // Update the payment on the loan reserve
-    loan_reserve.repay(clock.slot, loan_repaid_tokens_u64, loan_repaid_notes_u64);
+    loan_reserve.repay(clock.slot, loan_repaid_tokens_u64, loan_repaid_notes_u64)?;
 
     // Update the changes in the obligation positions
     let collateral_notes_sold = collateral_tokens_sold / collateral_info.deposit_note_exchange_rate;
