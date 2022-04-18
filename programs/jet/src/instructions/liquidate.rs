@@ -167,7 +167,7 @@ fn transfer_collateral(
     )?;
 
     let collateral_amount = std::cmp::min(
-        collateral_amount.as_u64_rounded(collateral_reserve.exponent),
+        collateral_amount.as_u64(collateral_reserve.exponent),
         token::accessor::amount(&accounts.collateral_account)?,
     );
 
