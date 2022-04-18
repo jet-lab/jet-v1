@@ -18,6 +18,7 @@
 use anchor_lang::prelude::*;
 use anchor_lang::Key;
 use anchor_spl::token::{self, Transfer};
+use jet_math::Number;
 
 use crate::errors::ErrorCode;
 use crate::repay::{implement_repay_context, repay, RepayContext};
@@ -157,7 +158,7 @@ fn transfer_collateral(
     // liquidator should receive in return for this repayment
     let collateral_account = accounts.collateral_account.key();
     let loan_account = accounts.loan_account.key();
-    let collateral_amount = obligation.liquidate(
+    let collateral_amount = obligation.calculate_liquidation(
         market_reserves,
         clock.slot,
         &collateral_account,
@@ -182,6 +183,7 @@ fn transfer_collateral(
             .with_signer(&[&market.authority_seeds()]),
         collateral_amount,
     )?;
+    obligation.withdraw_collateral(&collateral_account, Number::from(collateral_amount))?;
 
     Ok(collateral_amount)
 }
