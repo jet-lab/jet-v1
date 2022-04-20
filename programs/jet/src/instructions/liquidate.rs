@@ -183,7 +183,10 @@ fn transfer_collateral(
             .with_signer(&[&market.authority_seeds()]),
         collateral_amount,
     )?;
-    obligation.withdraw_collateral(&collateral_account, Number::from(collateral_amount))?;
+    obligation.withdraw_collateral(
+        &collateral_account,
+        collateral_reserve.amount(collateral_amount),
+    )?;
 
     Ok(collateral_amount)
 }
