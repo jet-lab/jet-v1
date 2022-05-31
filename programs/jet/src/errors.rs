@@ -99,6 +99,9 @@ pub enum ErrorCode {
 
     #[msg("the collateral/loan account is not empty")]
     AccountNotEmptyError,
+
+    #[msg("the reserve has been configured to halt this operation")]
+    ReserveActionHalted,
 }
 
 impl From<jet_math::Error> for ErrorCode {

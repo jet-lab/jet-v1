@@ -27,7 +27,7 @@ export interface ReserveConfig {
   manageFeeCollectionThreshold: anchor.BN;
   manageFeeRate: number;
   loanOriginationFee: number;
-  liquidationSlippage: number;
+  flags: number;
   liquidationDexTradeMax: anchor.BN;
   confidenceThreshold: number;
 }

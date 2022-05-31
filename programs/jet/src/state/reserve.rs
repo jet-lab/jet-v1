@@ -26,6 +26,7 @@ use jet_proc_macros::assert_size;
 use crate::state::Cache;
 use crate::utils::FixedBuf;
 use crate::utils::JobCompletion;
+use crate::ErrorCode;
 
 const SECONDS_PER_HOUR: UnixTimestamp = 3600;
 const SECONDS_PER_2H: UnixTimestamp = SECONDS_PER_HOUR * 2;
@@ -56,7 +57,7 @@ static_assertions::const_assert_eq!(SECONDS_PER_YEAR, 60 * 60 * 24 * 365);
 /// by counting slots, and comparing against the number of slots per year.
 #[assert_size(aligns, 64)]
 #[repr(C)]
-#[derive(Pod, Zeroable, Clone, Copy, AnchorDeserialize, AnchorSerialize)]
+#[derive(Debug, Pod, Zeroable, Clone, Copy, AnchorDeserialize, AnchorSerialize)]
 pub struct ReserveConfig {
     /// The utilization rate at which we switch from the first to second regime.
     pub utilization_rate_1: u16,
@@ -94,8 +95,8 @@ pub struct ReserveConfig {
     /// The fee rate applied as interest owed on new loans
     pub loan_origination_fee: u16,
 
-    /// unused
-    pub _reserved0: u16,
+    /// Flags for features
+    pub flags: u16,
 
     /// Represented as a percentage of the Price
     /// confidence values above this will not be accepted
@@ -209,20 +210,36 @@ impl Reserve {
             .expect_mut(current_slot, "Reserve needs to be refreshed")
     }
 
+    fn flags(&self) -> ReserveFlags {
+        ReserveFlags::from_bits(self.config.flags).unwrap()
+    }
+
     /// Record an amount of tokens deposited into the reserve
-    pub fn deposit(&mut self, token_amount: u64, note_amount: u64) {
+    pub fn deposit(&mut self, token_amount: u64, note_amount: u64) -> Result<(), ErrorCode> {
+        if self.flags().contains(ReserveFlags::HALT_DEPOSITS) {
+            return Err(ErrorCode::ReserveActionHalted);
+        }
+
         let state = self.state_mut().get_stale_mut();
 
         state.total_deposits = state.total_deposits.checked_add(token_amount).unwrap();
         state.total_deposit_notes = state.total_deposit_notes.checked_add(note_amount).unwrap();
+
+        Ok(())
     }
 
     /// Record an amount of tokens withdrawn from the reserve
-    pub fn withdraw(&mut self, token_amount: u64, note_amount: u64) {
+    pub fn withdraw(&mut self, token_amount: u64, note_amount: u64) -> Result<(), ErrorCode> {
+        if self.flags().contains(ReserveFlags::HALT_WITHDRAWS) {
+            return Err(ErrorCode::ReserveActionHalted);
+        }
+
         let state = self.state_mut().get_stale_mut();
 
         state.total_deposits = state.total_deposits.checked_sub(token_amount).unwrap();
         state.total_deposit_notes = state.total_deposit_notes.checked_sub(note_amount).unwrap();
+
+        Ok(())
     }
 
     /// Calculates the borrow fee token amount for
@@ -235,7 +252,17 @@ impl Reserve {
     }
 
     /// Record an amount of tokens to be borrowed from the reserve.
-    pub fn borrow(&mut self, current_slot: u64, token_amount: u64, note_amount: u64, fees: u64) {
+    pub fn borrow(
+        &mut self,
+        current_slot: u64,
+        token_amount: u64,
+        note_amount: u64,
+        fees: u64,
+    ) -> Result<(), ErrorCode> {
+        if self.flags().contains(ReserveFlags::HALT_BORROWS) {
+            return Err(ErrorCode::ReserveActionHalted);
+        }
+
         let borrowed_amount = Number::from(token_amount);
 
         let state = self.unwrap_state_mut(current_slot);
@@ -246,10 +273,21 @@ impl Reserve {
         state.outstanding_debt += borrowed_amount + fees;
         state.total_deposits = state.total_deposits.checked_sub(token_amount).unwrap();
         state.total_loan_notes = state.total_loan_notes.checked_add(note_amount).unwrap();
+
+        Ok(())
     }
 
     /// Record an amount of tokens repaid back to the reserve.
-    pub fn repay(&mut self, current_slot: u64, token_amount: u64, note_amount: u64) {
+    pub fn repay(
+        &mut self,
+        current_slot: u64,
+        token_amount: u64,
+        note_amount: u64,
+    ) -> Result<(), ErrorCode> {
+        if self.flags().contains(ReserveFlags::HALT_REPAYS) {
+            return Err(ErrorCode::ReserveActionHalted);
+        }
+
         let state = self.unwrap_state_mut(current_slot);
 
         state.outstanding_debt -= Number::from(token_amount);
@@ -260,6 +298,8 @@ impl Reserve {
             // Truncate any leftover fraction from debts
             state.outstanding_debt = Number::ZERO;
         }
+
+        Ok(())
     }
 
     /// Record an amount of tokens added to the vault which need
@@ -539,6 +579,29 @@ pub trait NoteCalculator {
         let tokens = notes * self.exchange_rate();
 
         tokens.as_u64(0)
+    }
+}
+
+bitflags::bitflags! {
+    pub struct ReserveFlags: u16 {
+        /// Disable all deposits into the reserve
+        const HALT_DEPOSITS = 1 << 0;
+
+        /// Disable borrowing from the reserve
+        const HALT_BORROWS = 1 << 1;
+
+        /// Disable withdraws from the reserve
+        const HALT_WITHDRAWS = 1 << 2;
+
+        /// Disable the repaying of any outstanding loans from the reserve
+        const HALT_REPAYS = 1 << 3;
+
+        /// Disable all operations
+        const HALT_ALL = Self::HALT_BORROWS.bits
+                       | Self::HALT_REPAYS.bits
+                       | Self::HALT_DEPOSITS.bits
+                       | Self::HALT_WITHDRAWS.bits;
+
     }
 }
 

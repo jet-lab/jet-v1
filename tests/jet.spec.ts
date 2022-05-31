@@ -235,7 +235,7 @@ describe("jet", async () => {
       manageFeeRate: 50,
       manageFeeCollectionThreshold: new BN(10),
       loanOriginationFee: 10,
-      liquidationSlippage: 300,
+      flags: 0,
       liquidationDexTradeMax: new BN(100),
       confidenceThreshold: 200,
     } as ReserveConfig;
@@ -285,6 +285,30 @@ describe("jet", async () => {
     ).to.be.rejectedWith("0x142");
 
     await jetMarket.setFlags(new splToken.u64(0));
+  });
+
+  it("halts usdc deposits", async () => {
+    let newConfig = { ...reserveConfig, flags: 1 };
+
+    const updateReserveConfigParams = {
+      config: newConfig,
+      reserve: usdc.reserve.address,
+      market: jetMarket.address,
+      owner: marketOwner,
+    } as UpdateReserveConfigParams;
+
+    await usdc.reserve.updateReserveConfig(updateReserveConfigParams);
+
+    await expect(
+      userA.client.deposit(
+        usdc.reserve,
+        userA.tokenAccounts[usdc.token.publicKey.toBase58()],
+        Amount.tokens(1)
+      )
+    ).to.be.rejectedWith("0x147");
+
+    newConfig.flags = 0;
+    await usdc.reserve.updateReserveConfig(updateReserveConfigParams);
   });
 
   it("user A deposits usdc", async () => {
@@ -846,7 +870,7 @@ describe("jet", async () => {
       manageFeeRate: 60,
       manageFeeCollectionThreshold: new BN(11),
       loanOriginationFee: 20,
-      liquidationSlippage: 350,
+      flags: 0,
       liquidationDexTradeMax: new BN(120),
       confidenceThreshold: 500,
     } as ReserveConfig;
@@ -901,7 +925,7 @@ describe("jet", async () => {
       manageFeeRate: 60,
       manageFeeCollectionThreshold: new BN(11),
       loanOriginationFee: 20,
-      liquidationSlippage: 350,
+      flags: 0,
       liquidationDexTradeMax: new BN(120),
       confidenceThreshold: 100,
     } as ReserveConfig;

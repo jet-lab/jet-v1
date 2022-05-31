@@ -121,7 +121,7 @@ pub fn handler(ctx: Context<CloseDepositAccount>, _bump: u8) -> ProgramResult {
         let tokens_to_withdraw =
             reserve_info.deposit_notes_to_tokens(notes_remaining, Rounding::Down);
 
-        reserve.withdraw(tokens_to_withdraw, notes_remaining);
+        reserve.withdraw(tokens_to_withdraw, notes_remaining)?;
 
         token::transfer(
             ctx.accounts

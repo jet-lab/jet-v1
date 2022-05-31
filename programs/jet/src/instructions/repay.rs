@@ -189,7 +189,7 @@ pub fn repay<'info, T: RepayContext<'info>>(
     token::transfer(ctx.accounts.transfer_context(), payoff_tokens)?;
 
     // Keep the reserve's borrow tracking updated
-    reserve.repay(clock.slot, payoff_tokens, payoff_notes);
+    reserve.repay(clock.slot, payoff_tokens, payoff_notes)?;
 
     // record the repayment in the obligation which is used to determine the obligation's health
     obligation.repay(&loan_account.key(), reserve.amount(payoff_notes))?;
