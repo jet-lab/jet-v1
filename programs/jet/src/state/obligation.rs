@@ -179,12 +179,10 @@ impl Obligation {
         min_collateral_value <= cache_values.collateral_value
     }
 
-    /// Liquidate a loan on this obligation
-    ///
-    /// Returns the number of collateral notes that the liquidator should
+    /// Calculate the number of collateral notes a liquidator should
     /// receive in return for paying off the loan.
-    pub fn liquidate(
-        &mut self,
+    pub fn calculate_liquidation(
+        &self,
         market: &MarketReserves,
         current_slot: u64,
         collateral_account: &Pubkey,
@@ -196,7 +194,7 @@ impl Obligation {
         let loan_reserve = market.get_cached(loan.reserve_index, current_slot);
 
         let collateral_total = self.collateral_value(market, current_slot);
-        let collateral = self.collateral_mut().position(collateral_account)?;
+        let collateral = self.collateral().position(collateral_account)?;
         let collateral_reserve = market.get_cached(collateral.reserve_index, current_slot);
 
         // calculate the value of the debt being repaid
@@ -246,9 +244,6 @@ impl Obligation {
             / collateral_reserve.deposit_note_exchange_rate;
 
         let collateral_max_notes = std::cmp::min(collateral_max_notes, collateral.amount);
-
-        let collateral = self.collateral_mut().position_mut(collateral_account)?;
-        collateral.amount = collateral.amount.saturating_sub(collateral_max_notes);
 
         Ok(collateral_max_notes)
     }
@@ -670,8 +665,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(347_826))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(347_826))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         ctx.obligation.repay(&loan, Number::from(347_826)).unwrap();
 
@@ -723,8 +719,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(500_000))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(500_000))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         assert_eq!(1_018_519, collateral_returned.as_u64_rounded(0));
     }
@@ -756,8 +753,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         assert_eq!(956_842, collateral_returned.as_u64_rounded(0));
     }
@@ -789,8 +787,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(473_684))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         assert_eq!(966_702, collateral_returned.as_u64_rounded(0));
     }
@@ -824,8 +823,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(97_303))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(97_303))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         assert_eq!(505, collateral_returned.as_u64_rounded(0));
     }
@@ -857,8 +857,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(4))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(4))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         assert_eq!(9, collateral_returned.as_u64_rounded(0));
     }
@@ -890,8 +891,9 @@ mod tests {
 
         let collateral_returned = ctx
             .obligation
-            .liquidate(&ctx.market, 0, &collateral, &loan, Number::from(476_200))
+            .calculate_liquidation(&ctx.market, 0, &collateral, &loan, Number::from(476_200))
             .unwrap();
+        ctx.obligation.withdraw_collateral(&collateral, Number::from(collateral_returned)).unwrap();
 
         // since repaid value = 952.4
         // since liquidation bonus = 5%
