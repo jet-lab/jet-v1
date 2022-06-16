@@ -1,5 +1,5 @@
 {
-  "version": "0.0.0",
+  "version": "0.2.0",
   "name": "jet",
   "instructions": [
     {
@@ -134,6 +134,34 @@
         },
         {
           "name": "config",
+          "type": {
+            "defined": "ReserveConfig"
+          }
+        }
+      ]
+    },
+    {
+      "name": "updateReserveConfig",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "reserve",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "newConfig",
           "type": {
             "defined": "ReserveConfig"
           }
@@ -360,15 +388,10 @@
       ]
     },
     {
-      "name": "setReserveConfig",
+      "name": "setMarketOwner",
       "accounts": [
         {
           "name": "market",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "reserve",
           "isMut": true,
           "isSigner": false
         },
@@ -380,10 +403,29 @@
       ],
       "args": [
         {
-          "name": "config",
-          "type": {
-            "defined": "ReserveConfig"
-          }
+          "name": "newOwner",
+          "type": "publicKey"
+        }
+      ]
+    },
+    {
+      "name": "setMarketFlags",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": [
+        {
+          "name": "flags",
+          "type": "u64"
         }
       ]
     },
@@ -402,7 +444,7 @@
         },
         {
           "name": "reserve",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false
         },
         {
@@ -433,6 +475,124 @@
         {
           "name": "tokenProgram",
           "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "closeCollateralAccount",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marketAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "obligation",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "collateralAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "closeLoanAccount",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marketAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "obligation",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "loanAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "bump",
+          "type": "u8"
+        }
+      ]
+    },
+    {
+      "name": "closeObligation",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marketAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "obligation",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -506,6 +666,64 @@
       ]
     },
     {
+      "name": "depositTokens",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marketAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "reserve",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositNoteMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositor",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "depositNoteAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositSource",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": {
+            "defined": "Amount"
+          }
+        }
+      ]
+    },
+    {
       "name": "withdraw",
       "accounts": [
         {
@@ -549,6 +767,11 @@
           "isSigner": false
         },
         {
+          "name": "jetProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
           "name": "tokenProgram",
           "isMut": false,
           "isSigner": false
@@ -559,6 +782,64 @@
           "name": "bump",
           "type": "u8"
         },
+        {
+          "name": "amount",
+          "type": {
+            "defined": "Amount"
+          }
+        }
+      ]
+    },
+    {
+      "name": "withdrawTokens",
+      "accounts": [
+        {
+          "name": "market",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "marketAuthority",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "reserve",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "vault",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositNoteMint",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "depositor",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "depositNoteAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "withdrawAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
         {
           "name": "amount",
           "type": {
@@ -1081,9 +1362,7 @@
           ]
         }
       ],
-      "args": [
-        
-      ]
+      "args": []
     },
     {
       "name": "refreshReserve",
@@ -1124,9 +1403,7 @@
           "isSigner": false
         }
       ],
-      "args": [
-        
-      ]
+      "args": []
     }
   ],
   "accounts": [
@@ -1178,11 +1455,15 @@
             "type": "publicKey"
           },
           {
+            "name": "flags",
+            "type": "u64"
+          },
+          {
             "name": "reserved",
             "type": {
               "array": [
                 "u8",
-                360
+                352
               ]
             }
           },
@@ -1358,6 +1639,24 @@
   ],
   "types": [
     {
+      "name": "Amount",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "units",
+            "type": {
+              "defined": "AmountUnits"
+            }
+          },
+          {
+            "name": "value",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
       "name": "DepositCollateralBumpSeeds",
       "type": {
         "kind": "struct",
@@ -1401,40 +1700,6 @@
           {
             "name": "loanNoteMint",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "WithdrawCollateralBumpSeeds",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "collateralAccount",
-            "type": "u8"
-          },
-          {
-            "name": "depositAccount",
-            "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "Amount",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "units",
-            "type": {
-              "defined": "AmountUnits"
-            }
-          },
-          {
-            "name": "value",
-            "type": "u64"
           }
         ]
       }
@@ -1489,11 +1754,11 @@
             "type": "u16"
           },
           {
-            "name": "liquidationSlippage",
+            "name": "reserved0",
             "type": "u16"
           },
           {
-            "name": "reserved0",
+            "name": "confidenceThreshold",
             "type": "u16"
           },
           {
@@ -1513,15 +1778,17 @@
       }
     },
     {
-      "name": "JobCompletion",
+      "name": "WithdrawCollateralBumpSeeds",
       "type": {
-        "kind": "enum",
-        "variants": [
+        "kind": "struct",
+        "fields": [
           {
-            "name": "Partial"
+            "name": "collateralAccount",
+            "type": "u8"
           },
           {
-            "name": "Full"
+            "name": "depositAccount",
+            "type": "u8"
           }
         ]
       }
@@ -1556,6 +1823,37 @@
       }
     },
     {
+      "name": "AmountUnits",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Tokens"
+          },
+          {
+            "name": "DepositNotes"
+          },
+          {
+            "name": "LoanNotes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Rounding",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Up"
+          },
+          {
+            "name": "Down"
+          }
+        ]
+      }
+    },
+    {
       "name": "DexSide",
       "type": {
         "kind": "enum",
@@ -1565,6 +1863,20 @@
           },
           {
             "name": "Ask"
+          }
+        ]
+      }
+    },
+    {
+      "name": "SwapKind",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Buy"
+          },
+          {
+            "name": "Sell"
           }
         ]
       }
@@ -1584,18 +1896,15 @@
       }
     },
     {
-      "name": "AmountUnits",
+      "name": "JobCompletion",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "Tokens"
+            "name": "Partial"
           },
           {
-            "name": "DepositNotes"
-          },
-          {
-            "name": "LoanNotes"
+            "name": "Full"
           }
         ]
       }
@@ -1603,7 +1912,7 @@
   ],
   "events": [
     {
-      "name": "RepayEvent",
+      "name": "BorrowEvent",
       "fields": [
         {
           "name": "borrower",
@@ -1616,10 +1925,8 @@
           "index": false
         },
         {
-          "name": "amount",
-          "type": {
-            "defined": "Amount"
-          },
+          "name": "debt",
+          "type": "u64",
           "index": false
         }
       ]
@@ -1679,7 +1986,7 @@
       ]
     },
     {
-      "name": "BorrowEvent",
+      "name": "RepayEvent",
       "fields": [
         {
           "name": "borrower",
@@ -1692,8 +1999,10 @@
           "index": false
         },
         {
-          "name": "debt",
-          "type": "u64",
+          "name": "amount",
+          "type": {
+            "defined": "Amount"
+          },
           "index": false
         }
       ]
@@ -1723,114 +2032,139 @@
   ],
   "errors": [
     {
-      "code": 300,
+      "code": 6000,
       "name": "ArithmeticError",
       "msg": "failed to perform some math operation safely"
     },
     {
-      "code": 301,
+      "code": 6001,
       "name": "InvalidOracle",
       "msg": "oracle account provided is not valid"
     },
     {
-      "code": 302,
+      "code": 6002,
       "name": "NoFreeReserves",
       "msg": "no free space left to add a new reserve in the market"
     },
     {
-      "code": 303,
+      "code": 6003,
       "name": "NoFreeObligation",
       "msg": "no free space left to add the new loan or collateral in an obligation"
     },
     {
-      "code": 304,
+      "code": 6004,
       "name": "UnregisteredPosition",
       "msg": "the obligation account doesn't have any record of the loan or collateral account"
     },
     {
-      "code": 305,
+      "code": 6005,
       "name": "InvalidOraclePrice",
       "msg": "the oracle price account has an invalid price value"
     },
     {
-      "code": 306,
+      "code": 6006,
       "name": "InsufficientCollateral",
       "msg": "there is not enough collateral deposited to borrow against"
     },
     {
-      "code": 307,
+      "code": 6007,
       "name": "SimultaneousDepositAndBorrow",
       "msg": "cannot both deposit collateral to and borrow from the same reserve"
     },
     {
-      "code": 308,
+      "code": 6008,
       "name": "ObligationHealthy",
       "msg": "cannot liquidate a healthy position"
     },
     {
-      "code": 309,
+      "code": 6009,
       "name": "ObligationUnhealthy",
       "msg": "cannot perform an action that would leave the obligation unhealthy"
     },
     {
-      "code": 310,
+      "code": 6010,
       "name": "ExceptionalReserveState",
       "msg": "reserve requires special action; call refresh_reserve until up to date"
     },
     {
-      "code": 311,
+      "code": 6011,
       "name": "InvalidAmountUnits",
       "msg": "the units provided in the amount are not valid for the instruction"
     },
     {
-      "code": 312,
+      "code": 6012,
       "name": "InvalidDexMarketMints",
       "msg": "the tokens in the DEX market don't match the reserve and lending market quote token"
     },
     {
-      "code": 313,
+      "code": 6013,
       "name": "InvalidMarketAuthority",
       "msg": "the market authority provided doesn't match the market account"
     },
     {
-      "code": 314,
+      "code": 6014,
       "name": "InvalidLiquidationQuoteTokenAccount",
       "msg": "the quote token account provided cannot be used for liquidations"
     },
     {
-      "code": 315,
+      "code": 6015,
       "name": "ObligationAccountMismatch",
       "msg": "the obligation account doesn't have the collateral/loan registered"
     },
     {
-      "code": 316,
+      "code": 6016,
       "name": "UnknownInstruction",
       "msg": "unknown instruction"
     },
     {
-      "code": 317,
+      "code": 6017,
       "name": "Disallowed",
       "msg": "current conditions prevent an action from being performed"
     },
     {
-      "code": 318,
+      "code": 6018,
       "name": "LiquidationSwapSlipped",
       "msg": "the actual slipped amount on the DEX trade exceeded the threshold configured"
     },
     {
-      "code": 319,
+      "code": 6019,
       "name": "CollateralValueTooSmall",
       "msg": "the collateral value is too small for a DEX trade"
     },
     {
-      "code": 320,
+      "code": 6020,
       "name": "LiquidationLowCollateral",
       "msg": "the collateral returned by the liquidation is smaller than requested"
     },
     {
-      "code": 321,
+      "code": 6021,
       "name": "NotSupported",
       "msg": "this action is currently not supported by this version of the program"
+    },
+    {
+      "code": 6022,
+      "name": "MarketHalted",
+      "msg": "the market has currently halted this kind of operation"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidParameter",
+      "msg": "a given parameter is not valid"
+    },
+    {
+      "code": 6024,
+      "name": "PositionNotEmpty",
+      "msg": "the obligation account still holds position in the loan or collateral account"
+    },
+    {
+      "code": 6025,
+      "name": "ObligationPositionNotFound",
+      "msg": "position not found in an obligation"
+    },
+    {
+      "code": 6026,
+      "name": "AccountNotEmptyError",
+      "msg": "the collateral/loan account is not empty"
     }
   ],
   "metadata": {
