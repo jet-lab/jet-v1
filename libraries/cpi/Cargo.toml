@@ -9,7 +9,7 @@ homepage = "https://jetprotocol.io"
 repository = "https://github.com/jet-lab/jet-v1"
 
 [dependencies]
-anchor-lang = "0.23.0"
+anchor-lang = { git = "https://github.com/jet-lab/anchor", branch = "master" }
 borsh = "0.9"
 thiserror = "1"
 
