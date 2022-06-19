@@ -26,7 +26,7 @@
     {
       name: "Solong",
       logo: "img/wallets/solong.png",
-      url: "https://solongwallet.com/"
+      url: "https://solongwallet.io/"
     },
     {
       name: "Sollet",
