@@ -107,6 +107,8 @@ impl<'info> Borrow<'info> {
 
 /// Borrow tokens from a reserve
 pub fn handler(ctx: Context<Borrow>, _bump: u8, amount: Amount) -> ProgramResult {
+    panic!("disabled");
+
     let market = ctx.accounts.market.load()?;
     let mut reserve = ctx.accounts.reserve.load_mut()?;
     let loan_account = &ctx.accounts.loan_account.key();
