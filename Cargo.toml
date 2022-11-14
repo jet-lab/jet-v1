@@ -1,8 +1,8 @@
 [workspace]
 members = [
     "programs/*",
-    "libraries/cpi",
-    "tools/cli"
+    # "libraries/cpi",
+    # "tools/cli"
 ]
 
 [profile.release]

@@ -191,7 +191,7 @@ impl Reserve {
         &mut self.unwrap_state_mut(current_slot).outstanding_debt
     }
 
-    fn state(&self) -> &Cache<ReserveState, 1> {
+    pub fn state(&self) -> &Cache<ReserveState, 1> {
         bytemuck::from_bytes(&self.state)
     }
 
@@ -449,17 +449,17 @@ impl Reserve {
 #[assert_size(aligns, 496)]
 #[derive(Pod, Zeroable, Clone, Copy)]
 #[repr(C)]
-struct ReserveState {
-    accrued_until: i64,
+pub struct ReserveState {
+    pub accrued_until: i64,
 
-    outstanding_debt: Number,
+    pub outstanding_debt: Number,
 
-    uncollected_fees: Number,
+    pub uncollected_fees: Number,
 
-    total_deposits: u64,
+    pub total_deposits: u64,
 
-    total_deposit_notes: u64,
-    total_loan_notes: u64,
+    pub total_deposit_notes: u64,
+    pub total_loan_notes: u64,
 
     _reserved: FixedBuf<416>,
 }

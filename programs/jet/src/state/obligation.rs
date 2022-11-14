@@ -330,14 +330,14 @@ impl Obligation {
 #[assert_size(240)]
 #[derive(Pod, Zeroable, Clone, Copy)]
 #[repr(C)]
-struct CalculationCacheInner {
-    collateral_value: Number,
-    loan_value: Number,
+pub struct CalculationCacheInner {
+    pub collateral_value: Number,
+    pub loan_value: Number,
 
     _reserved: FixedBuf<192>,
 }
 
-type CalculationCache = Cache<CalculationCacheInner, 0>;
+pub type CalculationCache = Cache<CalculationCacheInner, 0>;
 
 #[assert_size(4)]
 #[derive(Contiguous, Debug, Clone, Copy, Eq, PartialEq)]

@@ -401,3 +401,9 @@ impl std::fmt::Debug for Market {
             .finish()
     }
 }
+
+
+#[test]
+fn get_size() {
+    dbg!(std::mem::size_of::<Market>());
+}
