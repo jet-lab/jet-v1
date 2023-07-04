@@ -20,8 +20,8 @@
 
 ## Note
 
-* **Jet Protocol is in active development so all APIs and behaviours are subject to change.**
-* **This is experimental unaudited software. Use at your own risk.**
+* The software in this repository is deprecated, and only considered useful for educational purpose
+* You can find the successor protocol under active development in [jet-v2](https://github.com/jet-lab/jet-v2)
 
 ## Contributing
 
